@@ -1,0 +1,68 @@
+.sliderContainer{
+    border: 1px solid grey;
+    padding: 5px;
+}
+
+.reactElasticCarousel{
+    width: 100%;
+    margin: 10px 10px;
+}
+
+/* styling of react-elastic-carousel icons*/
+.rec.rec-arrow-left, .rec.rec-arrow-right{
+   background-color: white !important;
+   color: grey !important;
+   color: white;
+}
+
+.rec.rec-arrow-left:hover, .rec.rec-arrow-right:hover{
+    background-color: #ffba08;
+    color: white;
+}
+
+button{
+    outline: none;
+    background-color: #ffba08 !important;
+    /* color: white !important; */
+}
+
+.rec.rec-arrow-left:hover, .rec.rec-arrow-right:hover{
+    color: white !important;
+}
+
+
+.lcUbOd:hover, .lcUbOd:focus {
+    cursor: pointer;
+    box-shadow: 0 0 1px 3px #e9c46a;
+}
+
+
+.lcUbOd{
+    box-shadow: #ffba08;
+    box-shadow: 0 0 1px 3px #ffba08 !important;
+    border: 2px solid #ffba08;
+     background-color: lightgrey;
+}
+
+.jRFJkP:hover{
+    background-color: #ffba08 !important;
+}
+
+.jRFJkP:hover:enabled
+, .jRFJkP:focus:enabled{
+    background-color: lightgrey;
+    box-shadow: #ffba08;
+}
+
+.rec-dot_active{
+    border: black !important;
+    background-color: white !important;
+}
+
+
+
+
+
+
+
+

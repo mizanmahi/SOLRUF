@@ -1,0 +1,19 @@
+.loader_wrapper {
+   width: 2.5rem;
+   height: 2.5rem;
+   margin: 1rem auto;
+}
+
+.loader_wrapper img {
+   max-width: 100%;
+   animation: spin infinite 1s linear;
+}
+
+@keyframes spin {
+   from {
+      transform: rotate(0deg);
+   }
+   to {
+      transform: rotate(360deg);
+   }
+}

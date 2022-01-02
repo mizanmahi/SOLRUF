@@ -1,0 +1,13 @@
+#projectImg{
+    /* border: 1px solid lightgrey; */
+    background: white;
+    width: 200px;
+    height: 150px;
+    /* padding: 30px; */
+    margin: 15px 0px 5px 0px;
+    border-radius: 10px;
+}
+
+.rec.rec-arrow-left, .rec.rec-arrow-right{
+   color: #ffba08;
+}

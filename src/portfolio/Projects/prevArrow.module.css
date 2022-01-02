@@ -1,0 +1,23 @@
+.slickNext {
+    background: #FFD05B !important;
+    height: 50px !important;
+    width: 50px !important;
+    border-radius: 50%;
+    margin-left: 2rem;
+    z-index: 100;
+    
+}
+
+.slickNext::before {
+    content: url('https://i.ibb.co/Xz03g4r/arrow-forward-2.png') !important;
+    font-family: inherit !important;
+    margin-top: 1rem;
+    display: block;
+    margin-top: .5rem;
+    margin-left: .5rem;
+    opacity: 1 !important;
+}
+
+.slickNext:hover::before {
+    margin-left: .4rem !important;
+}

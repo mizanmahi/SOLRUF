@@ -1,0 +1,14 @@
+.mainClass {
+   width: 100% !important;
+   display: flex !important;
+   margin: 0 auto;
+   justify-content: center;
+   align-items: center;
+   height: 30px;
+}
+
+ .mainClass li {
+   list-style: none;
+   flex-grow: 1;
+   position: 'relative';
+}

@@ -1,0 +1,13 @@
+.certification-list ::before {
+    content: "\2022";
+    color: #0339A6;
+    font-weight: bold;
+    display: inline-block; 
+    width: 1rem;
+    margin-left: -1.1em;
+}
+
+/* .MuiBackdrop-root {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(2px);
+} */

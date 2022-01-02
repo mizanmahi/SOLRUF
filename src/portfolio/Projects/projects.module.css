@@ -1,0 +1,42 @@
+.amarClass {
+   background: #d0d7d9;
+   width: 80% !important;
+   border-radius: 50px;
+   display: flex !important;
+   justify-content: space-around;
+   margin: 1rem auto;
+   align-items: center;
+   height: 30px;
+   padding: 0 1rem;
+
+}
+
+@media only screen and (max-width: 600px) {
+   .amarClass {
+      display: none !important;
+      
+   }
+}
+   
+
+
+.amarClass li {
+   flex-grow: 1;
+   list-style: none;
+   margin: 0 1rem;
+}
+
+.dotsbar {
+   background: #4d4d4d;
+   border-radius: 50px;
+   height: 22px;
+   opacity: 0;
+   cursor: pointer;
+   transition: all .4s;
+
+}
+
+
+.amarClass :global(li.slick-active div) {
+    opacity: 1;
+ }

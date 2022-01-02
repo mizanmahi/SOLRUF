@@ -1,0 +1,16 @@
+
+.react-select-container > [class$="control"] {
+   height: 55px;
+   border: 2px solid #FFD05B;
+}
+.react-select-container  [class$="placeholder"] {
+  color: #676060;
+  font-family: 'roboto';
+}
+
+.react-select-container > [class$="control"]:hover, 
+.react-select-container > [class$="control"]:focus {
+   outline: none;
+   border: 2px solid #FFD05B;
+
+}

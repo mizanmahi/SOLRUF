@@ -1,0 +1,85 @@
+.header_container{
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* border: 1px solid maroon; */
+}
+
+
+@media (max-width: 768px) {
+    .header_container{
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+
+.weblogo{
+    margin: 10px;
+}
+
+.logogif{
+    height: 40px;
+    width: 170px;
+  
+}
+
+
+.header_items{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+
+@media (max-width: 768px) {
+    .header_items{
+        display: none;
+    }
+    
+}
+
+.about,.products,.core_product{
+  /* margin-right: 50px; */
+  font-size: medium;
+  cursor: pointer;
+}
+
+.nav-link{
+    text-decoration: none;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   color: black;
+   padding: 5px;
+}
+
+
+
+/* after signup/login two icon will more add on header( dashboard , user ) */
+.headerDashboard{
+    /* border: 1px solid lightgrey; */
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    /* margin-right: 2rem; */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;   
+}
+
+.headerUserAbout{
+    
+    /* margin-right: 2rem; */
+    /* background-color: lightgrey; */
+    border: 1px solid ;
+    border-radius: 50%;
+  
+}
+
+.user-link{
+    text-decoration: none;
+    color: black;
+}
+
+.user-link:hover{
+    text-decoration:none;
+}

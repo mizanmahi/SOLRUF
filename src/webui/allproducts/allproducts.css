@@ -1,0 +1,25 @@
+.allproductContainer{
+    /* border: 1px solid lightgrey; */
+    margin: 0px  0px 10px 0px;
+    width: auto;
+    height: max-content;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.productHeading h2{
+    font-size: 30px;
+    margin: 20px 0px 20px 0px;
+    text-transform: uppercase;
+    /* font-family: 'Montserrat', sans-serif; */
+    font-family: 'Roboto', sans-serif;
+}
+.allproducts{
+    width: auto;
+    height: auto;
+    background-color: #dee2e6;
+    /* border: 1px solid black; */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

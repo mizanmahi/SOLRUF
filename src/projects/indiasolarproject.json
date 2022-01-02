@@ -1,0 +1,73 @@
+[
+  {
+    "plant":"Bhadla Solar Park ",
+    "state":"Rajasthan",
+    "power":"2245 MW",
+    "image":"https://images.pexels.com/photos/9799759/pexels-photo-9799759.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  {"plant":"Pavagad Solar Park",
+    "state":"Karnatka",
+    "power":"2050 MW",
+    "image":"https://images.pexels.com/photos/9875676/pexels-photo-9875676.jpeg?cs=srgb&dl=pexels-kindel-media-9875676.jpg&fm=jpg"
+  },
+  {
+    "plant":"Kurnool Ultra Mega Solar Park",
+    "state":"Andhra Pradesh",
+    "power":"1000 MW",
+    "image":"https://images.pexels.com/photos/9893727/pexels-photo-9893727.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  {
+    "plant":"NP Kunta Ultra Mega Solar Park",
+    "state":"Andhra Pradesh",
+    "power":"978 MW",
+    "image":"https://images.pexels.com/photos/236060/pexels-photo-236060.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  {
+    "plant":"Rewa Ultra Mega Solar",
+    "state":"Madhya Pradesh",
+    "power":"750 MW",
+    "image":"https://images.pexels.com/photos/8853536/pexels-photo-8853536.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  {
+    "plant":"Charanka Solar Park",
+    "state":"Gujrat",
+    "power":"690 MW",
+    "image":"https://images.pexels.com/photos/9800092/pexels-photo-9800092.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  {
+    "plant":"Kamuthi Solar Power Project",
+    "state":"Tamil Nadu",
+    "power":"648 MW",
+    "image":"https://images.pexels.com/photos/442151/pexels-photo-442151.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  {
+    "plant":"Jalaun Solar Power Project",
+    "state":"Uttar Pradesh",
+    "power":"50 MW",
+    "image":"https://images.pexels.com/photos/7663141/pexels-photo-7663141.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  {
+    "plant":"Dhirubhai Ambani Solar Park",
+    "state":"Rajasthan",
+    "power":"40 MW",
+    "image":"https://images.pexels.com/photos/2449452/pexels-photo-2449452.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+    } ,
+  {
+    "plant":"Kamuthi Solar Power Project",
+    "state":"Tamil Nadu",
+    "power":"648 MW",
+    "image":"https://images.pexels.com/photos/137602/pexels-photo-137602.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  {
+    "plant":"Jalaun Solar Power Project",
+    "state":"Uttar Pradesh",
+    "power":"50 MW",
+    "image":"https://images.pexels.com/photos/9875411/pexels-photo-9875411.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260"
+  },
+  {
+    "plant":"Dhirubhai Ambani Solar Park",
+    "state":"Rajasthan",
+    "power":"40 MW",
+    "image":"https://images.pexels.com/photos/8853506/pexels-photo-8853506.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  } 
+]

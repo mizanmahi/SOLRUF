@@ -1,0 +1,50 @@
+.projectContainer{
+    /* border: 1px solid lightgrey; */
+    display: block; 
+    width: 100%;
+    height: fit-content;
+    margin: 0px 20px 0px 20px;
+    position: relative;
+}
+
+
+.projectsImage{
+    border: 0px solid lightgrey;
+    width: 350px;
+    height: 250px;
+    border-radius: 10px 10px 0px 0px;
+    overflow: hidden;
+}
+
+.cityInfo{
+    border: 0px solid lightgrey;
+    background-color: #ffba08;
+    display: block; 
+    width: 200px;
+    height: fit-content;
+    padding: 15px 30px 15px 30px;
+    border-radius: 5px;
+    font-weight: bold;
+    position: absolute;
+    left: 20px;
+    text-align: center;
+    align-items: center;
+    bottom: 100px;
+    z-index: 10;
+}
+
+.projectName{
+    border: 0px solid lightgrey;
+    background-color: #e9ecef;
+    display: block; 
+    width: 350px;
+    height: 140px;
+    padding: 50px 15px 15px 15px;
+    border-radius: 0px 0px 10px 10px;
+    font-weight: bold;
+    /* text-align: center; */
+    font-size: 25px;
+}
+
+
+

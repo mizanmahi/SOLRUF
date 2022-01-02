@@ -1,0 +1,23 @@
+.projectlistContainer{
+    /* border: 1px solid lightgrey; */
+    display: block;
+    width: auto;
+    height: auto;
+    padding: 5px;   
+}
+
+.projectListheading{
+    text-align: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 30px;
+    padding: 10px 0px 10px 0px;
+}
+
+.allprojects{
+    /* border: 1px solid lightgrey; */
+    display: flex;
+    width: 100%;
+    height: auto;
+    padding: 5px;
+}

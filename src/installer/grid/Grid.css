@@ -1,0 +1,64 @@
+.gridContainer{
+    border: 2px solid #ffba08;
+    background-color: white;
+    padding: 2px;
+    min-height: 250px;
+    max-width: 270px;
+    border-radius: 10px;
+    margin: 0px 5px 0px 5px;
+}
+
+.gridprojectNameAndPin{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gridprojectName{
+    font-weight: bold;
+    padding: 5px 0px 0px 5px;
+}
+.gridprojectPin{
+    padding: 5px 5px 0px 0px;
+    font-size: 13px;
+}
+.gridprojectCompanyRsSellar{
+    padding: 5px 0px 0px 5px;
+    font-size: 13px;
+}
+
+.gridprojectAllImageContainer{
+    display: flex;
+    padding: 5px 0px 0px 5px;
+}
+
+.gridprojectEditAndDeletebtn{
+    padding: 5px 0px 5px 5px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 13px;
+}
+
+.gridprojectEditbtn{
+    border: 2px solid lightgrey;
+    padding: 5px 10px 5px 10px;
+    cursor: pointer;
+    color: grey;
+    border-radius: 5px;
+}
+.gridprojectDeletebtn{
+    padding: 5px 10px 5px 10px;
+    cursor: pointer;
+    border: 2px solid red;
+    color: red;
+    border-radius: 5px;
+}
+
+.gridprojectAllImageEachDiv{
+    border: 1px solid lightgrey;
+    margin: 2px;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+}

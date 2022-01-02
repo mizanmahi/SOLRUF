@@ -1,0 +1,33 @@
+.installerformPhoto{
+    /* border: 1px solid lightgrey; */
+    border: 3px solid #ffba08;
+    background-color: #ced4da;
+    width: 410px;
+    height: 350px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 10px 0px 10px 40px;
+    position: relative;
+}
+.installerFormImportPhotoIcon{
+    margin-top: 40px; 
+}
+
+.installerFormImportPhotoHeading{
+    position: absolute;
+    top: 20px;
+    left: 35px;
+    font-size: 12px;
+}
+
+.installerformPhoto input{
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    border: 2px dashed black;
+    border-radius: 10px;
+    width: 300px;
+    height: 250px;
+    text-decoration: none;
+}
+

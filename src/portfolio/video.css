@@ -1,0 +1,15 @@
+.sellarVideo{
+    position: relative;
+    border: 1px solid lightgrey;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.youtubIcon{
+    color: #ffba08;
+    position: absolute;
+    top: 37%;
+    right: 40%;
+}

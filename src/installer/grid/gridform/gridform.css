@@ -1,0 +1,45 @@
+.gridFormContainer{
+    background-color: #dee2e6; 
+}
+
+.gridFormInputDiv{
+    /* border: 1px solid black; */
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    background-color: #dee2e6;
+    padding: 8px 40px 0px 40px;
+}
+
+
+.gridFormDescreption{
+    border: 3px solid #ffba08;
+    background-color: #ced4da;
+    border-radius: 10px;
+    min-height: 150px;
+    margin: 0px 40px 10px 40px ;
+}
+
+.installerFormSaveContainer{
+    display: flex;
+    /* border: 1px solid lightgrey; */
+    justify-content: flex-end;
+    align-items: center;
+    margin: 40px 10px 40px 0px;
+}
+
+.installFormSavebtndiv{
+    margin-right: 40px;
+    justify-content: flex-end;
+    /* border: 1px solid lightgrey; */
+    width: fit-content;
+    /* float: right; */
+}
+
+.installerFormSaveBtn{
+    border: none;
+    background-color: #ffba08;
+    border-radius: 10px;
+    padding: 10px 20px 10px 20px;
+    font-size: 20px;
+}

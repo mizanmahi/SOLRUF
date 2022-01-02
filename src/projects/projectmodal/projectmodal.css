@@ -1,0 +1,169 @@
+
+/* header style */
+.modalHeader{
+    /* background-color: #e9ecef; */
+    background-color:"white";
+    text-align: center;
+    display: block;
+    border: 1px solid lightgrey;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    margin: 3px;
+    padding: 10px;
+    border-radius: 10px;
+    /* font-family: 'Roboto', sans-serif; */
+    font-family: Arial, sans-serif;
+}
+
+.modal-title{
+    font-weight: bold;
+}
+
+/* project description */
+.project-description{
+
+    border: 1px solid lightgrey;
+    /* background-color: #e9ecef; */
+    background:"white";
+    width: 100%;
+    height: auto;
+    justify-content: left;
+    align-items: center;
+    margin: 3px;
+    padding: 10px;
+    border-radius: 10px;
+    /* font-family: 'Roboto', sans-serif; */
+    font-family: Arial, sans-serif;
+}
+
+.descriptionHeading{
+    font-weight: bold;
+}
+
+/* project images */
+.projectsModalImage{
+    border: 1px solid lightgrey;
+    /* background-color: #e9ecef; */
+    background:"white";
+    display: inline-flex;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    padding: 0px 5px 0px 5px; 
+}
+
+
+
+/* cost of product */
+.costofProduts{
+    /* font-family: 'Roboto', sans-serif; */
+    font-family: Arial, sans-serif;
+    border: 1px solid lightgrey;
+    /* background-color: #e9ecef; */
+    background:"white";
+    width: 100%;
+    height: auto;
+    justify-content: left;
+    align-items: center;
+    margin: 3px;
+    padding: 10px;
+    border-radius: 10px;
+}
+.costofProductHeading{
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* customer review */
+.customerReview{
+    /* font-family: 'Roboto', sans-serif; */
+    font-family: Arial, sans-serif;
+    border: 1px solid lightgrey;
+    /* background-color: #e9ecef; */
+    background:"white";
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    margin: 3px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.customerReviewHeading{
+    justify-content: center;
+    font-weight: bold;
+    text-align: center;
+}
+
+.eachCustomerReview{
+    border: 1px solid lightgrey;
+    background: white;
+    margin: auto;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    width: fit-content;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* design layout */
+.designsLayouts{
+    /* font-family: 'Roboto', sans-serif; */
+    font-family: Arial, sans-serif;
+    border: 1px solid lightgrey;
+    /* background-color: #e9ecef; */
+    background:"white";
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    margin: 3px;
+    padding: 10px;
+    border-radius: 10px;
+}
+.designLayoutHeading{
+    font-weight: bold;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.allLayouts{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.design{
+    border: 1px solid lightgrey;
+    background: white;
+    border-radius: 10px;
+    margin: 5px;
+    padding: 30px;
+}
+
+/* ****************************************** */
+/* react bootstrap modal style changes*/
+.modal-dialog{
+    background-color: transparent;
+}
+
+.modal-content{
+    background-color: green;
+}
+
+.modal-body{
+    background: transparent;
+    margin: 0px;
+   display: block;
+   width: fit-content;
+   height: auto;
+}
+
