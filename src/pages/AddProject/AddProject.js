@@ -6,21 +6,9 @@ import SolrufTextField from '../../components/TextField/TextField';
 import { useDropzone } from 'react-dropzone';
 import UploadError from '../MyPortfolio/UploadError';
 import SingleFIleUploadWithProgress from '../MyPortfolio/SingleFIleUploadWithProgress';
-import DesignLayoutUploadWithProgress from './DesignLayoutUploadWithProgress';
 import { motion } from 'framer-motion';
-import SolrufAccordion from '../../components/Accordion/Accordion';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
 // accordion
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-
-const CustomAccordion = styled(Accordion)(({ theme }) => ({
-   '& .MuiButtonBase-root': {
-      borderBottom: '1px solid gray',
-   },
-}));
+import CustomAccordion from '../../components/CustomAccordion/CustomAccordion';
 
 const AddProjectBox = styled(Box)(({ theme }) => {
    return {
@@ -137,63 +125,132 @@ const AddProject = () => {
                   </Grid>
 
                   <Grid item md={12}>
-                     <SolrufAccordion />
-                     <CustomAccordion disableGutters elevation={0}>
-                        <AccordionSummary
-                           expandIcon={<ExpandMoreIcon />}
-                           aria-controls='panel2a-content'
-                           id='panel2a-header'
-                        >
-                           <Typography>Upload Image</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails sx={{ pt: 3 }}>
-                           <Grid container columnSpacing={3}>
-                              <Grid item md={12} lg={4}>
-                                 <FileInputBox {...getRootProps()}>
-                                    <input {...getInputProps()} />
+                     {/* <SolrufAccordion /> */}
 
-                                    <DottedBox>
-                                       <Typography
-                                          variant='body2'
-                                          textAlign='center'
-                                       >
-                                          Add image (Upto 5 mb jpg, jpeg format)
-                                       </Typography>
-                                       <img
-                                          src='https://i.ibb.co/M23FX1T/upload-Plus.png'
-                                          alt=''
-                                          style={{
-                                             width: '100',
-                                             height: '100',
-                                          }}
-                                       />
-                                    </DottedBox>
-                                 </FileInputBox>
-                              </Grid>
-                              <Grid item md={12} lg={5}>
-                                 <Box sx={{background: '', p: 2, maxHeight: '300px', overflowY: 'auto' }}>
-                                    {projectImages.map((fileWrapper, i) => {
-                                       return fileWrapper?.errors?.length ? (
-                                          <UploadError
-                                             key={i}
-                                             file={fileWrapper.file}
-                                             errors={fileWrapper.errors}
-                                             onDelete={deleteHandler}
-                                          />
-                                       ) : (
-                                          <SingleFIleUploadWithProgress
-                                             key={i}
-                                             file={fileWrapper.file}
-                                             onDelete={deleteHandler}
-                                             onFileUpload={onFileUpload}
-                                          />
-                                       );
-                                    })}
-                                 </Box>
-                              </Grid>
-                              {/* <DesignLayoutUploadWithProgress /> */}
+                     <CustomAccordion title='Project Cost and Return On Investment'>
+                        <Grid container columnSpacing={3}>
+                           <Grid item sm={12} md={6} lg={4}>
+                              <SolrufTextField
+                                 label='Project Cost'
+                                 type='text'
+                                 iconText={
+                                    <Typography variant='body2'>INR</Typography>
+                                 }
+                              />
                            </Grid>
-                        </AccordionDetails>
+                           <Grid item sm={12} md={6} lg={4}>
+                              <SolrufTextField
+                                 label='Period Of Return'
+                                 type='text'
+                              />
+                           </Grid>
+                           <Grid item sm={12} md={6} lg={4}>
+                              <SolrufTextField
+                                 label='Amount of Return'
+                                 type='text'
+                                 iconText={
+                                    <Typography variant='body2'>INR</Typography>
+                                 }
+                              />
+                           </Grid>
+                        </Grid>
+                     </CustomAccordion>
+
+                     <CustomAccordion title='Location'>
+                        <Grid container columnSpacing={3}>
+                           <Grid item sm={12} md={6} lg={4}>
+                              <SolrufTextField label='State' type='text' />
+                           </Grid>
+                           <Grid item sm={12} md={6} lg={4}>
+                              <SolrufTextField
+                                 label='City/District'
+                                 type='text'
+                              />
+                           </Grid>
+                           <Grid item sm={12} md={6} lg={4}>
+                              <SolrufTextField
+                                 label='Pin Code'
+                                 type='text'
+                                 iconText={
+                                    <Typography variant='body2'>INR</Typography>
+                                 }
+                              />
+                           </Grid>
+                        </Grid>
+                     </CustomAccordion>
+
+                     <CustomAccordion title='Customer Details'>
+                        <Grid container columnSpacing={3}>
+                           <Grid item sm={12} md={6} lg={4}>
+                              <SolrufTextField
+                                 label='Customer Name'
+                                 type='text'
+                              />
+                           </Grid>
+                           <Grid item sm={12}>
+                              <Textarea
+                                 rows='5'
+                                 placeholder='Customer Review'
+                                 style={{ marginTop: '1rem' }}
+                              ></Textarea>
+                           </Grid>
+                        </Grid>
+                     </CustomAccordion>
+
+                     <CustomAccordion title='Upload Image'>
+                        <Grid container columnSpacing={3}>
+                           <Grid item md={12} lg={4}>
+                              <FileInputBox {...getRootProps()}>
+                                 <input {...getInputProps()} />
+
+                                 <DottedBox>
+                                    <Typography
+                                       variant='body2'
+                                       textAlign='center'
+                                    >
+                                       Add image (Upto 5 mb jpg, jpeg format)
+                                    </Typography>
+                                    <img
+                                       src='https://i.ibb.co/M23FX1T/upload-Plus.png'
+                                       alt=''
+                                       style={{
+                                          width: '100',
+                                          height: '100',
+                                       }}
+                                    />
+                                 </DottedBox>
+                              </FileInputBox>
+                           </Grid>
+                           <Grid item md={12} lg={5}>
+                              <Box
+                                 sx={{
+                                    background: '',
+                                    p: 2,
+                                    maxHeight: '300px',
+                                    overflowY: 'auto',
+                                 }}
+                              >
+                                 {projectImages.map((fileWrapper, i) => {
+                                    return fileWrapper?.errors?.length ? (
+                                       <UploadError
+                                          key={i}
+                                          file={fileWrapper.file}
+                                          errors={fileWrapper.errors}
+                                          onDelete={deleteHandler}
+                                       />
+                                    ) : (
+                                       <SingleFIleUploadWithProgress
+                                          key={i}
+                                          file={fileWrapper.file}
+                                          onDelete={deleteHandler}
+                                          onFileUpload={onFileUpload}
+                                       />
+                                    );
+                                 })}
+                              </Box>
+                           </Grid>
+                           {/* <DesignLayoutUploadWithProgress /> */}
+                        </Grid>
                      </CustomAccordion>
                   </Grid>
                </Grid>

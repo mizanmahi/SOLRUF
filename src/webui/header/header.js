@@ -22,6 +22,7 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { removeUser, setUser } from '../../redux/slices/userSlice';
 import SearchProduct from '../../pages/SearchProduct/SearchProduct';
+import CustomizeProduct from '../../pages/CustomizeProduct/CustomizeProduct';
 
 function Header() {
    const [user, setUser] = useLocalStorage('user', null);
@@ -126,6 +127,15 @@ function Header() {
                   element={
                      <>
                         <SearchProduct />
+                     </>
+                  }
+               />
+               <Route
+                  exact
+                  path='/customizeProduct'
+                  element={
+                     <>
+                        <CustomizeProduct />
                      </>
                   }
                />
