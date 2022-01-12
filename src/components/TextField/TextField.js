@@ -20,10 +20,17 @@ const ConsultTextField = styled(TextField)(({ theme }) => ({
       },
    },
    width: '100%',
-   marginTop: '1rem',
+   marginTop: '.2rem',
 }));
 
-const SolrufTextField = ({ style, sx, iconText, ...props }) => {
+const SolrufTextField = ({
+   style,
+   sx,
+   iconText,
+   onChange,
+   value,
+   ...props
+}) => {
    if (iconText) {
       return (
          <ConsultTextField
@@ -35,13 +42,22 @@ const SolrufTextField = ({ style, sx, iconText, ...props }) => {
                   <InputAdornment position='start'>{iconText}</InputAdornment>
                ),
             }}
+            size='small'
+            onChange={onChange}
+            value={value}
          />
       );
    }
 
    return (
       <>
-         <ConsultTextField {...props} style={{ ...style }} sx={{ ...sx }} />
+         <ConsultTextField
+            {...props}
+            style={{ ...style }}
+            sx={{ ...sx }}
+            onChange={onChange}
+            value={value}
+         />
       </>
    );
 };

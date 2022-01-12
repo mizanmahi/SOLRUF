@@ -23,6 +23,11 @@ import { useDispatch } from 'react-redux';
 import { removeUser, setUser } from '../../redux/slices/userSlice';
 import SearchProduct from '../../pages/SearchProduct/SearchProduct';
 import CustomizeProduct from '../../pages/CustomizeProduct/CustomizeProduct';
+import FinalizeProduct from '../../pages/FinalizeProduct/FinalizeProduct';
+import PurchaseProductPage from '../../pages/PurchaseProductPage/PurchaseProductPage';
+import AddProduct from '../../pages/AdminPages/AddProduct/AddProduct';
+import Dragging from '../../components/Draggaing/Dragging';
+import Checkout from '../../pages/Checkout/Checkout';
 
 function Header() {
    const [user, setUser] = useLocalStorage('user', null);
@@ -104,6 +109,16 @@ function Header() {
                   path='/profileSharing/:profileId'
                   element={<ProfileSharingPage />}
                />
+               <Route
+                  exact
+                  path='/dragging'
+                  element={<Dragging />}
+               />
+               <Route
+                  exact
+                  path='/checkout'
+                  element={<Checkout />}
+               />
 
                <Route
                   exact
@@ -132,10 +147,37 @@ function Header() {
                />
                <Route
                   exact
+                  path='/purchaseProduct'
+                  element={
+                     <>
+                        <PurchaseProductPage />
+                     </>
+                  }
+               />
+               <Route
+                  exact
+                  path='/addProduct'
+                  element={
+                     <>
+                        <AddProduct />
+                     </>
+                  }
+               />
+               <Route
+                  exact
                   path='/customizeProduct'
                   element={
                      <>
                         <CustomizeProduct />
+                     </>
+                  }
+               />
+               <Route
+                  exact
+                  path='/finalizeProduct'
+                  element={
+                     <>
+                        <FinalizeProduct />
                      </>
                   }
                />

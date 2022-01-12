@@ -11,6 +11,7 @@ import SingleProject from './SingleProject/SingleProject';
 import BookProduct from '../../portfolio/BookProducts/BookProduct/BookProduct';
 import { Link } from 'react-router-dom';
 import AddProject from '../AddProject/AddProject';
+import SearchProduct from '../SearchProduct/SearchProduct';
 
 const HeaderBox = styled(Box)(({ theme }) => {
    return {
@@ -32,7 +33,7 @@ const ProjectsBox = styled(Box)(({ theme }) => {
 const ProjectsPageBox = styled(Box)(({ theme }) => {
    return {
       background: '#D0D7D9',
-      padding: theme.spacing(5),
+      padding: theme.spacing(2),
       borderRadius: theme.spacing(3),
       marginTop: theme.spacing(10),
       border: `2px solid ${theme.palette.primary.main}`,
@@ -51,30 +52,39 @@ const TopButtonBox = styled(Box)(({ theme }) => {
 const ProjectsPage = () => {
    const [projectPage, setProjectPage] = useState(true);
    const [showForm, setShowForm] = useState(false);
+   const [showProductForm, setShowProductForm] = useState(false);
 
    const showFormHandler = () => {
-      setShowForm(true);
-      setProjectPage(false);
+      
+      if(projectPage){
+         setShowForm(true);
+         setProjectPage(false);
+      }else{
+         setShowProductForm(true);
+      }
    };
 
    const showProjectsPageHandler = () => {
       setProjectPage(true);
       setShowForm(false);
+      setShowProductForm(false);
+
    };
    const showProductPageHandler = () => {
       setProjectPage(false);
       setShowForm(false);
+      setShowProductForm(false);
    };
 
    return (
       <ProjectsPageBox>
-         <Container>
+         <Container maxWidth='xl'>
             <TopButtonBox>
                <YellowButton
                   style={{
                      marginRight: '1.5rem',
                      boxShadow: 'none',
-                     background: `${projectPage ? '#ffd05d' : '#D0D7D9'}`,
+                     background: `${projectPage ? '#D0D7D9' : '#ffd05d' }`,
                      border: '2px solid #ffd05d',
                      borderBottom: 'none',
                   }}
@@ -85,7 +95,7 @@ const ProjectsPage = () => {
                <YellowButton
                   style={{
                      boxShadow: 'none',
-                     background: `${projectPage ? '#D0D7D9' : '#ffd05d'}`,
+                     background: `${projectPage ? '#ffd05d' : '#D0D7D9'}`,
                      border: '2px solid #ffd05d',
                      borderBottom: 'none',
                   }}
@@ -97,7 +107,7 @@ const ProjectsPage = () => {
 
             { !showForm && <HeaderBox>
                <Typography variant='h5' fontWeight='bold'>
-                  Add Your Projects right here
+                  Add Your {projectPage ? 'Projects' : 'Product'} right here
                </Typography>
 
                <YellowButton>
@@ -117,7 +127,7 @@ const ProjectsPage = () => {
                <YellowButton>Save</YellowButton>
             </HeaderBox>}
 
-            {!showForm && (
+            {!showForm && !showProductForm && (
                <ProjectsBox>
                   <Grid container spacing={3}>
                      <Grid item md={6} lg={4}>
@@ -129,9 +139,10 @@ const ProjectsPage = () => {
                            }
                            alt='Add product'
                            style={{
-                              width: '100%',
-                              height: 'auto',
+                              // width: '100%',
+                              height: '100%',
                               cursor: 'pointer',
+                              
                            }}
                            onClick={showFormHandler}
                         />
@@ -148,7 +159,7 @@ const ProjectsPage = () => {
                            <SingleProject />
                         </>
                      )}
-                     {!projectPage && !showForm && (
+                     {!projectPage && !showForm && !showProductForm &&(
                         <>
                            <Grid item xs={12} sm={6} lg={4}>
                               <BookProduct editDelete={true} />
@@ -180,6 +191,7 @@ const ProjectsPage = () => {
                </ProjectsBox>
             )}
             {showForm && <AddProject />}
+            {showProductForm && <SearchProduct />}
          </Container>
       </ProjectsPageBox>
    );

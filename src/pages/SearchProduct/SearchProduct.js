@@ -21,15 +21,16 @@ import { Box } from '@mui/system';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SingleProduct from '../../components/SingleProduct/SingleProduct';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const SearchProductWrapper = styled('div')(({ theme }) => ({
    background: theme.palette.primary.light,
    padding: theme.spacing(2),
    borderRadius: theme.shape.borderRadius,
+   marginTop: theme.spacing(6),
 }));
 
 const Nav = styled('div')(({ theme }) => ({
@@ -107,6 +108,8 @@ const SearchProduct = () => {
    const [category, setCategory] = useState('');
    const [invertFilterOpen, setInvertFilerOpen] = useState(true);
    const [currentFilterOpen, setCurrentFilterOpen] = useState(false);
+   const [currentMin, setCurrentMin] = useState()
+   const [currentMax, setCurrentMax] = useState()
 
    const handleChange = (event) => {
       setCategory(event.target.value);
@@ -124,7 +127,21 @@ const SearchProduct = () => {
       setCurrentType(event.target.value);
    };
 
+   const handleCurrentMinChange = (event) => {
+      setCurrentMin(event.target.value);
+    };
+   const handleCurrentMaxChange = (event) => {
+      setCurrentMin(event.target.value);
+    };
+  
+
    return (
+      <motion.div
+         initial={{ x: '10vw', opacity: 0 }}
+         animate={{ x: 0, opacity: 1 }}
+         transition={{ duration: 0.5, delay: 0.1 }}
+      >
+
       <SearchProductWrapper>
          <Container maxWidth='xl'>
             <Nav>
@@ -156,6 +173,7 @@ const SearchProduct = () => {
                               value={category}
                               label='Select category'
                               onChange={handleChange}
+                              sx={{background: '#fff'}}
                            >
                               <MenuItem value={10}>Ten</MenuItem>
                               <MenuItem value={20}>Twenty</MenuItem>
@@ -175,6 +193,7 @@ const SearchProduct = () => {
                               value={category}
                               label='Select Subcategory'
                               onChange={handleChange}
+                              sx={{background: '#fff'}}
                            >
                               <MenuItem value={10}>Ten</MenuItem>
                               <MenuItem value={20}>Twenty</MenuItem>
@@ -187,6 +206,8 @@ const SearchProduct = () => {
                      <TextField
                         label='Search Products Example:- 550W Solar Panel, Solar Cooker...'
                         fullWidth
+                        sx={{background: '#fff'}}
+
                      ></TextField>
                   </Grid>
                </Grid>
@@ -301,6 +322,7 @@ const SearchProduct = () => {
                                  variant='filled'
                                  sx={{ width: '80px' }}
                                  defaultValue='150'
+                                 type='number'
                               />
                               {/* <FancyLine>------------</FancyLine> */}
                               <img
@@ -314,6 +336,7 @@ const SearchProduct = () => {
                                  variant='filled'
                                  sx={{ width: '80px' }}
                                  defaultValue='250'
+                                 type='number'
                               />
                            </Box>
                         </AccordionDetails>
@@ -335,26 +358,40 @@ const SearchProduct = () => {
                                  alignItems: 'center',
                               }}
                            >
-                              <TextField
-                                 id='filled-basic'
-                                 label='Min'
-                                 variant='filled'
-                                 sx={{ width: '90px' }}
-                                 defaultValue='100W'
-                              />
+                              <FormControl sx={{width: '80px'}}>
+  <InputLabel id="demo-simple-select-label">Min</InputLabel>
+  <Select
+    labelId="demo-simple-select-label"
+    id="demo-simple-select"
+    value={currentMin}
+    label="Age"
+    onChange={handleCurrentMinChange}
+  >
+    <MenuItem value={100}>100</MenuItem>
+    <MenuItem value={200}>200</MenuItem>
+    <MenuItem value={300}>300</MenuItem>
+  </Select>
+</FormControl>
                               {/* <FancyLine>------------</FancyLine> */}
                               <img
                                  src='https://i.ibb.co/30b6gXk/Vector-3.png'
                                  alt='line'
                                  style={{ flexGrow: 1 }}
                               />
-                              <TextField
-                                 id='filled-basic'
-                                 label='Max'
-                                 variant='filled'
-                                 sx={{ width: '90px' }}
-                                 defaultValue='1500KW'
-                              />
+                             <FormControl sx={{width: '80px'}}>
+  <InputLabel id="demo-simple-select-label">Max</InputLabel>
+  <Select
+    labelId="demo-simple-select-label"
+    id="demo-simple-select"
+    value={currentMax}
+    label="Age"
+    onChange={handleCurrentMaxChange}
+  >
+    <MenuItem value={200}>200</MenuItem>
+    <MenuItem value={350}>350</MenuItem>
+    <MenuItem value={600}>600</MenuItem>
+  </Select>
+</FormControl>
                            </Box>
                         </AccordionDetails>
                      </CustomAccordion>
@@ -367,7 +404,7 @@ const SearchProduct = () => {
                      </Typography>
                      {/* ======= product list ====== */}
                      {[...Array(10)].map((item, index) => (
-                        <Typography sx={{ p: 2, background: '#fff', mb: 0.5 }}>
+                        <Typography key={index} sx={{ p: 2, background: '#fff', mb: 0.5 }}>
                            Product #{index}
                         </Typography>
                      ))}
@@ -404,6 +441,7 @@ const SearchProduct = () => {
             </ButtonNext>
          </Container>
       </SearchProductWrapper>
+      </motion.div>
    );
 };
 

@@ -9,6 +9,7 @@ import SingleFIleUploadWithProgress from '../MyPortfolio/SingleFIleUploadWithPro
 import { motion } from 'framer-motion';
 // accordion
 import CustomAccordion from '../../components/CustomAccordion/CustomAccordion';
+import CustomTextArea from '../../components/CustomTextArea/CustomTextArea';
 
 const AddProjectBox = styled(Box)(({ theme }) => {
    return {
@@ -20,17 +21,7 @@ const AddProjectBox = styled(Box)(({ theme }) => {
    };
 });
 
-const Textarea = styled('textarea')(({ theme }) => {
-   return {
-      width: '100%',
-      margin: '0 auto',
-      border: '2px solid #FFD05B',
-      borderRadius: '10px',
-      outline: 'none',
-      padding: '1rem',
-      fontFamily: theme.typography.fontFamily,
-   };
-});
+
 
 const FileInputBox = styled(Box)(({ theme }) => {
    return {
@@ -121,7 +112,7 @@ const AddProject = () => {
                   </Grid>
 
                   <Grid item md={12}>
-                     <Textarea rows='5' placeholder='Description'></Textarea>
+                     <CustomTextArea rows='5' placeholder='Description'></CustomTextArea>
                   </Grid>
 
                   <Grid item md={12}>
@@ -142,6 +133,7 @@ const AddProject = () => {
                               <SolrufTextField
                                  label='Period Of Return'
                                  type='text'
+                                 size='small'
                               />
                            </Grid>
                            <Grid item sm={12} md={6} lg={4}>
@@ -159,12 +151,13 @@ const AddProject = () => {
                      <CustomAccordion title='Location'>
                         <Grid container columnSpacing={3}>
                            <Grid item sm={12} md={6} lg={4}>
-                              <SolrufTextField label='State' type='text' />
+                              <SolrufTextField label='State' type='text' size='small' />
                            </Grid>
                            <Grid item sm={12} md={6} lg={4}>
                               <SolrufTextField
                                  label='City/District'
                                  type='text'
+                                 size='small'
                               />
                            </Grid>
                            <Grid item sm={12} md={6} lg={4}>
@@ -185,14 +178,15 @@ const AddProject = () => {
                               <SolrufTextField
                                  label='Customer Name'
                                  type='text'
+                                 size='small'
                               />
                            </Grid>
                            <Grid item sm={12}>
-                              <Textarea
+                              <CustomTextArea
                                  rows='5'
                                  placeholder='Customer Review'
                                  style={{ marginTop: '1rem' }}
-                              ></Textarea>
+                              ></CustomTextArea>
                            </Grid>
                         </Grid>
                      </CustomAccordion>

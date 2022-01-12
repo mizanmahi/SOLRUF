@@ -1,15 +1,13 @@
-import { Grid, Modal, Typography } from '@mui/material';
-import { Box } from '@mui/system';
+import { Box, Grid, Modal, styled, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import ProductDetailList from '../../../components/ProductDetailList/ProductDetailList';
-import { styled } from '@mui/material/styles';
 import Slider from 'react-slick';
-import YellowButton from '../../../components/YellowButton/YellowButton';
-import LightButton from '../../../components/YellowButton/LightButton/LightButton';
-import DeleteIcon from '@mui/icons-material/Delete';
+import ProductDetailList from '../ProductDetailList/ProductDetailList';
+import SliderWithCustomImagePreview from '../SliderWithCustomImagePreview/SliderWithCustomImagePreview';
+import LightButton from '../YellowButton/LightButton/LightButton';
+import YellowButton from '../YellowButton/YellowButton';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
-import SliderWithCustomImagePreview from '../../../components/SliderWithCustomImagePreview/SliderWithCustomImagePreview';
 
 const RArrow = styled('div')({
    background: 'transparent',
@@ -28,29 +26,21 @@ const LArrow = styled('div')({
 
 const RightArrow = (props) => {
    const { className, style, onClick } = props;
-   const clickHandler = (e) => {
-      e.stopPropagation()
-      onClick()
-   }
    return (
       <RArrow
          className={className}
          style={{ ...style, display: 'block' }}
-         onClick={clickHandler}
+         onClick={onClick}
       ></RArrow>
    );
 };
 const LeftArrow = (props) => {
    const { className, style, onClick } = props;
-   const clickHandler = (e) => {
-      e.stopPropagation()
-      onClick()
-   }
    return (
       <LArrow
          className={className}
          style={{ ...style, display: 'block' }}
-         onClick={clickHandler}
+         onClick={onClick}
       ></LArrow>
    );
 };
@@ -76,7 +66,7 @@ const modalStyles = {
    p: 4,
 };
 
-const BookProduct = ({ editDelete, noModal, style }) => {
+const HorizontalBookProduct = ({ editDelete, style, noModal }) => {
    const [open, setOpen] = useState(false);
 
    const handleOpen = () => {
@@ -97,46 +87,62 @@ const BookProduct = ({ editDelete, noModal, style }) => {
             borderRadius: 5,
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             cursor: 'pointer',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            position: 'relative',
+            maxWidth: '800px',
+            width: '100%',
+            margin: '0 auto',
          }}
          style={{ ...style }}
          onClick={handleOpen}
       >
-         <Slider {...settings}>
-            <Box sx={{ borderRadius: 10, width: '100%' }}>
-               <img
-                  src='https://i.ibb.co/rpjvXbN/project2.png'
-                  alt=''
-                  style={{
-                     width: '100%',
-                     height: 'auto',
-                     borderRadius: '10px',
-                  }}
-               />
-            </Box>
-            <Box>
-               <img
-                  src='https://i.ibb.co/wMbGYm4/project1.png'
-                  alt=''
-                  style={{
-                     width: '100%',
-                     height: 'auto',
-                     borderRadius: '10px',
-                  }}
-               />
-            </Box>
-            <Box>
-               <img
-                  src='https://i.ibb.co/Btf6tbT/project3.png'
-                  alt=''
-                  style={{
-                     width: '100%',
-                     height: 'auto',
-                     borderRadius: '10px',
-                  }}
-               />
-            </Box>
-         </Slider>
-         <Box sx={{ mt: 5 }}>
+         <Box
+            sx={{
+               width: '350px',
+               order: 0,
+               flex: '0 1 auto',
+               alignSelf: 'center',
+            }}
+         >
+            <Slider {...settings}>
+               <Box sx={{ borderRadius: 10, width: '100%' }}>
+                  <img
+                     src='https://i.ibb.co/rpjvXbN/project2.png'
+                     alt=''
+                     style={{
+                        width: '100%',
+                        height: 'auto',
+                        borderRadius: '10px',
+                     }}
+                  />
+               </Box>
+               <Box>
+                  <img
+                     src='https://i.ibb.co/wMbGYm4/project1.png'
+                     alt=''
+                     style={{
+                        width: '100%',
+                        height: 'auto',
+                        borderRadius: '10px',
+                     }}
+                  />
+               </Box>
+               <Box>
+                  <img
+                     src='https://i.ibb.co/Btf6tbT/project3.png'
+                     alt=''
+                     style={{
+                        width: '100%',
+                        height: 'auto',
+                        borderRadius: '10px',
+                     }}
+                  />
+               </Box>
+            </Slider>
+         </Box>
+         <Box sx={{ mt: 5, ml: 6 }}>
             <Typography variant='h5'>4 Inch Solar Cable</Typography>
 
             <ProductDetailList list='Price/Watt' description='Rs 256/sq.ft.' />
@@ -314,4 +320,4 @@ const BookProduct = ({ editDelete, noModal, style }) => {
    );
 };
 
-export default BookProduct;
+export default HorizontalBookProduct;
