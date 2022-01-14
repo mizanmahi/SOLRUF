@@ -18,6 +18,7 @@ import UploadError from './UploadError';
 import ProjectsPage from '../ProjectsPage/ProjectsPage';
 import YellowButton from '../../components/YellowButton/YellowButton';
 import AddProject from '../AddProject/AddProject';
+import { useForm } from 'react-hook-form';
 
 const PageTitleBox = styled(Box)(({ theme }) => {
    return {
@@ -136,6 +137,27 @@ const CertificateNameBox = styled('div')(({ theme }) => {
    };
 });
 
+//? styles for react select
+const customStyles = {
+   control: (provided) => ({
+      ...provided,
+      border: 0,
+      // This line disable the blue border
+      boxShadow: 'none',
+      fontFamily: 'roboto',
+      color: '#676060',
+   }),
+   option: (provided, state) => ({
+      padding: 10,
+      background: state.isFocused ? '#ffd05b' : '#fff',
+      zIndex: '100000',
+   }),
+   menu: (provided, state) => ({
+      ...provided,
+      zIndex: '100000',
+      position: 'absolute',
+   }),
+};
 
 //@ select options
 const options = [
@@ -280,44 +302,52 @@ const MyPortfolio = () => {
 
    console.log(certificateFiles);
 
-   //? styles for react select
-   const customStyles = {
-      control: (provided) => ({
-         ...provided,
-         border: 0,
-         // This line disable the blue border
-         boxShadow: 'none',
-         fontFamily: 'roboto',
-         color: '#676060',
-      }),
-      option: (provided, state) => ({
-         padding: 10,
-         background: state.isFocused ? '#ffd05b' : '#fff',
-         zIndex: '100000',
-      }),
-      menu: (provided, state) => ({
-         ...provided,
-         zIndex: '100000',
-         position: 'absolute',
-      }),
+   const {
+      register,
+      handleSubmit,
+      formState: { errors },
+   } = useForm();
+
+   const submitHandler = (data) => {
+      console.log('Submitting');
+      console.log({...data, selectedCountry, selectedService, certificateFiles})
    };
+   console.log('errors', errors);
 
    return (
       <Box sx={{ bgcolor: '#f3f3f3', px: [1, 0] }}>
          <PageTitleBox>
             <Container maxWidth='xl'>
-               <Grid container columnSpacing={3} sx={{alignItems: 'center'}}>
+               <Grid container columnSpacing={3} sx={{ alignItems: 'center' }}>
                   <Grid item xs={12} md={5}>
                      <Typography variant='h5' fontWeight={500}>
                         My Portfolio
                      </Typography>
                   </Grid>
                   <Grid item xs={12} md={7}>
-                     <Box sx={{ display: 'flex', flexDirection: 'column',justifyContent: 'flex-end', alignItems: 'flex-end'}}>
-                        <Typography variant='body1' gutterBottom fontWeight={500}>
+                     <Box
+                        sx={{
+                           display: 'flex',
+                           flexDirection: 'column',
+                           justifyContent: 'flex-end',
+                           alignItems: 'flex-end',
+                        }}
+                     >
+                        <Typography
+                           variant='body1'
+                           gutterBottom
+                           fontWeight={500}
+                        >
                            Consumer Sharable Link
                         </Typography>
-                        <CertificateNameBox style={{width: '60%', margin: '0',minWidth: '250px', height: '45px'}}>
+                        <CertificateNameBox
+                           style={{
+                              width: '60%',
+                              margin: '0',
+                              minWidth: '250px',
+                              height: '45px',
+                           }}
+                        >
                            <input
                               type='text'
                               placeholder='https://frederik.info'
@@ -340,7 +370,10 @@ const MyPortfolio = () => {
                                     height: '100%',
                                  }}
                               >
-                                 <Typography variant='body1' sx={{ cursor: 'pointer' }}>
+                                 <Typography
+                                    variant='body1'
+                                    sx={{ cursor: 'pointer' }}
+                                 >
                                     Copy
                                  </Typography>
                               </Box>
@@ -356,9 +389,10 @@ const MyPortfolio = () => {
                Installer Info
             </Typography>
 
-            <FormBox component='form'>
+            <FormBox component='form' onSubmit={handleSubmit(submitHandler)}>
                <Grid container spacing={3} alignItems='center'>
                   <Grid item md={6}>
+                     {/* ====== Profile image uploader ====== */}
                      <label htmlFor='uploadProfilePic'>
                         <input
                            type='file'
@@ -389,7 +423,11 @@ const MyPortfolio = () => {
                                        : 'https://i.ibb.co/M23FX1T/upload-Plus.png'
                                  }
                                  alt=''
-                                 style={{ width: '150px', height: '150px', borderRadius: '50%' }}
+                                 style={{
+                                    width: '150px',
+                                    height: '150px',
+                                    borderRadius: '50%',
+                                 }}
                               />
                            </DottedBox>
                         </UploadBox>
@@ -458,13 +496,51 @@ const MyPortfolio = () => {
                      )}
                   </Grid>
                   <Grid item md={6}>
-                     <SolrufTextField label='Name' />
-                     <SolrufTextField label='Phone Number' />
-                     <SolrufTextField label='Email' />
+                     <SolrufTextField
+                
+                        label='Name'
+                        {...register('name', {
+                           required: {
+                              value: true,
+                              message: 'Name is required',
+                           },
+                        })}
+                     />
+                     <SolrufTextField
+                     sx={{my: 2}}
+                        label='Phone Number'
+                        {...register('phone', {
+                           required: {
+                              value: true,
+                              message: 'Number is required',
+                           },
+                        })}
+                     />
+                     <SolrufTextField
+                        label='Email'
+                        {...register('userEmail', {
+                           required: {
+                              value: true,
+                              message: 'User Email is Required',
+                           },
+                           pattern: {
+                              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                              message: 'Invalid email address',
+                           },
+                        })}
+                     />
 
                      <SolrufTextField
+                     sx={{my: 2}}
                         label='Video Intro'
                         style={{ marginBottom: '1rem' }}
+                        {...register('videoIntro', {
+                           required: {
+                              value: true,
+                              message: 'Video is Required',
+                           },
+                          
+                        })}
                      />
 
                      <Select
@@ -478,22 +554,63 @@ const MyPortfolio = () => {
                   </Grid>
                </Grid>
 
-               <Textarea rows='5' placeholder='Description'></Textarea>
+               <Textarea rows='5' placeholder='Description' {...register('description', {
+                                    required: {
+                                       value: true,
+                                       message: 'Description is Required',
+                                    },
+                                    minLength: {
+                                       value: 10,
+                                       message: 'Description must be at least 10 characters',
+                                    }
+                                 })} ></Textarea>
 
                <Grid container spacing={3}>
                   <Grid item sm={12} md={6}>
-                     <SolrufTextField label='Company' />
-                     <SolrufTextField label='GST No' />
+                     <SolrufTextField label='Company' sx={{mb: 1.5}} {...register('company', {
+                        
+                                    required: {
+                                       value: true,
+                                       message: 'Company is Required',
+                                    },
+                                   
+                                 })} />
+                     <SolrufTextField label='GST No' {...register('gstNumber', {
+                                    required: {
+                                       value: true,
+                                       message: 'GST number is Required',
+                                    },
+                                   
+                                 })} />
                   </Grid>
                   <Grid item sm={12} md={6}>
-                     <SolrufTextField label='Location' />
+                     <SolrufTextField label='Location' {...register('location', {
+                                    required: {
+                                       value: true,
+                                       message: 'User Email is Required',
+                                    },
+                                   
+                                 })} />
                      <TurnOverBox>
-                        <input type='text' placeholder='TurnOver' />
-                        <select name='turnoverType'>
+                        <input type='text' placeholder='TurnOver' {...register('turnOver', {
+                                    required: {
+                                       value: true,
+                                       message: 'TurnOver is Required',
+                                    },
+                                    
+                                 })} />
+                        <select name='turnoverType'{...register('turnOverType', {
+                                    required: {
+                                       value: true,
+                                       message: 'Turnover Type is Required',
+                                    },
+                                  
+                                 })} >
                            <option value='lakhs'>Lakhs</option>
                            <option value='crore'>Crore</option>
                         </select>
                      </TurnOverBox>
+                     {/* ====== Total projects box ====== */}
                      <Box
                         sx={{
                            display: 'flex',
@@ -529,11 +646,12 @@ const MyPortfolio = () => {
                               type='text'
                               style={{
                                  width: '50px',
-                                 paddingLeft: '1.2rem',
+                                 textAlign: 'center',
                                  border: 'none',
                               }}
                               value={projectNumber}
                               onChange={(e) => setProjectNumber(e.target.value)}
+                           
                            />
                            <MinusIcon
                               style={{

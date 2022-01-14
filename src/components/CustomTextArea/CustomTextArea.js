@@ -1,5 +1,5 @@
 import { styled } from '@mui/material';
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 const Textarea = styled('textarea')(({ theme }) => {
    return {
@@ -13,9 +13,10 @@ const Textarea = styled('textarea')(({ theme }) => {
    };
 });
 
-const CustomTextArea = ({placeholder, style, ...rest}) => {
+const CustomTextArea = ({placeholder, style, ...rest}, ref) => {
    return (
       <Textarea
+         ref={ref}
          rows='5'
          placeholder={placeholder}
          style={{ marginTop: '1rem', ...style }}
@@ -24,4 +25,4 @@ const CustomTextArea = ({placeholder, style, ...rest}) => {
    );
 };
 
-export default CustomTextArea;
+export default forwardRef(CustomTextArea);

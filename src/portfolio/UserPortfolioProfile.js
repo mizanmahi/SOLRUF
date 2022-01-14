@@ -4,6 +4,7 @@ import {
    Chip,
    Container,
    Grid,
+   Tooltip,
    Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -671,10 +672,32 @@ const UserPortfolioProfile = () => {
                                     GST No: -
                                  </span>
                                  123098
+                                 <Tooltip
+                                    title='GST Verified'
+                                    arrow
+                                    placement='top'
+                                 >
+                                    <img
+                                       style={{ marginLeft: '1rem' }}
+                                       src='https://i.ibb.co/pWNNjTt/vecteezy-profile-verification-check-marks-icons-vector-illustration-1-3.png'
+                                       alt=''
+                                    />
+                                 </Tooltip>
                               </Typography>
                            </Box>
                         </Box>
                      </Box>
+                  </Grid>
+                  <Grid item sx={{display: 'flex',justifyContent: 'flex-end'}} xs={12}>
+                     <img
+                        src='https://i.ibb.co/QDy19HX/Frame-185.png'
+                        alt='service policy icon'
+                        style={{
+                           cursor: 'pointer',
+                           width: '350px',
+                           marginTop: '1rem',
+                        }}
+                     />
                   </Grid>
                </Grid>
             </Box>

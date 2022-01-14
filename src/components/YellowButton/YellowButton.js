@@ -1,9 +1,10 @@
 import React from 'react';
 
-const YellowButton = ({onClick,  children, style,}) => {
+const YellowButton = ({onClick,  children, style, ...rest}) => {
    return (
       <>
          <button
+            {...rest}
             onClick={onClick}
             style={{
                background: `#FFD05B`,

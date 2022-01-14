@@ -2,6 +2,7 @@ import React from 'react';
 import { styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import { InputAdornment } from '@mui/material';
+import { forwardRef } from 'react';
 
 const ConsultTextField = styled(TextField)(({ theme }) => ({
    '& label.Mui-focused': {
@@ -21,6 +22,9 @@ const ConsultTextField = styled(TextField)(({ theme }) => ({
    },
    width: '100%',
    marginTop: '.2rem',
+   '& .MuiFormHelperText-root': {
+      
+   }
 }));
 
 const SolrufTextField = ({
@@ -30,10 +34,11 @@ const SolrufTextField = ({
    onChange,
    value,
    ...props
-}) => {
+}, ref) => {
    if (iconText) {
       return (
          <ConsultTextField
+         inputRef={ref}
             {...props}
             style={{ ...style }}
             sx={{ ...sx }}
@@ -52,6 +57,7 @@ const SolrufTextField = ({
    return (
       <>
          <ConsultTextField
+         inputRef={ref}
             {...props}
             style={{ ...style }}
             sx={{ ...sx }}
@@ -62,4 +68,4 @@ const SolrufTextField = ({
    );
 };
 
-export default SolrufTextField;
+export default forwardRef(SolrufTextField);

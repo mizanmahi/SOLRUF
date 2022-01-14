@@ -26,7 +26,7 @@ import CustomizeProduct from '../../pages/CustomizeProduct/CustomizeProduct';
 import FinalizeProduct from '../../pages/FinalizeProduct/FinalizeProduct';
 import PurchaseProductPage from '../../pages/PurchaseProductPage/PurchaseProductPage';
 import AddProduct from '../../pages/AdminPages/AddProduct/AddProduct';
-import Dragging from '../../components/Draggaing/Dragging';
+import Dragging from '../../components/Dragging/Dragging';
 import Checkout from '../../pages/Checkout/Checkout';
 
 function Header() {
@@ -35,209 +35,47 @@ function Header() {
 
    // const { user } = useSelector((state) => state.user);
    // const dispatch = useDispatch();
-   
+
    console.log(user);
-
-   const [model, setModel] = useState(false);
-
-   function handleModal() {
-      setModel(!model);
-   }
 
    return (
       <Container maxWidth='xl'>
-         <Router>
-            <div className='header_container'>
-               <Link className='nav-link' to='/'>
-                  <div className='weblogo'>
-                     <img
-                        src={logo}
-                        alt='web browser logo'
-                        className='logogif'
-                     />
+         <div className='header_container'>
+            <Link className='nav-link' to='/'>
+               <div className='weblogo'>
+                  <img src={logo} alt='web browser logo' className='logogif' />
+               </div>
+            </Link>
+            <div className='header_items'>
+               {user || showDashboard ? (
+                  <Link className='nav-link' to='/dashboard'>
+                     <div style={{ color: 'black' }} className='about'>
+                        Dashboard
+                     </div>
+                  </Link>
+               ) : null}
+               <Link className='nav-link' to='/myPortfolio'>
+                  <div style={{ color: 'black' }} className='about'>
+                     My Portfolio
                   </div>
                </Link>
-               <div className='header_items'>
-                  {user || showDashboard ? (
-                     <Link className='nav-link' to='/dashboard'>
-                        <div style={{ color: 'black' }} className='about'>
-                           Dashboard
-                        </div>
-                     </Link>
-                  ) : null}
-                  <Link className='nav-link' to='/myPortfolio'>
-                     <div style={{ color: 'black' }} className='about'>
-                        My Portfolio
-                     </div>
-                  </Link>
-                  <Link className='nav-link' to='/about'>
-                     <div style={{ color: 'black' }} className='about'>
-                        About Us
-                     </div>
-                  </Link>
-                  <Link className='nav-link' to='/product'>
-                     <div style={{ color: 'black' }} className='products'>
-                        Products
-                     </div>
-                  </Link>
-                  <Link className='nav-link' to='/coreproduct'>
-                     <div style={{ color: 'black' }} className='core_product'>
-                        Core Product Offering
-                     </div>
-                  </Link>
-               </div>
+               <Link className='nav-link' to='/about'>
+                  <div style={{ color: 'black' }} className='about'>
+                     About Us
+                  </div>
+               </Link>
+               <Link className='nav-link' to='/product'>
+                  <div style={{ color: 'black' }} className='products'>
+                     Products
+                  </div>
+               </Link>
+               <Link className='nav-link' to='/coreproduct'>
+                  <div style={{ color: 'black' }} className='core_product'>
+                     Core Product Offering
+                  </div>
+               </Link>
             </div>
-
-            <Routes>
-               <Route
-                  exact
-                  path='/'
-                  element={
-                     <>
-                        {' '}
-                        <Home
-                           setShowDashboard={setShowDashboard}
-                           showDashboard={showDashboard}
-                        />
-                        <Products />
-                     </>
-                  }
-               />
-               <Route exact path='/dashboard' element={<Dashboard />} />
-               <Route
-                  exact
-                  path='/profileSharing/:profileId'
-                  element={<ProfileSharingPage />}
-               />
-               <Route
-                  exact
-                  path='/dragging'
-                  element={<Dragging />}
-               />
-               <Route
-                  exact
-                  path='/checkout'
-                  element={<Checkout />}
-               />
-
-               <Route
-                  exact
-                  path='/book-product-in-advance'
-                  element={<BookProductInAdvancePage />}
-               />
-            </Routes>
-            <Routes>
-               <Route
-                  exact
-                  path='/about'
-                  element={
-                     <>
-                        <UserPortfolioProfile />
-                     </>
-                  }
-               />
-               <Route
-                  exact
-                  path='/searchProduct'
-                  element={
-                     <>
-                        <SearchProduct />
-                     </>
-                  }
-               />
-               <Route
-                  exact
-                  path='/purchaseProduct'
-                  element={
-                     <>
-                        <PurchaseProductPage />
-                     </>
-                  }
-               />
-               <Route
-                  exact
-                  path='/addProduct'
-                  element={
-                     <>
-                        <AddProduct />
-                     </>
-                  }
-               />
-               <Route
-                  exact
-                  path='/customizeProduct'
-                  element={
-                     <>
-                        <CustomizeProduct />
-                     </>
-                  }
-               />
-               <Route
-                  exact
-                  path='/finalizeProduct'
-                  element={
-                     <>
-                        <FinalizeProduct />
-                     </>
-                  }
-               />
-               <Route
-                  exact
-                  path='/myPortfolio'
-                  element={
-                     <>
-                        <MyPortfolio />
-                     </>
-                  }
-               />
-               <Route
-                  exact
-                  path='/projects'
-                  element={
-                     <>
-                        <ProjectsPage />
-                     </>
-                  }
-               />
-               <Route
-                  exact
-                  path='/about/project/details'
-                  element={
-                     <>
-                        <ProjectDetails />
-                     </>
-                  }
-               />
-
-               <Route
-                  exact
-                  path='/addProject'
-                  element={
-                     <>
-                        <Container maxWidth='xl'>
-                           <AddProject />
-                        </Container>
-                     </>
-                  }
-               />
-            </Routes>
-            <Routes>
-               <Route
-                  exact
-                  path='/product'
-                  element={
-                     <>
-                        <Installer />
-                        <Addproject />
-                        <Gridform />
-                     </>
-                  }
-               />
-            </Routes>
-            <Routes>
-               <Route exact path='/coreproduct' element={<Core />} />
-            </Routes>
-         </Router>
+         </div>
       </Container>
    );
 }
