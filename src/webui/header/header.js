@@ -1,33 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './header.css';
-import Home from '../home/home';
-import Products from '../allproducts/allproduct';
-import Core from '../coreproduct';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import logo from '../images/ORIGINAL_SOLRUF_ANIMATED_LOGO1.gif';
-import Installer from '../../installer/installerform/installerform';
-import Addproject from '../../installer/addproject/Addproject';
-import Gridform from '../../installer/grid/gridform/gridform';
-import UserPortfolioProfile from '../../portfolio/UserPortfolioProfile';
-import { Button, Container } from '@mui/material';
-import MyPortfolio from '../../pages/MyPortfolio/MyPortfolio';
-import ProjectsPage from '../../pages/ProjectsPage/ProjectsPage';
-import AddProject from '../../pages/AddProject/AddProject';
-import BookProductInAdvancePage from '../../pages/BookProductInAdvancePage/BookProductInAdvancePage';
-import ProjectDetails from '../../pages/ProjectDetails/ProjectDetails';
+import { Container } from '@mui/material';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import Dashboard from '../../pages/Dashboard/Dashboard';
-import ProfileSharingPage from '../../pages/ProfileSharingPage/ProfileSharingPage';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
-import { removeUser, setUser } from '../../redux/slices/userSlice';
-import SearchProduct from '../../pages/SearchProduct/SearchProduct';
-import CustomizeProduct from '../../pages/CustomizeProduct/CustomizeProduct';
-import FinalizeProduct from '../../pages/FinalizeProduct/FinalizeProduct';
-import PurchaseProductPage from '../../pages/PurchaseProductPage/PurchaseProductPage';
-import AddProduct from '../../pages/AdminPages/AddProduct/AddProduct';
-import Dragging from '../../components/Dragging/Dragging';
-import Checkout from '../../pages/Checkout/Checkout';
 
 function Header() {
    const [user, setUser] = useLocalStorage('user', null);

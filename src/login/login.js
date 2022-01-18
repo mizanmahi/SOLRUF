@@ -7,6 +7,8 @@ import axios from 'axios';
 import domainName from '../domain/domainname.json';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../components/Loader/Loader';
+import { useDispatch } from 'react-redux';
+import { saveUser } from '../redux/slices/userSlice';
 
 function Login(props) {
    // console.log(props.number)
@@ -27,6 +29,8 @@ function Login(props) {
 
    const [loading, setLoading] = useState(false);
 
+   const dispatch = useDispatch();
+
    function confirmHandle(e) {
       e.preventDefault();
       let getvalue = JSON.parse(window.localStorage.getItem('user'));
@@ -45,6 +49,7 @@ function Login(props) {
                border: '1px solid #ffba08',
             });
 
+            dispatch(saveUser(data));
             setLoading(false);
             props.setUser(data); // setting user info to the local storage
             props.setShowDashboard(true); // setting the dashboard menu to be visible

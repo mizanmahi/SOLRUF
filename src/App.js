@@ -27,6 +27,7 @@ import AddProject from './pages/AddProject/AddProject';
 
 import { useState } from 'react';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import Layout from './components/Layout/Layout';
 
 function App() {
    const [showDashboard, setShowDashboard] = useState(false);
@@ -37,51 +38,123 @@ function App() {
          <ThemeProvider theme={theme}>
             <Router>
                <div className='App'>
-                  <Header />
+                  {/* <Header /> */}
+
                   <Routes>
                      <Route
                         path='/'
                         element={
-                           <Home
-                              setShowDashboard={setShowDashboard}
-                              showDashboard={showDashboard}
-                           />
+                           <Layout>
+                              <Home
+                                 setShowDashboard={setShowDashboard}
+                                 showDashboard={showDashboard}
+                              />
+                           </Layout>
                         }
                      />
-                     <Route path='/dashboard' element={<Dashboard />} />
+                     <Route
+                        path='/dashboard'
+                        element={
+                           <Layout>
+                              <Dashboard />
+                           </Layout>
+                        }
+                     />
                      <Route
                         path='/profileSharing/:profileId'
-                        element={<ProfileSharingPage />}
+                        element={
+                           <Layout>
+                              <ProfileSharingPage />
+                           </Layout>
+                        }
                      />
-                     <Route path='/dragging' element={<Dragging />} />
-                     <Route path='/checkout' element={<Checkout />} />
-
+                     <Route
+                        path='/dragging'
+                        element={
+                           <Layout>
+                              <Dragging />
+                           </Layout>
+                        }
+                     />
+                     <Route
+                        path='/checkout'
+                        element={
+                           <Layout>
+                              <Checkout />
+                           </Layout>
+                        }
+                     />
                      <Route
                         path='/book-product-in-advance'
-                        element={<BookProductInAdvancePage />}
+                        element={
+                           <Layout>
+                              <BookProductInAdvancePage />
+                           </Layout>
+                        }
                      />
-                  </Routes>
-                  <Routes>
-                     <Route path='/about' element={<UserPortfolioProfile />} />
-                     <Route path='/searchProduct' element={<SearchProduct />} />
+                     <Route
+                        path='/searchProduct'
+                        element={
+                           <Layout>
+                              <SearchProduct />
+                           </Layout>
+                        }
+                     />
                      <Route
                         path='/purchaseProduct'
-                        element={<PurchaseProductPage />}
+                        element={
+                           <Layout>
+                              <PurchaseProductPage />
+                           </Layout>
+                        }
                      />
-                     <Route path='/addProduct' element={<AddProduct />} />
+                     <Route
+                        path='/addProduct'
+                        element={
+                           <Layout>
+                              <AddProduct />
+                           </Layout>
+                        }
+                     />
                      <Route
                         path='/customizeProduct'
-                        element={<CustomizeProduct />}
+                        element={
+                           <Layout>
+                              <CustomizeProduct />
+                           </Layout>
+                        }
                      />
                      <Route
                         path='/finalizeProduct'
-                        element={<FinalizeProduct />}
+                        element={
+                           <Layout>
+                              <FinalizeProduct />
+                           </Layout>
+                        }
                      />
-                     <Route path='/myPortfolio' element={<MyPortfolio />} />
-                     <Route path='/projects' element={<ProjectsPage />} />
                      <Route
-                        path='/about/project/details'
-                        element={<ProjectDetails />}
+                        path='/myPortfolio'
+                        element={
+                           <Layout>
+                              <MyPortfolio />
+                           </Layout>
+                        }
+                     />
+                     <Route
+                        path='/projects'
+                        element={
+                           <Layout>
+                              <ProjectsPage />
+                           </Layout>
+                        }
+                     />
+                     <Route
+                        path='/projectDetails'
+                        element={
+                           <Layout>
+                              <ProjectDetails />
+                           </Layout>
+                        }
                      />
 
                      <Route
@@ -89,12 +162,15 @@ function App() {
                         path='/addProject'
                         element={
                            <>
-                              <Container maxWidth='xl'>
-                                 <AddProject />
-                              </Container>
+                              <Layout>
+                                 <Container maxWidth='xl'>
+                                    <AddProject />
+                                 </Container>
+                              </Layout>
                            </>
                         }
                      />
+                     <Route path='/about' element={<Layout header2={true} header={false}><UserPortfolioProfile /></Layout>} />
                   </Routes>
                </div>
             </Router>

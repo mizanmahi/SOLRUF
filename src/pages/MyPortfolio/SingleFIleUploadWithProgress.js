@@ -34,16 +34,18 @@ const SingleFIleUploadWithProgress = ({
 export default SingleFIleUploadWithProgress;
 
 function uploadFile(file, onProgress) {
-   const url = 'https://api.cloudinary.com/v1_1/demo/image/upload';
-   const key = 'docs_upload_example_us_preset';
+   const url = 'https://api-dev.solruf.com/api/upload';
+   // const key = 'docs_upload_example_us_preset';
 
    return new Promise((res, rej) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', url);
-
+      const token = JSON.parse(localStorage.getItem('user')).token;
+      xhr.setRequestHeader('authorization', `Bearer ${token}`);
       xhr.onload = function () {
          const response = JSON.parse(xhr.responseText);
-         res(response.secure_url);
+         console.log(response);
+         res(response.file_url);
       };
 
       xhr.onerror = (e) => rej(e);
@@ -57,7 +59,7 @@ function uploadFile(file, onProgress) {
 
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', key);
+      // formData.append('upload_preset', key);
 
       xhr.send(formData);
    });

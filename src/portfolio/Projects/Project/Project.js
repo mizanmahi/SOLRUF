@@ -10,8 +10,9 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Slider from 'react-slick';
 import SampleNextArrow from '../NextArrow';
 import PrevArrow from '../PrevArrow';
-import { Avatar } from '@mui/material';
+import { Avatar, useMediaQuery } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { useNavigate } from 'react-router';
 
 // import classes from '../projects.module.css'
 
@@ -21,7 +22,7 @@ const useStyle = makeStyles((theme) => ({
       width: '50%',
       height: '25%',
       marginTop: '-2rem',
-      zIndex: 10000,
+      zIndex: 100,
       marginLeft: '2rem',
       borderRadius: '1rem',
       padding: '.8rem',
@@ -45,6 +46,28 @@ const useStyle = makeStyles((theme) => ({
       margin: '0 auto',
       boxShadow: '0px 4px 8px 0 rgba(0, 0, 0, 0.3)',
       borderRadius: theme.spacing(2),
+   },
+   typeBox: {
+      background: '#3FB500',
+      height: '40px',
+      marginTop: '-2rem',
+      zIndex: 100,
+      marginLeft: '16rem',
+      borderRadius: '1rem',
+      padding: '.8rem',
+      position: 'absolute',
+      textAlign: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      [theme.breakpoints.down('xl')]: {
+         marginLeft: '10.5rem',
+         fontSize: '1rem',
+      },
+      [theme.breakpoints.down('md')]: {
+         marginLeft: '4rem',
+         fontSize: '1rem',
+      },
    },
 }));
 
@@ -97,8 +120,17 @@ const settings = {
 const Project = ({ imageUrl, state, kwValue, description }) => {
    const classes = useStyle();
 
+   const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+   const navigate = useNavigate();
+
    const [open, setOpen] = useState(false);
-   const handleOpen = () => setOpen(true);
+   const handleOpen = () => {
+      if (matches) {
+         navigate('/projectDetails');
+      } else {
+         setOpen(true);
+      }
+   };
    const handleClose = () => setOpen(false);
 
    return (
@@ -137,7 +169,10 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
             >
                <Typography
                   variant='h6'
-                  sx={{ fontWeight: 500, fontSize: ['1rem', '.9rem', '1.3rem'] }}
+                  sx={{
+                     fontWeight: 500,
+                     fontSize: ['1rem', '.9rem', '1.3rem'],
+                  }}
                >
                   {state}{' '}
                </Typography>
@@ -146,6 +181,11 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                   sx={{ fontWeight: 400, fontSize: ['1rem', '1.3rem'] }}
                >
                   {kwValue}{' '}
+               </Typography>
+            </Box>
+            <Box className={classes.typeBox} sx={{}}>
+               <Typography sx={{ color: '#ffffff', fontWeight: 600 }}>
+                  Commercial
                </Typography>
             </Box>
             <CardContent sx={{ pl: 4, mt: 4 }}>
@@ -161,7 +201,10 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                </Box>
             </CardContent>
          </Card>
+
          {/* =========================== Modal =========================== */}
+         {/* =========================== Modal =========================== */}
+
          <Modal
             open={open}
             onClose={handleClose}
@@ -329,16 +372,6 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                         molestias fuga impedit facere incidunt!„
                      </Typography>
                   </Box>
-               </Box>
-               <Box sx={{ my: 3 }}>
-                  <Typography variant='h6'>Design Layouts</Typography>
-                  <Slider {...settings}>
-                     <img src='https://i.ibb.co/SnCmVdy/Frame-143.png' alt='' />
-                     <img src='https://i.ibb.co/SnCmVdy/Frame-143.png' alt='' />
-                     <img src='https://i.ibb.co/SnCmVdy/Frame-143.png' alt='' />
-                     <img src='https://i.ibb.co/SnCmVdy/Frame-143.png' alt='' />
-                     <img src='https://i.ibb.co/SnCmVdy/Frame-143.png' alt='' />
-                  </Slider>
                </Box>
             </Box>
             {/* ========= modal end ============ */}

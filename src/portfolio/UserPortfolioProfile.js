@@ -34,6 +34,10 @@ import YellowButton from '../components/YellowButton/YellowButton';
 import LightButton from '../components/YellowButton/LightButton/LightButton';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import DownloadIcon from '@mui/icons-material/Download';
+import CustomModal from '../components/CustomModal/CustomModal';
+import ProductCardForMobile from '../components/ProductCardForMobile/ProductCardForMobile';
+import { tooltipClasses } from '@mui/material/Tooltip';
+import TextModal from '../components/TextModal/TextModal';
 
 const style = {
    position: 'absolute',
@@ -164,6 +168,20 @@ const ConsultTextField = styled(TextField)(({ theme }) => ({
    marginTop: '1rem',
 }));
 
+const HtmlTooltip = styled(({ className, ...props }) => (
+   <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+   [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: 'transparent',
+      //   color: 'rgba(0, 0, 0, 0.87)',
+      maxWidth: 220,
+      //   fontSize: theme.typography.pxToRem(12),
+      //   border: '1px solid #dadde9',
+      padding: 0,
+      margin: 0,
+   },
+}));
+
 const UserPortfolioProfile = () => {
    const tags = ['Tag #1', 'Tag #2', 'Tag #3', 'Tag #4', 'Tag #5'];
 
@@ -174,6 +192,15 @@ const UserPortfolioProfile = () => {
    const [openBooking, setOpenBooking] = useState(false);
    const [openPhonePanel, setOpenPhonePanel] = useState(true);
    const [showProducts, setShowProducts] = useState(false);
+
+   const [openAfterSalePolicyModal, setOpenAfterSalePolicyModal] =
+      useState(false);
+   const handleAfterSalePolicyModalOpen = () => {
+      console.log('click');
+      setOpenAfterSalePolicyModal(true);
+   };
+   const handleAfterSalePolicyModalClose = () =>
+      setOpenAfterSalePolicyModal(false);
 
    const classes = useStyles({ openPhonePanel });
 
@@ -188,6 +215,14 @@ const UserPortfolioProfile = () => {
    const handleChange = (e, newValue) => {
       setTabValue(newValue);
    };
+
+   const [textExpanded, setTextExpanded] = useState(false);
+   const handleTextExpandClose = () => {
+      setAboutTextExpanded(false)
+   }
+   const [aboutTextExpanded, setAboutTextExpanded] = useState(false);
+   const description =
+      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio obcaecati exercitationem quasi aperiam beatae unde velit veniam perspiciatis, cupiditate ipsam provident debitis quas aliquid odit quidem voluptatum architecto optio placeat at officiis non. Voluptatibus eos possimus, similique asperiores praesentium deserunt veniam odit expedita error minus, quaerat at numquam eaque fugit eum sit quas consequuntur nostrum rerum veritatis earum ducimus nam quia nihil. Neque excepturi aliquid corporis dolor. Doloribus iusto neque repellendus voluptate id et odio eligendi soluta debitis. Nemo, voluptates.  quaerat at numquam eaque fugit eum sit quas consequuntur nostrum rerum veritatis earum ducimus nam quia nihil. Neque excepturi aliquid corporis dolor. Doloribus iusto neque repellendus voluptate id et odio eligendi soluta debitis. Nemo, voluptates.';
 
    return (
       <Box sx={{}}>
@@ -267,17 +302,15 @@ const UserPortfolioProfile = () => {
                   }}
                >
                   <Typography sx={{ fontSize: '1.1rem' }}>
-                     Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                     Distinctio obcaecati exercitationem quasi aperiam beatae
-                     unde velit veniam perspiciatis, cupiditate ipsam provident
-                     debitis quas aliquid odit quidem voluptatum architecto
-                     optio placeat at officiis non. Voluptatibus eos possimus,
-                     similique asperiores praesentium deserunt veniam odit
-                     expedita error minus, quaerat at numquam eaque fugit eum
-                     sit quas consequuntur nostrum rerum veritatis earum ducimus
-                     nam quia nihil. Neque excepturi aliquid corporis dolor.
-                     Doloribus iusto neque repellendus voluptate id et odio
-                     eligendi soluta debitis. Nemo, voluptates.
+                     {textExpanded
+                        ? description.slice(0, description.length)
+                        : description.slice(0, 300) + '...'}
+                     <Button
+                        sx={{ color: 'blue', textTransform: 'none', py: 0 }}
+                        onClick={() => setTextExpanded(!textExpanded)}
+                     >
+                        {textExpanded ? 'Read Less' : 'Read More'}
+                     </Button>
                   </Typography>
                </Box>
 
@@ -451,7 +484,7 @@ const UserPortfolioProfile = () => {
                                           height: 5,
                                        },
                                        '& .MuiButtonBase-root': {
-                                          padding: '0rem',
+                                          padding: '1rem',
                                        },
                                     }}
                                  >
@@ -465,6 +498,7 @@ const UserPortfolioProfile = () => {
                                           },
                                        }}
                                     />
+
                                     <Tab
                                        label='About'
                                        sx={{
@@ -480,6 +514,16 @@ const UserPortfolioProfile = () => {
                                        sx={{
                                           fontSize: '.8rem',
 
+                                          '&.Mui-selected': {
+                                             fontWeight: 'bold',
+                                             color: 'secondary.main',
+                                          },
+                                       }}
+                                    />
+                                    <Tab
+                                       label='Description'
+                                       sx={{
+                                          fontSize: '.8rem',
                                           '&.Mui-selected': {
                                              fontWeight: 'bold',
                                              color: 'secondary.main',
@@ -510,6 +554,23 @@ const UserPortfolioProfile = () => {
                                           GST No: -
                                        </span>
                                        123098
+                                       <HtmlTooltip
+                                          title={
+                                             <>
+                                                <img
+                                                   src='https://i.ibb.co/2g62C66/Group-178-1.png'
+                                                   alt=''
+                                                />
+                                             </>
+                                          }
+                                          placement='top'
+                                       >
+                                          <img
+                                             style={{ marginLeft: '1rem' }}
+                                             src='https://i.ibb.co/pWNNjTt/vecteezy-profile-verification-check-marks-icons-vector-illustration-1-3.png'
+                                             alt=''
+                                          />
+                                       </HtmlTooltip>
                                     </Typography>
                                  </Box>
                               )}
@@ -557,10 +618,26 @@ const UserPortfolioProfile = () => {
                                        sx={{ fontSize: '1.1rem', mt: 1 }}
                                        onClick={() => {}}
                                     >
-                                       Lorem ipsum dolor sit amet consectetur
-                                       adipisicing elit. Distinctio obcaecati
-                                       exercit louit thaik oiyt ...
+                                       {description.slice(0, 100)}
+                                       <Button
+                                          sx={{
+                                             color: 'blue',
+                                             textTransform: 'none',
+                                             py: 0,
+                                          }}
+                                          onClick={() =>
+                                             setAboutTextExpanded(!aboutTextExpanded)
+                                          }
+                                       >
+                                        Read More
+                                       </Button>
                                     </Typography>
+                                    <TextModal
+                                       open={aboutTextExpanded}
+                                       text={description}
+                                       title='Project Details'
+                                       handleClose={handleTextExpandClose}
+                                    />
                                  </Box>
                               )}
 
@@ -611,6 +688,41 @@ const UserPortfolioProfile = () => {
                                     >
                                        Certificate Name3
                                     </Button>
+                                 </Box>
+                              )}
+
+                              {tabValue === 3 && (
+                                 <Box
+                                    sx={{
+                                       p: 3.9,
+                                       bgcolor: '#D0D7D9',
+                                       my: 3.5,
+                                       borderRadius: 2,
+                                       border: 0,
+                                       //  borderColor: '#FFD05B',
+                                       boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                                       maxHeight: '400px',
+                                       overflowY: 'auto',
+                                    }}
+                                 >
+                                    <Typography sx={{ fontSize: '1.1rem' }}>
+                                       Lorem ipsum dolor sit amet consectetur
+                                       adipisicing elit. Distinctio obcaecati
+                                       exercitationem quasi aperiam beatae unde
+                                       velit veniam perspiciatis, cupiditate
+                                       ipsam provident debitis quas aliquid odit
+                                       quidem voluptatum architecto optio
+                                       placeat at officiis non. Voluptatibus eos
+                                       possimus, similique asperiores
+                                       praesentium deserunt veniam odit expedita
+                                       error minus, quaerat at numquam eaque
+                                       fugit eum sit quas consequuntur nostrum
+                                       rerum veritatis earum ducimus nam quia
+                                       nihil. Neque excepturi aliquid corporis
+                                       dolor. Doloribus iusto neque repellendus
+                                       voluptate id et odio eligendi soluta
+                                       debitis. Nemo, voluptates.
+                                    </Typography>
                                  </Box>
                               )}
                            </Box>
@@ -672,9 +784,15 @@ const UserPortfolioProfile = () => {
                                     GST No: -
                                  </span>
                                  123098
-                                 <Tooltip
-                                    title='GST Verified'
-                                    arrow
+                                 <HtmlTooltip
+                                    title={
+                                       <>
+                                          <img
+                                             src='https://i.ibb.co/2g62C66/Group-178-1.png'
+                                             alt=''
+                                          />
+                                       </>
+                                    }
                                     placement='top'
                                  >
                                     <img
@@ -682,14 +800,19 @@ const UserPortfolioProfile = () => {
                                        src='https://i.ibb.co/pWNNjTt/vecteezy-profile-verification-check-marks-icons-vector-illustration-1-3.png'
                                        alt=''
                                     />
-                                 </Tooltip>
+                                 </HtmlTooltip>
                               </Typography>
                            </Box>
                         </Box>
                      </Box>
                   </Grid>
-                  <Grid item sx={{display: 'flex',justifyContent: 'flex-end'}} xs={12}>
+                  <Grid
+                     item
+                     sx={{ display: 'flex', justifyContent: 'flex-end' }}
+                     xs={12}
+                  >
                      <img
+                        onClick={handleAfterSalePolicyModalOpen}
                         src='https://i.ibb.co/QDy19HX/Frame-185.png'
                         alt='service policy icon'
                         style={{
@@ -730,7 +853,7 @@ const UserPortfolioProfile = () => {
                         container
                         sx={{
                            mt: 2.5,
-                           mx: 'auto',
+
                            width: ['100%', '70%'],
 
                            mx: ['auto', 'auto', 'auto', 'auto'],
@@ -820,12 +943,15 @@ const UserPortfolioProfile = () => {
                )}
             </Box>
 
+            {/* ============ Projects Slider ============ */}
             <Projects />
+
             {!showProducts && <BookNow setShowProducts={setShowProducts} />}
 
             {showProducts && <BookProducts setShowProducts={setShowProducts} />}
 
-            {/* ============ modal ============ */}
+            {/* ============ modals ============ */}
+            {/* Modal for video */}
             <Modal
                open={open}
                onClose={handleClose}
@@ -846,6 +972,11 @@ const UserPortfolioProfile = () => {
                   </Typography>
                </Box>
             </Modal>
+            {/* Modal for policy */}
+            <CustomModal
+               open={openAfterSalePolicyModal}
+               handleClose={handleAfterSalePolicyModalClose}
+            />
          </Container>
       </Box>
    );

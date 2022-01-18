@@ -79,28 +79,26 @@ const HorizontalBookProduct = ({ editDelete, style, noModal }) => {
       setOpen(false);
    };
 
+   const Wrapper = styled('div')(({ theme }) => ({
+      background: theme.palette.primary.light,
+      padding: '30px 40px',
+      borderRadius: 5,
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      cursor: 'pointer',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      position: 'relative',
+      maxWidth: '700px',
+      width: '100%',
+      margin: '0 auto',
+   }));
+
    return (
-      <Box
-         sx={{
-            bgcolor: 'primary.light',
-            p: 5.5,
-            borderRadius: 5,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            position: 'relative',
-            maxWidth: '800px',
-            width: '100%',
-            margin: '0 auto',
-         }}
-         style={{ ...style }}
-         onClick={handleOpen}
-      >
+      <Wrapper style={{ ...style }} onClick={handleOpen}>
          <Box
             sx={{
-               width: '350px',
+               width: '300px',
                order: 0,
                flex: '0 1 auto',
                alignSelf: 'center',
@@ -142,7 +140,7 @@ const HorizontalBookProduct = ({ editDelete, style, noModal }) => {
                </Box>
             </Slider>
          </Box>
-         <Box sx={{ mt: 5, ml: 6 }}>
+         <Box sx={{ mt: 0, ml: 0 }}>
             <Typography variant='h5'>4 Inch Solar Cable</Typography>
 
             <ProductDetailList list='Price/Watt' description='Rs 256/sq.ft.' />
@@ -166,7 +164,7 @@ const HorizontalBookProduct = ({ editDelete, style, noModal }) => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  mt: 5,
+                  mt: 3,
                }}
             >
                {!editDelete ? (
@@ -316,7 +314,7 @@ const HorizontalBookProduct = ({ editDelete, style, noModal }) => {
                <hr />
             </Box>
          </Modal>
-      </Box>
+      </Wrapper>
    );
 };
 

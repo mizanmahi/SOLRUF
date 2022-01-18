@@ -33,6 +33,7 @@ const SolrufTextField = ({
    iconText,
    onChange,
    value,
+   size,
    ...props
 }, ref) => {
    if (iconText) {
@@ -47,7 +48,7 @@ const SolrufTextField = ({
                   <InputAdornment position='start'>{iconText}</InputAdornment>
                ),
             }}
-            size='small'
+            size={size ? size : 'small'}
             onChange={onChange}
             value={value}
          />

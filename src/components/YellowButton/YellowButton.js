@@ -13,6 +13,7 @@ const YellowButton = ({onClick,  children, style, ...rest}) => {
                fontWeight: 600,
                borderRadius: '5px',
                border: 'none',
+               display: 'block',
                boxShadow: '0px 4px 5px rgba(0, 0, 0, 0.10)',
                ...style,
                '&:hover': {

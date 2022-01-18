@@ -19,6 +19,8 @@ import ProjectsPage from '../ProjectsPage/ProjectsPage';
 import YellowButton from '../../components/YellowButton/YellowButton';
 import AddProject from '../AddProject/AddProject';
 import { useForm } from 'react-hook-form';
+import { axiAuth, axiosInstance } from '../../utils/axiosInstance';
+import InsertLinkIcon from '@mui/icons-material/InsertLink';
 
 const PageTitleBox = styled(Box)(({ theme }) => {
    return {
@@ -80,13 +82,14 @@ const Textarea = styled('textarea')(({ theme }) => {
 const TurnOverBox = styled('div')(({ theme }) => {
    return {
       width: '100%',
-      margin: '1rem auto',
+      margin: '0 auto',
       border: '2px solid #FFD05B',
       borderRadius: '5px',
       outline: 'none',
       fontFamily: theme.typography.fontFamily,
       height: '55px',
-      padding: '.2rem',
+      // padding: '.2rem',
+      overflow: 'hidden',
       '& input': {
          border: 'none',
          width: '80%',
@@ -95,11 +98,16 @@ const TurnOverBox = styled('div')(({ theme }) => {
       },
       '& select': {
          border: 'none',
+         outline: 'outline',
          width: '20%',
+         borderRight: '5px solid #FFD05B',
          height: '100%',
-         outline: 'none',
-         borderLeft: '2px solid #ffd05b',
-         paddingLeft: '1rem',
+         paddingLeft: '1.5rem',
+         background: '#ffd05b',
+         '& option': {
+            background: '#ffd05b',
+            color: '#ffffff',
+         },
       },
    };
 });
@@ -180,6 +188,7 @@ const MyPortfolio = () => {
    const [selectedService, setSelectedServices] = useState([]);
 
    const [file, setFile] = useState(null);
+   const [logo, setLogo] = useState('')
    const [fileSizeError, setFileSizeError] = useState('');
    const [fileUploadDone, setFIleUploadDone] = useState(false);
 
@@ -221,29 +230,26 @@ const MyPortfolio = () => {
       let data = new FormData();
       data.append('file', file);
 
-      const response = await axios.post(
-         'https://jsonplaceholder.typicode.com/posts',
-         data,
-         {
-            onUploadProgress: (progressEvent) => {
-               const { loaded, total } = progressEvent;
-               const percentage = Math.floor((loaded * 100) / total);
-               setPercentage(percentage);
-               console.log({ loaded, total, percentage });
-               if (percentage === 100) {
-                  console.log(file);
-                  const reader = new FileReader();
-                  reader.readAsDataURL(file);
-                  reader.onloadend = () => {
-                     setPreviewImage(reader.result);
-                  };
-                  setFIleUploadDone(true);
-                  setPercentage(0);
-               }
-            },
-         }
-      );
+      const response = await axiAuth.post('api/upload', data, {
+         onUploadProgress: (progressEvent) => {
+            const { loaded, total } = progressEvent;
+            const percentage = Math.floor((loaded * 100) / total);
+            setPercentage(percentage);
+            console.log({ loaded, total, percentage });
+            if (percentage === 100) {
+               console.log(file);
+               const reader = new FileReader();
+               reader.readAsDataURL(file);
+               reader.onloadend = () => {
+                  setPreviewImage(reader.result);
+               };
+               setFIleUploadDone(true);
+               setPercentage(0);
+            }
+         },
+      });
       console.log(response);
+      setLogo(response.data.file_url)
    };
 
    const profileCancelHandler = () => {
@@ -300,17 +306,45 @@ const MyPortfolio = () => {
       setCertificateFiles((cur) => cur.filter((fw) => fw.file !== file));
    };
 
-   console.log(certificateFiles);
-
    const {
       register,
       handleSubmit,
       formState: { errors },
    } = useForm();
 
-   const submitHandler = (data) => {
+   const submitHandler = async (profileData) => {
       console.log('Submitting');
-      console.log({...data, selectedCountry, selectedService, certificateFiles})
+      const certificates = certificateFiles.map(
+         (certificate) => certificate.url
+      );
+      const file_names = certificateFiles.map(
+         (certificate) => certificate.file.givenName
+      );
+      const services = selectedService;
+      const state = selectedCountry.value;
+      const total_projects = projectNumber;
+
+      const formData = {
+         ...profileData,
+         state,
+         services,
+         certificates,
+         file_names,
+         total_projects,
+         logo
+      };
+
+      console.log(formData);
+
+      try {
+         const { data } = await axiAuth.post(
+            'api/vendor/profile',
+            formData
+         );
+         console.log(data);
+      } catch (error) {
+         console.log(error.message);
+      }
    };
    console.log('errors', errors);
 
@@ -497,7 +531,6 @@ const MyPortfolio = () => {
                   </Grid>
                   <Grid item md={6}>
                      <SolrufTextField
-                
                         label='Name'
                         {...register('name', {
                            required: {
@@ -507,9 +540,9 @@ const MyPortfolio = () => {
                         })}
                      />
                      <SolrufTextField
-                     sx={{my: 2}}
+                        sx={{ my: 2 }}
                         label='Phone Number'
-                        {...register('phone', {
+                        {...register('mobile', {
                            required: {
                               value: true,
                               message: 'Number is required',
@@ -518,7 +551,7 @@ const MyPortfolio = () => {
                      />
                      <SolrufTextField
                         label='Email'
-                        {...register('userEmail', {
+                        {...register('email', {
                            required: {
                               value: true,
                               message: 'User Email is Required',
@@ -531,15 +564,16 @@ const MyPortfolio = () => {
                      />
 
                      <SolrufTextField
-                     sx={{my: 2}}
+                        size='string'
+                        iconText={<InsertLinkIcon />}
+                        sx={{ my: 2 }}
                         label='Video Intro'
                         style={{ marginBottom: '1rem' }}
-                        {...register('videoIntro', {
+                        {...register('video_url', {
                            required: {
                               value: true,
                               message: 'Video is Required',
                            },
-                          
                         })}
                      />
 
@@ -554,58 +588,95 @@ const MyPortfolio = () => {
                   </Grid>
                </Grid>
 
-               <Textarea rows='5' placeholder='Description' {...register('description', {
-                                    required: {
-                                       value: true,
-                                       message: 'Description is Required',
-                                    },
-                                    minLength: {
-                                       value: 10,
-                                       message: 'Description must be at least 10 characters',
-                                    }
-                                 })} ></Textarea>
+               <Textarea
+                  rows='5'
+                  placeholder='Description'
+                  {...register('description', {
+                     required: {
+                        value: true,
+                        message: 'Description is Required',
+                     },
+                     minLength: {
+                        value: 10,
+                        message: 'Description must be at least 10 characters',
+                     },
+                  })}
+               ></Textarea>
 
                <Grid container spacing={3}>
                   <Grid item sm={12} md={6}>
-                     <SolrufTextField label='Company' sx={{mb: 1.5}} {...register('company', {
-                        
-                                    required: {
-                                       value: true,
-                                       message: 'Company is Required',
-                                    },
-                                   
-                                 })} />
-                     <SolrufTextField label='GST No' {...register('gstNumber', {
-                                    required: {
-                                       value: true,
-                                       message: 'GST number is Required',
-                                    },
-                                   
-                                 })} />
+                     <SolrufTextField
+                        label='Company'
+                        {...register('company', {
+                           required: {
+                              value: true,
+                              message: 'Company is Required',
+                           },
+                        })}
+                     />
+                     <SolrufTextField
+                        sx={{ my: 1.5 }}
+                        label='GST No'
+                        {...register('gst', {
+                           required: {
+                              value: true,
+                              message: 'GST number is Required',
+                           },
+                        })}
+                     />
+                     <SolrufTextField
+                        label='Location'
+                        {...register('location', {
+                           required: {
+                              value: true,
+                              message: 'User Email is Required',
+                           },
+                        })}
+                     />
                   </Grid>
                   <Grid item sm={12} md={6}>
-                     <SolrufTextField label='Location' {...register('location', {
-                                    required: {
-                                       value: true,
-                                       message: 'User Email is Required',
-                                    },
-                                   
-                                 })} />
+                     <SolrufTextField
+                        label='Pin Code'
+                        type='number'
+                        {...register('pincode', {
+                           required: {
+                              value: true,
+                              message: 'Pin Code is Required',
+                           },
+                        })}
+                     />
+                     <SolrufTextField
+                        sx={{ my: 1.5 }}
+                        label='City / District'
+                        {...register('city', {
+                           required: {
+                              value: true,
+                              message: 'City / District is Required',
+                           },
+                        })}
+                     />
+
                      <TurnOverBox>
-                        <input type='text' placeholder='TurnOver' {...register('turnOver', {
-                                    required: {
-                                       value: true,
-                                       message: 'TurnOver is Required',
-                                    },
-                                    
-                                 })} />
-                        <select name='turnoverType'{...register('turnOverType', {
-                                    required: {
-                                       value: true,
-                                       message: 'Turnover Type is Required',
-                                    },
-                                  
-                                 })} >
+                        <input
+                           type='text'
+                           placeholder='Turnover'
+                           {...register('turnover', {
+                              required: {
+                                 value: true,
+                                 message: 'TurnOver is Required',
+                              },
+                           })}
+                        />
+
+                        <select
+                           name='turnoverType'
+                           {...register('turnover_type', {
+                              required: {
+                                 value: true,
+                                 message: 'Turnover Type is Required',
+                              },
+                           })}
+                        >
                            <option value='lakhs'>Lakhs</option>
                            <option value='crore'>Crore</option>
                         </select>
@@ -616,7 +687,7 @@ const MyPortfolio = () => {
                            display: 'flex',
                            justifyContent: 'center',
                            alignItems: 'center',
-                           my: 5,
+                           my: 3,
                         }}
                      >
                         <Typography
@@ -651,7 +722,6 @@ const MyPortfolio = () => {
                               }}
                               value={projectNumber}
                               onChange={(e) => setProjectNumber(e.target.value)}
-                           
                            />
                            <MinusIcon
                               style={{
@@ -699,7 +769,20 @@ const MyPortfolio = () => {
                      );
                   })}
                </Box>
-
+               <Textarea
+                  rows='5'
+                  placeholder='After sale service policy'
+                  {...register('return_policy', {
+                     required: {
+                        value: true,
+                        message: 'Policy is Required',
+                     },
+                     minLength: {
+                        value: 10,
+                        message: 'Policy must be at least 10 characters',
+                     },
+                  })}
+               ></Textarea>
                <CertificateBox>
                   <Typography variant='h6'>
                      Add Certificates (Upto 5Mb)

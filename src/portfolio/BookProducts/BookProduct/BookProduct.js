@@ -1,4 +1,4 @@
-import { Grid, Modal, Typography } from '@mui/material';
+import { Alert, Grid, Modal, Snackbar, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
 import ProductDetailList from '../../../components/ProductDetailList/ProductDetailList';
@@ -10,6 +10,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import SliderWithCustomImagePreview from '../../../components/SliderWithCustomImagePreview/SliderWithCustomImagePreview';
+import { useDispatch } from 'react-redux';
+import { increase } from '../../../redux/slices/counterSlice';
 
 const RArrow = styled('div')({
    background: 'transparent',
@@ -29,9 +31,9 @@ const LArrow = styled('div')({
 const RightArrow = (props) => {
    const { className, style, onClick } = props;
    const clickHandler = (e) => {
-      e.stopPropagation()
-      onClick()
-   }
+      e.stopPropagation();
+      onClick();
+   };
    return (
       <RArrow
          className={className}
@@ -43,9 +45,9 @@ const RightArrow = (props) => {
 const LeftArrow = (props) => {
    const { className, style, onClick } = props;
    const clickHandler = (e) => {
-      e.stopPropagation()
-      onClick()
-   }
+      e.stopPropagation();
+      onClick();
+   };
    return (
       <LArrow
          className={className}
@@ -78,239 +80,293 @@ const modalStyles = {
 
 const BookProduct = ({ editDelete, noModal, style }) => {
    const [open, setOpen] = useState(false);
+   const dispatch = useDispatch();
 
-   const handleOpen = () => {
+   const handleModalOpen = () => {
       if (noModal) return;
       setOpen(true);
    };
 
-   const handleClose = (e) => {
+   const handleModalClose = (e) => {
       e.stopPropagation();
       setOpen(false);
    };
 
-   return (
-      <Box
-         sx={{
-            bgcolor: 'primary.light',
-            p: 5.5,
-            borderRadius: 5,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            cursor: 'pointer',
-         }}
-         style={{ ...style }}
-         onClick={handleOpen}
-      >
-         <Slider {...settings}>
-            <Box sx={{ borderRadius: 10, width: '100%' }}>
-               <img
-                  src='https://i.ibb.co/rpjvXbN/project2.png'
-                  alt=''
-                  style={{
-                     width: '100%',
-                     height: 'auto',
-                     borderRadius: '10px',
-                  }}
-               />
-            </Box>
-            <Box>
-               <img
-                  src='https://i.ibb.co/wMbGYm4/project1.png'
-                  alt=''
-                  style={{
-                     width: '100%',
-                     height: 'auto',
-                     borderRadius: '10px',
-                  }}
-               />
-            </Box>
-            <Box>
-               <img
-                  src='https://i.ibb.co/Btf6tbT/project3.png'
-                  alt=''
-                  style={{
-                     width: '100%',
-                     height: 'auto',
-                     borderRadius: '10px',
-                  }}
-               />
-            </Box>
-         </Slider>
-         <Box sx={{ mt: 5 }}>
-            <Typography variant='h5'>4 Inch Solar Cable</Typography>
+   const [openSnackbar, setOpenSnackBar] = React.useState(false);
 
-            <ProductDetailList list='Price/Watt' description='Rs 256/sq.ft.' />
-            <ProductDetailList list='Price Of Panel' description='Rs 2500000' />
-            <ProductDetailList list='Power Capacity' description='1024 Watts' />
-            <ProductDetailList
-               list='Inverter Type'
-               description='Offgrid/ongrid'
-               hand='hand'
-            />
-            {!editDelete && (
+   const handleClose = (event, reason) => {
+      if (reason === 'clickaway') {
+         return;
+      }
+
+      setOpenSnackBar(false);
+   };
+
+   const addToCartHandler = (e) => {
+      e.stopPropagation();
+      dispatch(increase());
+      setOpenSnackBar(true);
+   };
+
+   return (
+      <>
+         <Box
+            sx={{
+               bgcolor: 'primary.light',
+               p: 5.5,
+               borderRadius: 5,
+               boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+               cursor: 'pointer',
+               position: 'relative',
+            }}
+            style={{ ...style }}
+            onClick={handleModalOpen}
+         >
+            <Slider {...settings}>
+               <Box sx={{ borderRadius: 10, width: '100%' }}>
+                  <img
+                     src='https://i.ibb.co/rpjvXbN/project2.png'
+                     alt=''
+                     style={{
+                        width: '100%',
+                        height: 'auto',
+                        borderRadius: '10px',
+                     }}
+                  />
+               </Box>
+               <Box>
+                  <img
+                     src='https://i.ibb.co/wMbGYm4/project1.png'
+                     alt=''
+                     style={{
+                        width: '100%',
+                        height: 'auto',
+                        borderRadius: '10px',
+                     }}
+                  />
+               </Box>
+               <Box>
+                  <img
+                     src='https://i.ibb.co/Btf6tbT/project3.png'
+                     alt=''
+                     style={{
+                        width: '100%',
+                        height: 'auto',
+                        borderRadius: '10px',
+                     }}
+                  />
+               </Box>
+            </Slider>
+            <Box sx={{ mt: 5 }}>
+               <Typography variant='h5'>4 Inch Solar Cable</Typography>
+
                <ProductDetailList
-                  list='Location'
-                  description='Jaipur'
+                  list='Price/Watt'
+                  description='Rs 256/sq.ft.'
+               />
+               <ProductDetailList
+                  list='Price Of Panel'
+                  description='Rs 2500000'
+               />
+               <ProductDetailList
+                  list='Power Capacity'
+                  description='1024 Watts'
+               />
+               <ProductDetailList
+                  list='Inverter Type'
+                  description='Offgrid/ongrid'
                   hand='hand'
                />
-            )}
-
-            <Box
-               sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  mt: 5,
-               }}
-            >
-               {!editDelete ? (
-                  <YellowButton style={{ flexGrow: 1 }}>Purchase</YellowButton>
-               ) : (
-                  <>
-                     <Box>
-                        <YellowButton
-                           style={{
-                              border: '2px solid #FFD05B',
-                              color: '#4D4D4D',
-                              background: '#fff',
-                              padding: '.7rem 1.5rem',
-                              marginRight: '.5rem',
-                           }}
-                        >
-                           {' '}
-                           <EditIcon /> Edit
-                        </YellowButton>
-                        <YellowButton
-                           style={{
-                              border: '2px solid red',
-                              color: 'red',
-                              background: '#fff',
-                              padding: '.6rem 1.5rem',
-                           }}
-                        >
-                           {' '}
-                           <DeleteIcon /> Delete
-                        </YellowButton>
-                     </Box>
-                  </>
+               {!editDelete && (
+                  <ProductDetailList
+                     list='Location'
+                     description='Jaipur'
+                     hand='hand'
+                  />
                )}
-            </Box>
-         </Box>
-         {/*  ================== Modal Start ================== */}
-         <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby='modal-modal-title'
-            aria-describedby='project details modal'
-            sx={{
-               '& .MuiBackdrop-root': {
-                  backdropFilter: 'blur(10px)',
-               },
-            }}
-         >
-            <Box
-               sx={{
-                  ...modalStyles,
-                  overflowY: 'auto',
-                  height: '95%',
-                  borderRadius: 2,
-                  bgcolor: '#F3F3F3',
-               }}
-            >
-               <CloseIcon
-                  style={{
-                     position: 'absolute',
-                     right: '3%',
-                     top: '3%',
-                     cursor: 'pointer',
-                     backgroundColor: '#fff',
-                     borderRadius: '50%',
+
+               <Box
+                  sx={{
+                     display: 'flex',
+                     justifyContent: 'space-between',
+                     alignItems: 'center',
+                     mt: 5,
                   }}
-                  onClick={handleClose}
-               />
-               <Box>
-                  <Typography variant='h5' textAlign='center' fontWeight={600}>
-                     Product Enquiry
-                  </Typography>
-                  <hr />
-               </Box>
-               <Box sx={{ mb: 4 }}>
-                  <Grid container spacing={5} alignItems='center'>
-                     <Grid item md={12} lg={4}>
-                        {/* ================== Slider with custom image preview indicator */}
-                        <SliderWithCustomImagePreview />
-                     </Grid>
-                     {/*  === description list start === */}
-                     <Grid item md={12} lg={8}>
+               >
+                  {!editDelete ? (
+                     <YellowButton
+                        style={{ flexGrow: 1 }}
+                        onClick={addToCartHandler}
+                     >
+                        Purchase
+                     </YellowButton>
+                  ) : (
+                     <>
                         <Box>
-                           <Typography variant='h5' fontWeight={500}>
-                              24-inch Solar Cables (10x Powerful) fully ready to
-                              Functional Power Cables
-                           </Typography>
-                           {/* ====== Nested Grid Start ====== */}
-                           <Grid container item spacing={2}>
-                              <Grid item sm={6}>
-                                 <ProductDetailList
-                                    list='Price/Watt'
-                                    description='Rs 256/sq.ft.'
-                                 />
-                                 <ProductDetailList
-                                    list='Price Of Panel'
-                                    description='Rs 2500000'
-                                 />
-                                 <ProductDetailList
-                                    list='Power Capacity'
-                                    description='1024 Watts'
-                                 />
-                              </Grid>
-                              <Grid item sm={6}>
-                                 <ProductDetailList
-                                    list='Inverter Type'
-                                    description='Offgrid/ongrid'
-                                    hand='hand'
-                                 />
-                                 <ProductDetailList
-                                    list='Location'
-                                    description='Jaipur'
-                                    hand='hand'
-                                 />
-                                 <ProductDetailList
-                                    list='Company'
-                                    description='Amaron'
-                                    hand='hand'
-                                 />
-                              </Grid>
-                           </Grid>
-                           {/* ====== Nested Grid Ends ====== */}
-                           <Typography variant='body1' sx={{ mt: 2 }}>
-                              <strong>Description: </strong> Lorem ipsum dolor
-                              sit amet consectetur adipisicing elit. Cum iste
-                              quidem ea quia sapiente magnam animi voluptatum
-                              nihil repellat optio dicta voluptates adipisci
-                              vero hic ullam, dolores impedit dignissimos alias.
-                           </Typography>
-                           <Typography
-                              variant='h6'
-                              component='a'
-                              href='#'
-                              sx={{
-                                 textAlign: 'right',
-                                 display: 'block',
-                                 color: '#0339A6',
-                                 textDecoration: 'none',
-                                 mt: 2,
+                           <YellowButton
+                              style={{
+                                 border: '2px solid #FFD05B',
+                                 color: '#4D4D4D',
+                                 background: '#fff',
+                                 padding: '.7rem 1.5rem',
+                                 marginRight: '.5rem',
                               }}
                            >
-                              See Detailed Product Description...
-                           </Typography>
+                              {' '}
+                              <EditIcon /> Edit
+                           </YellowButton>
+                           <YellowButton
+                              style={{
+                                 border: '2px solid red',
+                                 color: 'red',
+                                 background: '#fff',
+                                 padding: '.6rem 1.5rem',
+                              }}
+                           >
+                              {' '}
+                              <DeleteIcon /> Delete
+                           </YellowButton>
                         </Box>
-                     </Grid>
-                  </Grid>
+                     </>
+                  )}
                </Box>
-               <hr />
+               <img src="https://i.ibb.co/PDPmLL2/sale-1-1.png" alt="" style={{position: 'absolute', top: '3%'}} />
             </Box>
-         </Modal>
-      </Box>
+            {/*  ================== Modal Start ================== */}
+            <Modal
+               open={open}
+               onClose={handleModalClose}
+               aria-labelledby='modal-modal-title'
+               aria-describedby='project details modal'
+               sx={{
+                  '& .MuiBackdrop-root': {
+                     backdropFilter: 'blur(10px)',
+                  },
+               }}
+            >
+               <Box
+                  sx={{
+                     ...modalStyles,
+                     overflowY: 'auto',
+                     height: '95%',
+                     borderRadius: 2,
+                     bgcolor: '#F3F3F3',
+                  }}
+               >
+                  <CloseIcon
+                     style={{
+                        position: 'absolute',
+                        right: '3%',
+                        top: '3%',
+                        cursor: 'pointer',
+                        backgroundColor: '#fff',
+                        borderRadius: '50%',
+                     }}
+                     onClick={handleModalClose}
+                  />
+                  <Box>
+                     <Typography
+                        variant='h5'
+                        textAlign='center'
+                        fontWeight={600}
+                     >
+                        Product Enquiry
+                     </Typography>
+                     <hr />
+                  </Box>
+                  <Box sx={{ mb: 4 }}>
+                     <Grid container spacing={5} alignItems='center'>
+                        <Grid item md={12} lg={4}>
+                           {/* ================== Slider with custom image preview indicator */}
+                           <SliderWithCustomImagePreview />
+                        </Grid>
+                        {/*  === description list start === */}
+                        <Grid item md={12} lg={8}>
+                           <Box>
+                              <Typography variant='h5' fontWeight={500}>
+                                 24-inch Solar Cables (10x Powerful) fully ready
+                                 to Functional Power Cables
+                              </Typography>
+                              {/* ====== Nested Grid Start ====== */}
+                              <Grid container item spacing={2}>
+                                 <Grid item sm={6}>
+                                    <ProductDetailList
+                                       list='Price/Watt'
+                                       description='Rs 256/sq.ft.'
+                                    />
+                                    <ProductDetailList
+                                       list='Price Of Panel'
+                                       description='Rs 2500000'
+                                    />
+                                    <ProductDetailList
+                                       list='Power Capacity'
+                                       description='1024 Watts'
+                                    />
+                                 </Grid>
+                                 <Grid item sm={6}>
+                                    <ProductDetailList
+                                       list='Inverter Type'
+                                       description='Offgrid/ongrid'
+                                       hand='hand'
+                                    />
+                                    <ProductDetailList
+                                       list='Location'
+                                       description='Jaipur'
+                                       hand='hand'
+                                    />
+                                    <ProductDetailList
+                                       list='Company'
+                                       description='Amaron'
+                                       hand='hand'
+                                    />
+                                 </Grid>
+                              </Grid>
+                              {/* ====== Nested Grid Ends ====== */}
+                              <Typography variant='body1' sx={{ mt: 2 }}>
+                                 <strong>Description: </strong> Lorem ipsum
+                                 dolor sit amet consectetur adipisicing elit.
+                                 Cum iste quidem ea quia sapiente magnam animi
+                                 voluptatum nihil repellat optio dicta
+                                 voluptates adipisci vero hic ullam, dolores
+                                 impedit dignissimos alias.
+                              </Typography>
+                              <Typography
+                                 variant='h6'
+                                 component='a'
+                                 href='#'
+                                 sx={{
+                                    textAlign: 'right',
+                                    display: 'block',
+                                    color: '#0339A6',
+                                    textDecoration: 'none',
+                                    mt: 2,
+                                 }}
+                              >
+                                 See Detailed Product Description...
+                              </Typography>
+                           </Box>
+                        </Grid>
+                     </Grid>
+                  </Box>
+                  <hr />
+               </Box>
+            </Modal>
+         </Box>
+         <Snackbar
+            open={openSnackbar}
+            autoHideDuration={3000}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+         >
+            <Alert
+               onClose={handleClose}
+               severity='success'
+               sx={{ width: '100%' }}
+            >
+               Added to cart successfully!
+            </Alert>
+         </Snackbar>
+      </>
    );
 };
 
