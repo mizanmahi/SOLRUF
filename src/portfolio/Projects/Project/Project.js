@@ -10,9 +10,11 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Slider from 'react-slick';
 import SampleNextArrow from '../NextArrow';
 import PrevArrow from '../PrevArrow';
-import { Avatar, useMediaQuery } from '@mui/material';
+import { Avatar, styled, useMediaQuery } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router';
+import ProjectTag from '../../../components/ProjectTag/ProjectTag';
+import ProductDetailList from '../../../components/ProductDetailList/ProductDetailList';
 
 // import classes from '../projects.module.css'
 
@@ -71,12 +73,18 @@ const useStyle = makeStyles((theme) => ({
    },
 }));
 
+const Flex = styled(Box)(({ theme }) => ({
+   display: 'flex',
+
+   alignItems: 'center',
+}));
+
 const modalStyles = {
    position: 'absolute',
    top: '50%',
    left: '50%',
    transform: 'translate(-50%, -50%)',
-   width: '70%',
+   width: '60%',
    bgcolor: 'background.paper',
    boxShadow: 24,
    p: 4,
@@ -237,27 +245,51 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                   onClick={handleClose}
                />
                <Box>
-                  <Typography variant='h5' textAlign='center' fontWeight={600}>
+                  <Typography variant='h4' textAlign='center' fontWeight={600}>
                      The Power Residential Project
                   </Typography>
                   <Typography
-                     variant='body1'
+                     variant='h6'
                      textAlign='center'
                      fontWeight={600}
+                     sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                     }}
                   >
                      {' '}
-                     <LocationOnIcon /> Mumbai
+                     <LocationOnIcon /> Mumbai, Maharashtra
                   </Typography>
                   <hr />
                </Box>
                <Box>
-                  <Typography variant='h6' fontWeight={500} gutterBottom>
-                     Description
-                  </Typography>
-                  <Typography variant='body1' fontWeight={500} gutterBottom>
-                     <strong>Power Capacity:</strong> 1200 kW &nbsp;|&nbsp;{' '}
-                     <strong>Months Taken:</strong> 5months
-                  </Typography>
+                  <Box
+                     sx={{
+                        width: '55%',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        mb: 1,
+                     }}
+                  >
+                     <Typography variant='h5' fontWeight={500} gutterBottom>
+                        Description
+                     </Typography>
+                     <ProjectTag title='commercial' />
+                  </Box>
+
+                  <Flex sx={{mb: 2}}>
+                     <ProductDetailList
+                        list='Power Capacity'
+                        description='1200 KW'
+                        sx={{ mr: 2 }}
+                     />
+                     <ProductDetailList
+                        list='Months Taken'
+                        description='5 Months'
+                     />
+                  </Flex>
                   <Typography variant='body1' fontWeight={500} gutterBottom>
                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
                      Expedita fugiat, ea consequatur voluptatibus ad tenetur.
@@ -268,51 +300,51 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
 
                   <Box sx={{ my: 3 }}>
                      <Slider {...settings}>
-                        <Box sx={{ p: 1 }}>
+                        <Box sx={{}}>
                            <img
-                              src='https://images.unsplash.com/photo-1640224764479-424a6a7a744b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=682&q=80'
+                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
                               style={{ maxWidth: '100%' }}
                               alt=''
                            />
                         </Box>
-                        <Box sx={{ p: 1 }}>
+                        <Box sx={{}}>
                            <img
-                              src='https://images.unsplash.com/photo-1640224764479-424a6a7a744b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=682&q=80'
+                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
                               style={{ maxWidth: '100%' }}
                               alt=''
                            />
                         </Box>
-                        <Box sx={{ p: 1 }}>
+                        <Box sx={{}}>
                            <img
-                              src='https://images.unsplash.com/photo-1640224764479-424a6a7a744b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=682&q=80'
+                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
                               style={{ maxWidth: '100%' }}
                               alt=''
                            />
                         </Box>
-                        <Box sx={{ p: 1 }}>
+                        <Box sx={{}}>
                            <img
-                              src='https://images.unsplash.com/photo-1640224764479-424a6a7a744b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=682&q=80'
+                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
                               style={{ maxWidth: '100%' }}
                               alt=''
                            />
                         </Box>
-                        <Box sx={{ p: 1 }}>
+                        <Box sx={{}}>
                            <img
-                              src='https://images.unsplash.com/photo-1640224764479-424a6a7a744b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=682&q=80'
+                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
                               style={{ maxWidth: '100%' }}
                               alt=''
                            />
                         </Box>
-                        <Box sx={{ p: 1 }}>
+                        <Box sx={{}}>
                            <img
-                              src='https://images.unsplash.com/photo-1640224764479-424a6a7a744b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=682&q=80'
+                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
                               style={{ maxWidth: '100%' }}
                               alt=''
                            />
                         </Box>
-                        <Box sx={{ p: 1 }}>
+                        <Box sx={{}}>
                            <img
-                              src='https://images.unsplash.com/photo-1640224764479-424a6a7a744b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=682&q=80'
+                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
                               style={{ maxWidth: '100%' }}
                               alt=''
                            />
@@ -358,6 +390,7 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                      <Avatar
                         alt='Remy Sharp'
                         src='https://i.ibb.co/SJ05bh1/review-Image.png'
+                        sx={{width: '70px', height: '70px', mb: .5}}
                      />
                      <Typography variant='h5' fontWeight={500} gutterBottom>
                         Karan Batra, Flipkart

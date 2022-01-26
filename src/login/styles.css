@@ -1,226 +1,225 @@
 /* mobile number checkuser style*/
-.mobile_Container{
-    /* border: 1px solid grey; */
-    background-color: white;
-    border-radius: 10px;
-    width: max-content;
-    height: auto;
-    padding: 40px;
+.mobile_Container {
+   /* border: 1px solid grey; */
+   background-color: white;
+   border-radius: 10px;
+   width: max-content;
+   height: auto;
+   padding: 40px;
 }
-.form_logo{
-    margin: 0px 0px 30px 0px;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.mobilenob{
-    outline: none;
-    width: 200px;
-    height: 40px;
-    border: 1px  solid #FFD05B;
-    padding: 3% 0% 3% 0%;
-    border-radius: 8px 0px 0px 8px;
-    background-color: #e9ecef;
-    text-align: center;
+.form_logo {
+   margin: 0px 0px 30px 0px;
+   font-size: 20px;
+   font-weight: bold;
 }
 
-#signup{
-    width: max-content;
-    height: auto;
-    padding: 0px 10px 0px 10px; 
-    font-size: 20px;
-    border: 2px solid #FFD05B;
-    border-radius: 0px 10px 10px 0px;
-    background-color: #FFD05B;
-}
-.ragisterInputButton{
-    display: inline-flex;
-    margin:  0px 10px 20px 0px;
+.mobilenob {
+   outline: none;
+   width: 200px;
+   height: 40px;
+   border: 1px solid #ffd05b;
+   padding: 3% 0% 3% 0%;
+   border-radius: 8px 0px 0px 8px;
+   background-color: #e9ecef;
+   text-align: center;
 }
 
-.signup:hover{
-    transform: scale(1.02);
+#signup {
+   width: max-content;
+   height: auto;
+   padding: 0px 10px 0px 10px;
+   font-size: 20px;
+   border: 2px solid #ffd05b;
+   border-radius: 0px 10px 10px 0px;
+   background-color: #ffd05b;
+}
+.ragisterInputButton {
+   display: inline-flex;
+   margin: 0px 10px 20px 0px;
+}
+
+.signup:hover {
+   transform: scale(1.02);
 }
 
 /* signup style */
-.signupotpmsg{
-    visibility: hidden;
+.signupotpmsg {
+   visibility: hidden;
 }
-.signup_Ragistration{
-    background-color: white;
-    border-radius: 5px;
-    border: 1px solid white;
-    width: fit-content;
-    height: auto;
-    margin: 0px 0px 0px 10px;
-    padding: 1.5rem 2rem;
-}
-
-.signup-message{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 5px 0px 15px 0px;
-}
-.backarrow,.message{
-    font-size: 10px;
-    cursor: pointer;
-}
-.fa-arrow-left{
-    color: grey;
-    font-size: 13px;
+.signup_Ragistration {
+   background-color: white;
+   border-radius: 5px;
+   border: 1px solid white;
+   width: fit-content;
+   height: auto;
+   margin: 0px 0px 0px 10px;
+   padding: 1.5rem 2rem;
 }
 
-
-.email,.phone{
-    width: 100%;
-    height: 40px;
-    outline: none;
-    border: 1px  solid #FFD05B;
-    padding: 4% 0% 4% 0%;
-    border-radius: 8px;
-    background-color: #e9ecef;
-    text-align: center;
-
+.signup-message {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin: 5px 0px 15px 0px;
+}
+.backarrow,
+.message {
+   font-size: 14px;
+   cursor: pointer;
+}
+.fa-arrow-left {
+   color: grey;
+   font-size: 13px;
 }
 
-.fname,.lname{
-    width: 160;
-    height: 40px;
-    outline: none;
-    border: 1px solid #FFD05B;
-    background-color: #e9ecef;
-    padding: 4% 0% 4% 0%;
-    border-radius: 8px;
-    text-align: center;
+.email,
+.phone {
+   width: 100%;
+   height: 40px;
+   outline: none;
+   border: 1px solid #ffd05b;
+   padding: 4% 0% 4% 0%;
+   border-radius: 8px;
+   background-color: #e9ecef;
+   text-align: center;
 }
 
-.lname{
-    margin-left: 1rem;
+.fname,
+.lname {
+   width: 160;
+   height: 40px;
+   outline: none;
+   border: 1px solid #ffd05b;
+   background-color: #e9ecef;
+   padding: 4% 0% 4% 0%;
+   border-radius: 8px;
+   text-align: center;
 }
 
-.register,.conf-resend-sms{
-    width: 100%;
-    height: 35px;
-    border: 2px solid #FFD05B;
-    border-radius: 10px;
-    background-color: #FFD05B;
+.lname {
+   margin-left: 1rem;
 }
-.register:hover{
-    transform: scale(1.01);
+
+.register,
+.conf-resend-sms {
+   width: 100%;
+   height: 35px;
+   border: 2px solid #ffd05b;
+   border-radius: 10px;
+   background-color: #ffd05b;
+}
+.register:hover {
+   transform: scale(1.01);
 }
 
 /* otp confirmation */
-.conf_container{
-    border: 1px solid grey;
-    background-color: white;
-    border-radius: 5px;
-    width: max-content;
-    height: auto;
-    padding: 30px;
+.conf_container {
+   border: 1px solid grey;
+   background-color: white;
+   border-radius: 5px;
+   width: max-content;
+   height: auto;
+   padding: 30px;
 }
 
-.input_otp{
-    outline: none;
-    width: 200px;
-    height: 39px;
-    border: 1px  solid #FFD05B;
-    border-radius: 8px 0px 0px 8px;
-    background-color: #e9ecef;
-    text-align: center;
+.input_otp {
+   outline: none;
+   width: 200px;
+   height: 39px;
+   border: 1px solid #ffd05b;
+   border-radius: 8px 0px 0px 8px;
+   background-color: #e9ecef;
+   text-align: center;
 }
 
-.otp-cnf-btn{
-    width: auto;
-    height: 40px;
-    border: 1px solid #FFD05B;
-    border-radius: 0px 8px 8px 0px;
-    background-color: #FFD05B;
+.otp-cnf-btn {
+   width: auto;
+   height: 40px;
+   border: 1px solid #ffd05b;
+   border-radius: 0px 8px 8px 0px;
+   background-color: #ffd05b;
 }
 
-.otp-cnf-btn:hover{
-    transform: scale(1.01);
+.otp-cnf-btn:hover {
+   transform: scale(1.01);
 }
 
-.conf-resend-sms{
-    width: 315px;
-    height: 40px;
-    margin: 0px 0px 20px 0px;
-    font-size: 17px;
-    cursor: pointer;
+.conf-resend-sms {
+   width: 315px;
+   height: 40px;
+   margin: 0px 0px 20px 0px;
+   font-size: 17px;
+   cursor: pointer;
 }
 
-.otpConfirmationInputButton{
-    margin:  0px 10px 10px 0px; 
+.otpConfirmationInputButton {
+   margin: 0px 10px 10px 0px;
 }
 
 /* login page confirmation */
-.login_container{
-    /* border: 1px solid grey; */
-    background-color: white;
-    border-radius: 10px;
-    width: max-content;
-    height: auto;
-    padding: 40px;
-   
+.login_container {
+   /* border: 1px solid grey; */
+   background-color: white;
+   border-radius: 10px;
+   width: max-content;
+   height: auto;
+   padding: 40px;
 }
 
-.login-input{
-    outline: none;
-    width: 200px;
-    height: 40px;
-    border: 1px  solid #FFD05B;
-    border-radius: 8px 0px 0px 8px;
-    background-color: #e9ecef;
-    text-align: center;
+.login-input {
+   outline: none;
+   width: 200px;
+   height: 40px;
+   border: 1px solid #ffd05b;
+   border-radius: 8px 0px 0px 8px;
+   background-color: #e9ecef;
+   text-align: center;
 }
 
-.login-btn{
-    width: auto;
-    height: 41px;
-    border: 2px solid #FFD05B;
-    border-radius: 0px 8px 8px 0px;
-    background-color: #FFD05B;   
+.login-btn {
+   width: auto;
+   height: 41px;
+   border: 2px solid #ffd05b;
+   border-radius: 0px 8px 8px 0px;
+   background-color: #ffd05b;
 }
-.conf-resend-sms{
-    margin-top: 10px;
+.conf-resend-sms {
+   margin-top: 10px;
 }
 
-.login-btn:hover{
-    transform: scale(1.01);
+.login-btn:hover {
+   /* transform: scale(1.01); */
 }
 
 /* input and button shadow */
-input:focus, button:focus{
-    outline:none;
-    /* border: 1px solid #FFD05B;
+input:focus,
+button:focus {
+   outline: none;
+   /* border: 1px solid #FFD05B;
     box-shadow: 0px 0px 3px  #FFD05B; */
 }
 /* error message style */
-.errormsg{
-    font-size: 12px;
-    /* margin-top: 30px; */
+.errormsg {
+   font-size: 12px;
+   /* margin-top: 30px; */
 }
-
 
 /* welcome page */
-.container{
-    margin: 10%;
-    justify-content: center;
-    align-items: center;
-    padding-top: 7%;
-    text-align: center;
-    background-color:#ffd166;
-    width:400px;
-    height:200px;
-    border-radius:20px;
-    opacity: 0.9;
-    
+.container {
+   margin: 10%;
+   justify-content: center;
+   align-items: center;
+   padding-top: 7%;
+   text-align: center;
+   background-color: #ffd166;
+   width: 400px;
+   height: 200px;
+   border-radius: 20px;
+   opacity: 0.9;
 }
-.welcomemsg{
-    color: #343a40;
-    font-size: 30px;
+.welcomemsg {
+   color: #343a40;
+   font-size: 30px;
 }
-
 
 /* responsiveness   */

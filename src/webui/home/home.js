@@ -3,10 +3,13 @@ import './home.css';
 import Login from '../../login/checkuser.js';
 
 import YellowButton from '../../components/YellowButton/YellowButton.js';
+import LoginModal from '../../components/LoginModal/LoginModal';
+import { Container } from '@mui/material';
 
 function Home({ setShowDashboard, showDashboard }) {
    return (
-      <div className='homeContainer'>
+      <Container maxWidth='xl' >
+         <div className='homeContainer'>
          <div className='lorem'>
             <h1>Solruf</h1>
             <p>
@@ -15,12 +18,19 @@ function Home({ setShowDashboard, showDashboard }) {
             </p>
             <YellowButton style={{ fontSize: '1rem' }}>Learn More</YellowButton>
          </div>
-         {!showDashboard ? (
+         {/* {!showDashboard ? (
             <div className='login'>
                <Login setShowDashboard={setShowDashboard} />
             </div>
-         ) : null}
+         ) : null} */}
+
+         {/* <LoginModal>
+            <div className='loginn'>
+               <Login setShowDashboard={setShowDashboard} />
+            </div>
+         </LoginModal> */}
       </div>
+      </Container>
    );
 }
 

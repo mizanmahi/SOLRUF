@@ -15,7 +15,7 @@ const CustomizedAccordion = styled(Accordion)(({ theme }) => ({
 
 }));
 
-const CustomAccordion = ({ children, title, ...rest }) => {
+const CustomAccordion = ({ children, title, noPadding, ...rest }) => {
    return (
       <CustomizedAccordion {...rest} disableGutters elevation={0}>
          <AccordionSummary
@@ -25,7 +25,7 @@ const CustomAccordion = ({ children, title, ...rest }) => {
          >
             <Typography>{title}</Typography>
          </AccordionSummary>
-         <AccordionDetails>{children}</AccordionDetails>
+         <AccordionDetails sx={{padding: noPadding ? '1rem 0' : '8px 16px 16px'}}>{children}</AccordionDetails>
       </CustomizedAccordion>
    );
 };

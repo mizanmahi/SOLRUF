@@ -14,15 +14,17 @@ import YellowButton from '../../components/YellowButton/YellowButton';
 import { useForm } from 'react-hook-form';
 import CustomSelect from '../../components/CustomSelect/CustomSelect';
 import { axiAuth } from '../../utils/axiosInstance';
-
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
 
 const AddProjectBox = styled(Box)(({ theme }) => {
    return {
       background: '#ffffff',
-      padding: theme.spacing(5),
+      padding: theme.spacing(1),
       borderRadius: theme.spacing(3),
       position: 'relative',
       marginTop: theme.spacing(3),
@@ -31,18 +33,21 @@ const AddProjectBox = styled(Box)(({ theme }) => {
 
 const FileInputBox = styled(Box)(({ theme }) => {
    return {
-      border: '2px solid #FFD05B',
-      height: 200,
-      width: '100%',
-      maxWidth: '300px',
-      background: '#F3F3F3',
-      borderRadius: 20,
-      padding: theme.spacing(2),
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      position: 'relative',
+      //   border: '2px solid #FFD05B',
+      //   height: 200,
+      //   width: '100%',
+      //   maxWidth: '300px',
+      //   background: '#F3F3F3',
+      //   borderRadius: 20,
+      //   padding: theme.spacing(2),
+      //   display: 'flex',
+      //   flexDirection: 'column',
+      //   justifyContent: 'center',
+      //   alignItems: 'center',
+      //   position: 'relative',
+      '& img': {
+         maxWidth: '100%',
+      },
    };
 });
 
@@ -170,8 +175,9 @@ const ReturnPeriodBox = styled(Box)(({ theme }) => {
    };
 });
 
-const AddProject = () => {
+const AddProjectForMobile = () => {
    const [projectImages, setProjectImages] = useState([]);
+   const navigate = useNavigate();
 
    const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
       const mappedAcceptedFiles = acceptedFiles.map((file) => {
@@ -252,6 +258,11 @@ const AddProject = () => {
             projectData
          );
          console.log(data);
+         if(data.message === 'Project created successfully'){
+             reset();
+             setProjectImages([]);
+             toast.success(data.message);
+         }
       } catch (error) {
          console.log(error.message);
       }
@@ -273,47 +284,62 @@ const AddProject = () => {
       }
    }, []);
 
+
+
    return (
       <motion.div
          initial={{ x: '10vw', opacity: 0 }}
          animate={{ x: 0, opacity: 1 }}
-         transition={{ duration: 0.5, delay: 0.1 }}
+         transition={{ duration: 0.3, delay: 0.1 }}
       >
          <AddProjectBox>
             <Box component='form' onSubmit={handleSubmit(submitHandler)}>
+               {/* nav section */}
                <Box
                   sx={{
                      display: 'flex',
-                     justifyContent: 'flex-end',
+                     justifyContent: 'space-between',
                      alignItems: 'center',
                      marginBottom: '2rem',
                   }}
                >
-                  {tag === 0 ? (
-                     <PushPinOutlinedIcon
-                        sx={{
-                           fontSize: '40px',
-                           cursor: 'pointer',
-                           color: '#ffd05b',
-                        }}
-                        onClick={() => setTag(1)}
-                     />
-                  ) : (
-                     <PushPinIcon
-                        sx={{
-                           fontSize: '40px',
-                           cursor: 'pointer',
-                           color: '#ffd05b',
-                        }}
-                        onClick={() => setTag(0)}
-                     />
-                  )}
-                  <YellowButton style={{ marginLeft: '1rem' }} type='submit'>
-                     Submit
-                  </YellowButton>
+                  <ArrowBackIcon
+                     sx={{ fontSize: 40, cursor: 'pointer' }}
+                     onClick={() => navigate(-1)}
+                  />
+                  <Box
+                     sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                     }}
+                  >
+                     {tag === 0 ? (
+                        <PushPinOutlinedIcon
+                           sx={{
+                              fontSize: '40px',
+                              cursor: 'pointer',
+                              color: '#ffd05b',
+                           }}
+                           onClick={() => setTag(1)}
+                        />
+                     ) : (
+                        <PushPinIcon
+                           sx={{
+                              fontSize: '40px',
+                              cursor: 'pointer',
+                              color: '#ffd05b',
+                           }}
+                           onClick={() => setTag(0)}
+                        />
+                     )}
+                     <YellowButton style={{ marginLeft: '1rem' }} type='submit'>
+                        Submit
+                     </YellowButton>
+                  </Box>
                </Box>
-               <Grid container spacing={3}>
-                  <Grid item sm={12} md={6} lg={4}>
+               <Grid container spacing={1}>
+                  <Grid item xs={12} xs={12} sm={12} md={6} lg={4}>
                      <SolrufTextField
                         label='Product Name'
                         {...register('name', {
@@ -324,7 +350,7 @@ const AddProject = () => {
                         })}
                      />
                   </Grid>
-                  <Grid item sm={12} md={6} lg={4}>
+                  <Grid item xs={12} sm={12} md={6} lg={4}>
                      <MonthsTakenBox>
                         <input
                            type='number'
@@ -353,7 +379,7 @@ const AddProject = () => {
                         </select>
                      </MonthsTakenBox>
                   </Grid>
-                  <Grid item sm={12} md={6} lg={4}>
+                  <Grid item xs={12} sm={12} md={6} lg={4}>
                      <PowerCapacityBox>
                         <input
                            type='number'
@@ -382,39 +408,47 @@ const AddProject = () => {
                         </select>
                      </PowerCapacityBox>
                   </Grid>
-                  <Grid item md={6}>
+                  <Grid item xs={12} md={6}>
                      <CustomSelect
+                        sx={{ mt: 0.6 }}
                         name='fieldName'
                         value={category_id}
                         label='Project Category'
                         changeHandler={handleTagChange}
                      >
                         {categories.map((category) => (
-                           <MenuItem value={category?.category_id}>
+                           <MenuItem
+                              value={category?.category_id}
+                              key={category.category_id}
+                           >
                               {category?.name + category?.id}
                            </MenuItem>
                         ))}
                      </CustomSelect>
                   </Grid>
-                  <Grid item md={12}>
+                  <Grid item xs={12} md={12}>
                      <CustomTextArea
                         rows='5'
-                        placeholder='Description'
+                        placeholder='Description (1000 characters)'
                         {...register('description', {
                            required: {
                               value: true,
                               message: 'Name is required',
                            },
                         })}
+                        style={{ marginTop: '.3rem' }}
                      ></CustomTextArea>
                   </Grid>
 
                   <Grid item md={12}>
                      {/* <SolrufAccordion /> */}
 
-                     <CustomAccordion title='Project Cost and Return On Investment'>
-                        <Grid container columnSpacing={3}>
-                           <Grid item sm={12} md={6} lg={4}>
+                     <CustomAccordion
+                        title='Project Cost and Return On Investment'
+                        noPadding={true}
+                     >
+                        <Grid container spacing={1}>
+                           <Grid item xs={12} sm={12} md={6} lg={4}>
                               <SolrufTextField
                                  label='Project Cost'
                                  type='text'
@@ -430,7 +464,7 @@ const AddProject = () => {
                                  })}
                               />
                            </Grid>
-                           <Grid item sm={12} md={6} lg={4}>
+                           <Grid item xs={12} sm={12} md={6} lg={4}>
                               <ReturnPeriodBox>
                                  <input
                                     type='number'
@@ -459,7 +493,7 @@ const AddProject = () => {
                                  </select>
                               </ReturnPeriodBox>
                            </Grid>
-                           <Grid item sm={12} md={6} lg={4}>
+                           <Grid item xs={12} sm={12} md={6} lg={4}>
                               <SolrufTextField
                                  label='Amount of Return'
                                  type='text'
@@ -478,9 +512,9 @@ const AddProject = () => {
                         </Grid>
                      </CustomAccordion>
 
-                     <CustomAccordion title='Location'>
-                        <Grid container columnSpacing={3}>
-                           <Grid item sm={12} md={6} lg={4}>
+                     <CustomAccordion title='Location' noPadding={true}>
+                        <Grid container spacing={1}>
+                           <Grid item xs={12} sm={12} md={6} lg={4}>
                               <SolrufTextField
                                  label='State'
                                  type='text'
@@ -492,7 +526,7 @@ const AddProject = () => {
                                  })}
                               />
                            </Grid>
-                           <Grid item sm={12} md={6} lg={4}>
+                           <Grid item xs={12} sm={12} md={6} lg={4}>
                               <SolrufTextField
                                  label='City/District'
                                  type='text'
@@ -505,7 +539,7 @@ const AddProject = () => {
                                  })}
                               />
                            </Grid>
-                           <Grid item sm={12} md={6} lg={4}>
+                           <Grid item xs={12} sm={12} md={6} lg={4}>
                               <SolrufTextField
                                  label='Pin Code'
                                  type='text'
@@ -521,9 +555,9 @@ const AddProject = () => {
                         </Grid>
                      </CustomAccordion>
 
-                     <CustomAccordion title='Customer Details'>
-                        <Grid container columnSpacing={3}>
-                           <Grid item sm={12} md={6} lg={4}>
+                     <CustomAccordion title='Customer Details' noPadding={true}>
+                        <Grid container spacing={1}>
+                           <Grid item xs={12} sm={12} md={6} lg={4}>
                               <SolrufTextField
                                  label='Customer Name'
                                  type='text'
@@ -532,21 +566,21 @@ const AddProject = () => {
                                     required: {
                                        value: true,
                                        message: 'Name is required',
-                                    }
+                                    },
                                  })}
                               />
                            </Grid>
-                           <Grid item sm={12}>
+                           <Grid item xs={12} sm={12}>
                               <CustomTextArea
                                  rows='5'
                                  placeholder='Customer Review'
-                                 style={{ marginTop: '1rem' }}
                                  {...register('customer_review', {
                                     required: {
                                        value: true,
                                        message: 'Review is required',
-                                    }
+                                    },
                                  })}
+                                 style={{ marginTop: '0rem' }}
                               ></CustomTextArea>
                            </Grid>
                         </Grid>
@@ -554,11 +588,11 @@ const AddProject = () => {
 
                      <CustomAccordion title='Upload Image'>
                         <Grid container columnSpacing={3}>
-                           <Grid item md={12} lg={4}>
+                           <Grid item xs={12} md={12} lg={4}>
                               <FileInputBox {...getRootProps()}>
                                  <input {...getInputProps()} />
 
-                                 <DottedBox>
+                                 {/* <DottedBox>
                                     <Typography
                                        variant='body2'
                                        textAlign='center'
@@ -573,10 +607,14 @@ const AddProject = () => {
                                           height: '100',
                                        }}
                                     />
-                                 </DottedBox>
+                                 </DottedBox> */}
+                                 <img
+                                    src='https://i.ibb.co/C23nQcK/Frame-165.png'
+                                    alt=''
+                                 />
                               </FileInputBox>
                            </Grid>
-                           <Grid item md={12} lg={5}>
+                           <Grid item xs={12} md={12} lg={5}>
                               <Box
                                  sx={{
                                     background: '',
@@ -608,6 +646,11 @@ const AddProject = () => {
                         </Grid>
                      </CustomAccordion>
                   </Grid>
+                  <Grid item xs={12}>
+                     <YellowButton style={{ width: '100%', marginTop: '1rem' }} type='submit'>
+                        Submit
+                     </YellowButton>
+                  </Grid>
                </Grid>
             </Box>
          </AddProjectBox>
@@ -615,4 +658,4 @@ const AddProject = () => {
    );
 };
 
-export default AddProject;
+export default AddProjectForMobile;

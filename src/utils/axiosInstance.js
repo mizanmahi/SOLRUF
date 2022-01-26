@@ -1,9 +1,15 @@
 import axios from 'axios';
 
-const headers = {};
+const headers = {
+   'Content-Type': 'application/json',
+   Accept: 'application/json',
+};
 
-if (localStorage.getItem('idToken')) {
-   const token = JSON.parse(localStorage.getItem('user')).token;
+console.log(localStorage.getItem('user'));
+
+if (localStorage.getItem('user') !== null) {
+   const token = JSON.parse(localStorage.getItem('user'))?.token;
+   console.log(token);
    headers.authorization = `Bearer ${token}`;
 }
 

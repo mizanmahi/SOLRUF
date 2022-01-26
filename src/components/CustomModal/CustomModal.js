@@ -76,6 +76,24 @@ const CustomModal = ({ open, handleClose }) => {
                         sapiente obcaecati laudantium saepe itaque veniam
                         consectetur, placeat illo asperiores maiores! Lorem
                         ipsum dolor sit amet consectetur. Lorem ipsum dolor sit
+                        amet consectetur adipisicing elit. Consequuntur veniam <br /> <br />
+                        sint consequatur necessitatibus minima. Et facere eum
+                        dolores corrupti, mollitia sunt quidem sequi ex vel
+                        obcaecati architecto delectus molestiae quos.
+                        ipsum dolor sit amet consectetur. Lorem ipsum dolor sit
+                        amet consectetur adipisicing elit. Consequuntur veniam
+                        sint consequatur necessitatibus minima. Et facere eum
+                        dolores corrupti, mollitia sunt quidem sequi ex vel
+                        obcaecati architecto delectus molestiae quos.
+                        obcaecati architecto delectus molestiae quos.
+                        ipsum dolor sit amet consectetur. Lorem ipsum dolor sit<br /> <br />
+                        amet consectetur adipisicing elit. Consequuntur veniam
+                        sint consequatur necessitatibus minima. Et facere eum
+                        dolores corrupti, mollitia sunt quidem sequi ex vel
+                        obcaecati architecto delectus molestiae quos.
+                        obcaecati architecto delectus molestiae quos.
+                        obcaecati architecto delectus molestiae quos.
+                        ipsum dolor sit amet consectetur. Lorem ipsum dolor sit
                         amet consectetur adipisicing elit. Consequuntur veniam
                         sint consequatur necessitatibus minima. Et facere eum
                         dolores corrupti, mollitia sunt quidem sequi ex vel

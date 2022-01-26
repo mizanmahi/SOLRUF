@@ -6,7 +6,7 @@ const Textarea = styled('textarea')(({ theme }) => {
       width: '100%',
       margin: '0 auto',
       border: '2px solid #FFD05B',
-      borderRadius: '10px',
+      borderRadius: '5px',
       outline: 'none',
       padding: '1rem',
       fontFamily: theme.typography.fontFamily,

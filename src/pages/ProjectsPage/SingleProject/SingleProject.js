@@ -48,7 +48,7 @@ const SingleProject = () => {
    const classes = useStyles();
 
    return (
-      <Grid item md={6} lg={4}>
+      <Grid item xs={12} md={6} lg={4}>
          <SingleProjectBox>
             <Box className={classes.pinBox}>
                <Typography variant='h6' sx={{ fontWeight: 500, mb: 1.5 }}>

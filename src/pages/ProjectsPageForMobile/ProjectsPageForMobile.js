@@ -7,20 +7,24 @@ import YellowButton from '../../components/YellowButton/YellowButton';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 
 // import addProject from '../../media/addProject.png';
-import SingleProject from './SingleProject/SingleProject';
 import BookProduct from '../../portfolio/BookProducts/BookProduct/BookProduct';
 // import { Link } from 'react-router-dom';
 import AddProject from '../AddProject/AddProject';
 import SearchProduct from '../SearchProduct/SearchProduct';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useNavigate } from 'react-router';
+import SingleProject from '../ProjectsPage/SingleProject/SingleProject';
+import SolrufTextField from '../../components/TextField/TextField';
+import SearchIcon from '@mui/icons-material/Search';
+import ProjectListView from '../../components/ProjectListView/ProjectListView';
+import ProjectModal from '../../components/ProjectModal/ProjectModal';
 
 const HeaderBox = styled(Box)(({ theme }) => {
    return {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginTop: '1rem'
+      marginTop: '1rem',
    };
 });
 
@@ -37,20 +41,22 @@ const ProjectsPageBox = styled(Box)(({ theme }) => {
    return {
       background: '#D0D7D9',
       padding: theme.spacing(.5),
-      borderRadius: theme.spacing(3),
+      paddingBottom: '1rem',
+      borderRadius: theme.spacing(1),
       marginTop: theme.spacing(10),
-      border: `2px solid ${theme.palette.primary.main}`,
+      // border: `2px solid ${theme.palette.primary.main}`,
       position: 'relative',
-      paddingBottom: '1.5rem',
    };
 });
 
 const TopButtonBox = styled(Box)(({ theme }) => {
    return {
       display: 'flex',
+      justifyContent: 'center',
       position: 'absolute',
+      left: '50%',
+      transform: 'translateX(-50%)',
       bottom: '100%',
-
    };
 });
 
@@ -71,7 +77,7 @@ const UploadProjectBox = styled(Box)(({ theme }) => {
    };
 });
 
-const ProjectsPage = () => {
+const ProjectsPageForMobile = () => {
    const [projectPage, setProjectPage] = useState(true);
    const [showForm, setShowForm] = useState(false);
    const [showProductForm, setShowProductForm] = useState(false);
@@ -80,11 +86,13 @@ const ProjectsPage = () => {
 
    const showFormHandler = () => {
       console.log(matches);
-      if (matches) {
+      if (matches && projectPage) {
          navigate('/m.addProject');
+         return;
       }
 
       if (projectPage) {
+         console.log('aise');
          setShowForm(true);
          // setProjectPage(false);
       } else {
@@ -109,11 +117,14 @@ const ProjectsPage = () => {
             <TopButtonBox>
                <YellowButton
                   style={{
-                     marginRight: '1.5rem',
+                     marginRight: '1rem',
                      boxShadow: 'none',
                      background: `${projectPage ? '#D0D7D9' : '#ffd05d'}`,
                      border: '2px solid #ffd05d',
                      borderBottom: 'none',
+                     borderRadius: '5px 5px 0 0',
+                     padding: '0.6rem 1rem',
+                     
                   }}
                   onClick={showProjectsPageHandler}
                >
@@ -125,6 +136,9 @@ const ProjectsPage = () => {
                      background: `${projectPage ? '#ffd05d' : '#D0D7D9'}`,
                      border: '2px solid #ffd05d',
                      borderBottom: 'none',
+                     borderRadius: '5px 5px 0 0', 
+                     padding: '0.6rem 1rem',
+                     
                   }}
                   onClick={showProductPageHandler}
                >
@@ -132,17 +146,11 @@ const ProjectsPage = () => {
                </YellowButton>
             </TopButtonBox>
 
-            {!showForm && (
-               <HeaderBox>
-                  <Typography variant='h5' fontWeight='bold'>
-                     Add Your {projectPage ? 'Projects' : 'Product'} right here
-                  </Typography>
-
-                  {/* <YellowButton>
-                     <AddIcon /> Add {projectPage ? 'Project' : 'Product'}
-                  </YellowButton> */}
-               </HeaderBox>
-            )}
+            <SolrufTextField
+               label='Search Project'
+               iconText={<SearchIcon />}
+               sx={{ background: '#fff', borderRadius: 1, mt: 2 }}
+            />
 
             {showForm && (
                <HeaderBox>
@@ -158,46 +166,57 @@ const ProjectsPage = () => {
                </HeaderBox>
             )}
 
+            <Button
+               variant='contained'
+               sx={{
+                  mt: 2.4,
+                  ml: 'auto',
+                  display: 'flex',
+                  p: 1.5,
+                  textTransform: 'capitalize',
+                  fontSize: '1rem',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+               }}
+               startIcon={<AddIcon />}
+               onClick={showFormHandler}
+            >
+               Add {projectPage ? 'Project' : 'Product'}
+            </Button>
+
             {!showForm && !showProductForm && (
                <ProjectsBox>
                   <Grid container spacing={3}>
-                     <Grid item md={6} lg={4}>
+                     {/* <Grid item md={6} lg={4}>
                         <UploadProjectBox onClick={showFormHandler}>
                            <img
                               src='https://i.ibb.co/9TQjBdx/Group-31.png'
                               alt='upload box'
                            />
                         </UploadProjectBox>
-                     </Grid>
+                     </Grid> */}
+
                      {projectPage && (
                         <>
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
+                           <Grid item xs={12} md={6} lg={4}>
+                              <ProjectListView />
+                           </Grid>
+                           <Grid item xs={12} md={6} lg={4}>
+                              <ProjectListView />
+                           </Grid>
+                           <Grid item xs={12} md={6} lg={4}>
+                              <ProjectListView />
+                           </Grid>
+                           <Grid item xs={12} md={6} lg={4}>
+                              <ProjectListView />
+                           </Grid>
+                           <Grid item xs={12} md={6} lg={4}>
+                              <ProjectListView />
+                           </Grid>
+                        
                         </>
                      )}
                      {!projectPage && !showForm && !showProductForm && (
                         <>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
                            <Grid item xs={12} sm={6} lg={4}>
                               <BookProduct editDelete={true} />
                            </Grid>
@@ -215,11 +234,13 @@ const ProjectsPage = () => {
             {showForm && <AddProject />}
             {showProductForm && <SearchProduct />}
          </Container>
+
+         <ProjectModal />
       </ProjectsPageBox>
    );
 };
 
-export default ProjectsPage;
+export default ProjectsPageForMobile;
 
 // https://i.ibb.co/prSrHsx/Rectangle-79.png
 // https://i.ibb.co/qnGsGWf/Rectangle-80.png

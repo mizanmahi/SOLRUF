@@ -1,16 +1,21 @@
-
-.react-select-container > [class$="control"] {
+.react-select-container > [class$='control'] {
    height: 55px;
-   border: 2px solid #FFD05B;
+   border: 2px solid #ffd05b;
 }
-.react-select-container  [class$="placeholder"] {
-  color: #676060;
-  font-family: 'roboto';
+.react-select-container [class$='placeholder'] {
+   color: #676060;
+   font-family: 'roboto';
 }
 
-.react-select-container > [class$="control"]:hover, 
-.react-select-container > [class$="control"]:focus {
+.react-select-container > [class$='control']:hover,
+.react-select-container > [class$='control']:focus {
    outline: none;
-   border: 2px solid #FFD05B;
+   border: 2px solid #ffd05b;
+}
 
+@media only screen and (max-width: 600px) {
+   .react-select-container > [class$='control'] {
+      height: 40px;
+      border: 2px solid #ffd05b;
+   }
 }

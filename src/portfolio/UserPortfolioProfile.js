@@ -35,9 +35,10 @@ import LightButton from '../components/YellowButton/LightButton/LightButton';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import DownloadIcon from '@mui/icons-material/Download';
 import CustomModal from '../components/CustomModal/CustomModal';
-import ProductCardForMobile from '../components/ProductCardForMobile/ProductCardForMobile';
 import { tooltipClasses } from '@mui/material/Tooltip';
 import TextModal from '../components/TextModal/TextModal';
+import { useEffect } from 'react';
+import { axiAuth } from '../utils/axiosInstance';
 
 const style = {
    position: 'absolute',
@@ -92,6 +93,7 @@ const useStyles = makeStyles((theme) => {
       },
       phonePanel: {
          display: 'flex',
+         maxWidth: '400px',
          justifyContent: 'space-around',
          background: (props) => (props.openPhonePanel ? '#FFD05B' : '#D0D7D9'),
          padding: theme.spacing(2),
@@ -108,6 +110,7 @@ const useStyles = makeStyles((theme) => {
       },
       addressPanel: {
          display: 'flex',
+         maxWidth: '400px',
          justifyContent: 'space-around',
          background: (props) => (props.openPhonePanel ? '#D0D7D9' : '#FFD05B'),
          padding: theme.spacing(2),
@@ -183,7 +186,7 @@ const HtmlTooltip = styled(({ className, ...props }) => (
 }));
 
 const UserPortfolioProfile = () => {
-   const tags = ['Tag #1', 'Tag #2', 'Tag #3', 'Tag #4', 'Tag #5'];
+   const tags = ['Tag #1', 'Tag #2', 'Tag #3', 'Tag #4', 'Tag #5','Tag #2', 'Tag #3', 'Tag #4', 'Tag #5'];
 
    const [open, setOpen] = useState(false);
    const handleOpen = () => setOpen(true);
@@ -218,16 +221,25 @@ const UserPortfolioProfile = () => {
 
    const [textExpanded, setTextExpanded] = useState(false);
    const handleTextExpandClose = () => {
-      setAboutTextExpanded(false)
-   }
+      setAboutTextExpanded(false);
+   };
    const [aboutTextExpanded, setAboutTextExpanded] = useState(false);
    const description =
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio obcaecati exercitationem quasi aperiam beatae unde velit veniam perspiciatis, cupiditate ipsam provident debitis quas aliquid odit quidem voluptatum architecto optio placeat at officiis non. Voluptatibus eos possimus, similique asperiores praesentium deserunt veniam odit expedita error minus, quaerat at numquam eaque fugit eum sit quas consequuntur nostrum rerum veritatis earum ducimus nam quia nihil. Neque excepturi aliquid corporis dolor. Doloribus iusto neque repellendus voluptate id et odio eligendi soluta debitis. Nemo, voluptates.  quaerat at numquam eaque fugit eum sit quas consequuntur nostrum rerum veritatis earum ducimus nam quia nihil. Neque excepturi aliquid corporis dolor. Doloribus iusto neque repellendus voluptate id et odio eligendi soluta debitis. Nemo, voluptates.';
+      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio obcaecati exercitationem quasi aperiam beatae unde velit veniam perspiciatis, cupiditate ipsam provident debitis quas aliquid odit quidem voluptatum architecto optio placeat at officiis non. Voluptatibus eos possimus, similique asperiores praesentium deserunt veniam odit expedita error minus, quaerat at numquam eaque fugit eum sit quas consequuntur nostrum rerum veritatis earum ducimus nam quia nihil. Neque excepturi aliquid corporis dolor. Doloribus iusto neque repellendus voluptate id et odio eligendi soluta debitis. Nemo, voluptates.  quaerat at numquam eaque fugit eum sit quas consequuntur nostrum rerum veritatis earum ducimus nam quia nihil. Neque excepturi aliquid corporis dolor. Doloribus iusto neque repellendus voluptate id et odio eligendi soluta debitis. Nemo, voluptates. asperiores praesentium deserunt veniam odit expedita error minus, quaerat at numquam eaque fugit eum sit quas consequuntur nostrum rerum veritatis earum ducimus nam quia nihil. Neque excepturi aliquid corporis dolor. Doloribus iusto neque repellendus voluptate id et odio eligendi soluta debitis. Nemo, voluptates.  quaerat at numquam eaque fugit eum sit quas consequuntur nostrum rerum veritatis earum ducimus nam quia nihil. Neque excepturi aliquid corporis dolor. Doloribus iusto neque repellendus voluptate id et odio eligendi soluta debitis. Nemo, voluptates.';
+
+   const [projects, setProjects] = useState([]);
+
+   useEffect(() => {
+      axiAuth.get('api/vendor/projects?page=1').then(({ data }) => {
+         console.log(data);
+         setProjects(data);
+      });
+   }, []);
 
    return (
-      <Box sx={{}}>
+      <Box sx={{background: '#F3F3F3', py: 4}}>
          <Container maxWidth='xl'>
-            <Box sx={{ bgcolor: '#f3f3f3', p: [1, 3.9], borderRadius: 3.9 }}>
+            <Box sx={{ bgcolor: '#ffffff', p: [1, 3.9], borderRadius: 4, }}>
                <Grid container rowSpacing={2}>
                   <Grid item xs={12} sm={12} md={6}>
                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -276,9 +288,10 @@ const UserPortfolioProfile = () => {
                               label={tag}
                               sx={{
                                  ml: 1,
+                                 color: '#fff',
                                  borderRadius: 1,
-                                 bgcolor: '#D0D7D9',
-                                 fontWeight: 500,
+                                 bgcolor: 'blue',
+                                 fontWeight: 600,
                                  fontSize: '1.1rem',
                                  mb: 1,
                               }}
@@ -328,14 +341,14 @@ const UserPortfolioProfile = () => {
                         <Box sx={{ display: 'flex', alignItems: 'top', mb: 2 }}>
                            <LocationMarkerIcon
                               style={{
-                                 height: '1.5rem',
+                                 height: '1.7rem',
                                  minHeight: 23,
                                  minWidth: 23,
                                  marginRight: '.5rem',
                               }}
                            />
-                           <Typography>
-                              <span style={{ fontWeight: '600' }}>
+                           <Typography variant='h6' fontSize='1.1rem'>
+                              <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
                                  Location: -
                               </span>
                               41, Prajkta Kunj Apt, Sarsole Gaon, Sec 6, Plot
@@ -345,21 +358,21 @@ const UserPortfolioProfile = () => {
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'top', mb: 2 }}>
                            <HomeIcon
-                              style={{ height: '1.5rem', marginRight: '.5rem' }}
+                              style={{ height: '1.7rem', marginRight: '.5rem' }}
                            />
-                           <Typography>
-                              <span style={{ fontWeight: '600' }}>
-                                 State: -
+                           <Typography variant='h6' fontSize='1.1rem'>
+                              <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
+                                 City / District: -
                               </span>
-                              Mumbai
+                              Mumbai, Maharashtra
                            </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'top', mb: 2 }}>
                            <PhoneMissedCallIcon
-                              style={{ height: '1.5rem', marginRight: '.5rem' }}
+                              style={{ height: '1.7rem', marginRight: '.5rem' }}
                            />
-                           <Typography>
-                              <span style={{ fontWeight: '600' }}>
+                           <Typography variant='h6' fontSize='1.1rem'>
+                              <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
                                  Mobile Number: -
                               </span>
                               00011199999
@@ -367,10 +380,10 @@ const UserPortfolioProfile = () => {
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'top', mb: 2 }}>
                            <MailIcon
-                              style={{ height: '1.5rem', marginRight: '.5rem' }}
+                              style={{ height: '1.7rem', marginRight: '.5rem' }}
                            />
-                           <Typography>
-                              <span style={{ fontWeight: '600' }}>
+                           <Typography variant='h6' fontSize='1.1rem'>
+                              <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
                                  Email: -
                               </span>
                               emmail@gmail.com
@@ -384,7 +397,7 @@ const UserPortfolioProfile = () => {
                               display: ['none', 'block'],
                            }}
                         >
-                           <Typography variant='h6' sx={{ fontWeight: 700 }}>
+                           <Typography variant='h5' sx={{ fontWeight: 600 }}>
                               Certification
                            </Typography>
 
@@ -626,10 +639,12 @@ const UserPortfolioProfile = () => {
                                              py: 0,
                                           }}
                                           onClick={() =>
-                                             setAboutTextExpanded(!aboutTextExpanded)
+                                             setAboutTextExpanded(
+                                                !aboutTextExpanded
+                                             )
                                           }
                                        >
-                                        Read More
+                                          Read More
                                        </Button>
                                     </Typography>
                                     <TextModal
@@ -735,7 +750,7 @@ const UserPortfolioProfile = () => {
                            display: 'flex',
                            flexDirection: 'column',
                            alignItems: 'flex-end',
-                           mt: 4,
+                           mt: 0,
                         }}
                      >
                         <Box
@@ -767,20 +782,20 @@ const UserPortfolioProfile = () => {
                               ></Box>
                            </Box>
                            <Box sx={{ display: ['none', 'block'] }}>
-                              <Typography sx={{ mb: 2, mt: 4 }}>
-                                 <span style={{ fontWeight: '600' }}>
+                              <Typography sx={{ mb: 2, mt: 4 }} variant='h6' fontSize='1.1rem'>
+                                 <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
                                     Turn Over: -
                                  </span>
                                  35lacs/year
                               </Typography>
-                              <Typography sx={{ mb: 2 }}>
-                                 <span style={{ fontWeight: '600' }}>
+                              <Typography sx={{ mb: 2 }} variant='h6' fontSize='1.1rem'>
+                                 <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
                                     Total Participation: -
                                  </span>
                                  300/400
                               </Typography>
-                              <Typography sx={{ mb: 2 }}>
-                                 <span style={{ fontWeight: '600' }}>
+                              <Typography sx={{ mb: 2 }} variant='h6' fontSize='1.1rem'>
+                                 <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
                                     GST No: -
                                  </span>
                                  123098
@@ -826,7 +841,7 @@ const UserPortfolioProfile = () => {
             </Box>
             {/* ======================== Book Consult Start ======================== */}
             <Box
-               sx={{ mt: 4, bgcolor: '#D0D7D9', p: [1.5, 4], borderRadius: 3 }}
+               sx={{ mt: 4, bgcolor: '#D0D7D9', p: [1.5, 5], borderRadius: 3 }}
             >
                <ConsultBookingHeader sx={{ flexDirection: ['column', 'row'] }}>
                   <Typography variant='h6' sx={{ fontWeight: 700, mb: [2, 0] }}>

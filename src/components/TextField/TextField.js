@@ -64,6 +64,7 @@ const SolrufTextField = ({
             sx={{ ...sx }}
             onChange={onChange}
             value={value}
+            size={size ? size : 'normal'}
          />
       </>
    );

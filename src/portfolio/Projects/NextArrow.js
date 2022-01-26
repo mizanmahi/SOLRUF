@@ -35,7 +35,7 @@ function SampleNextArrow(props) {
             ...style,
             display: 'block',
             background: 'gray',
-            marginRight: `${projectDetailsModal ? '.5rem' : '2rem'}`,
+            marginRight: `${projectDetailsModal ? '1.2rem' : '2rem'}`,
          }}
          onClick={onClick}
       ></Box>

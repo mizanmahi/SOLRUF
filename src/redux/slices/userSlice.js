@@ -15,7 +15,7 @@ export const userSlice = createSlice({
       },
       removeUser: (state, action) => {
          state.user = null;
-         sessionStorage.removeItem('user');
+         localStorage.removeItem('user');
       },
    },
 });

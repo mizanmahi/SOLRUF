@@ -1,5 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { Chip, Container, Grid, Typography } from '@mui/material';
+import {
+   Chip,
+   Container,
+   Grid,
+   Typography,
+   useMediaQuery,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Box } from '@mui/system';
 import Select from 'react-select';
@@ -10,17 +16,19 @@ import SolrufTextField from '../../components/TextField/TextField';
 import './myPortfolio.css';
 import ProductDetailList from '../../components/ProductDetailList/ProductDetailList';
 import LinearProgressWithLabel from '../../components/ProgressWithLabel/ProgressWithLabel';
-import axios from 'axios';
 import { useDropzone } from 'react-dropzone';
 import SingleFIleUploadWithProgress from './SingleFIleUploadWithProgress';
 import { useRef } from 'react';
 import UploadError from './UploadError';
 import ProjectsPage from '../ProjectsPage/ProjectsPage';
 import YellowButton from '../../components/YellowButton/YellowButton';
-import AddProject from '../AddProject/AddProject';
 import { useForm } from 'react-hook-form';
-import { axiAuth, axiosInstance } from '../../utils/axiosInstance';
+import { axiAuth } from '../../utils/axiosInstance';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import { toast, ToastContainer } from 'react-toastify';
+import CustomAccordion from '../../components/CustomAccordion/CustomAccordion';
+import QuantityController from '../../components/QuantityController/QuantityController';
+import ProjectsPageForMobile from '../ProjectsPageForMobile/ProjectsPageForMobile';
 
 const PageTitleBox = styled(Box)(({ theme }) => {
    return {
@@ -32,9 +40,8 @@ const PageTitleBox = styled(Box)(({ theme }) => {
 
 const FormBox = styled(Box)(({ theme }) => {
    return {
-      background: '#fff',
+      // background: '#fff',
       marginTop: theme.spacing(1),
-      padding: theme.spacing(5),
       borderRadius: theme.spacing(3),
    };
 });
@@ -102,7 +109,7 @@ const TurnOverBox = styled('div')(({ theme }) => {
          width: '20%',
          borderRight: '5px solid #FFD05B',
          height: '100%',
-         paddingLeft: '1.5rem',
+         textAlign: 'center',
          background: '#ffd05b',
          '& option': {
             background: '#ffd05b',
@@ -188,7 +195,7 @@ const MyPortfolio = () => {
    const [selectedService, setSelectedServices] = useState([]);
 
    const [file, setFile] = useState(null);
-   const [logo, setLogo] = useState('')
+   const [logo, setLogo] = useState('');
    const [fileSizeError, setFileSizeError] = useState('');
    const [fileUploadDone, setFIleUploadDone] = useState(false);
 
@@ -249,7 +256,7 @@ const MyPortfolio = () => {
          },
       });
       console.log(response);
-      setLogo(response.data.file_url)
+      setLogo(response.data.file_url);
    };
 
    const profileCancelHandler = () => {
@@ -309,6 +316,7 @@ const MyPortfolio = () => {
    const {
       register,
       handleSubmit,
+      reset,
       formState: { errors },
    } = useForm();
 
@@ -317,12 +325,13 @@ const MyPortfolio = () => {
       const certificates = certificateFiles.map(
          (certificate) => certificate.url
       );
+
       const file_names = certificateFiles.map(
          (certificate) => certificate.file.givenName
       );
       const services = selectedService;
       const state = selectedCountry.value;
-      const total_projects = projectNumber;
+      const total_projects = +projectNumber;
 
       const formData = {
          ...profileData,
@@ -331,25 +340,34 @@ const MyPortfolio = () => {
          certificates,
          file_names,
          total_projects,
-         logo
+         logo,
       };
 
       console.log(formData);
 
       try {
-         const { data } = await axiAuth.post(
-            'api/vendor/profile',
-            formData
-         );
-         console.log(data);
+         const { data } = await axiAuth.post('api/vendor/profile', formData);
+         if (data.message === 'Updated successfully') {
+            toast.success(data.message);
+            reset();
+            setCertificateFiles([]);
+            setSelectedCountry('State');
+            setSelectedServices([]);
+            nameRef.current.value = '';
+            setPreviewImage('');
+            setFile(null);
+         }
       } catch (error) {
          console.log(error.message);
       }
    };
    console.log('errors', errors);
 
+   const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+
    return (
-      <Box sx={{ bgcolor: '#f3f3f3', px: [1, 0] }}>
+      <Box sx={{ bgcolor: '#f3f3f3', px: [0, 1], pb: 3 }}>
+         <ToastContainer />
          <PageTitleBox>
             <Container maxWidth='xl'>
                <Grid container columnSpacing={3} sx={{ alignItems: 'center' }}>
@@ -423,439 +441,836 @@ const MyPortfolio = () => {
                Installer Info
             </Typography>
 
-            <FormBox component='form' onSubmit={handleSubmit(submitHandler)}>
-               <Grid container spacing={3} alignItems='center'>
-                  <Grid item md={6}>
-                     {/* ====== Profile image uploader ====== */}
-                     <label htmlFor='uploadProfilePic'>
-                        <input
-                           type='file'
-                           id='uploadProfilePic'
-                           style={{ display: 'none' }}
-                           onChange={uploadHandler}
-                        />
-                        {/* <img src="https://i.ibb.co/g4KCfd5/Group-221.png" alt=""  style={{height: 300}}/> */}
-                        <UploadBox>
-                           <ProductDetailList
-                              list='Add Photo'
-                              description='(Max size 5MB .jpg or .jpeg format)'
-                              home={true}
-                           />
-                           <DottedBox
-                              sx={{
-                                 border: `${
-                                    previewImage
-                                       ? ''
-                                       : '2px dashed rgba(0,0,0,0.6)'
-                                 }`,
-                              }}
-                           >
-                              <img
-                                 src={
-                                    previewImage
-                                       ? previewImage
-                                       : 'https://i.ibb.co/M23FX1T/upload-Plus.png'
-                                 }
-                                 alt=''
-                                 style={{
-                                    width: '150px',
-                                    height: '150px',
-                                    borderRadius: '50%',
-                                 }}
+            <FormBox
+               sx={{ p: [0, 3, 5], background: ['transparent', '#fff'] }}
+               component='form'
+               onSubmit={handleSubmit(submitHandler)}
+               matches={matches}
+            >
+               {!matches ? (
+                  <>
+                     <Grid container spacing={3} alignItems='center'>
+                        <Grid item md={6}>
+                           {/* ====== Profile image uploader ====== */}
+                           <label htmlFor='uploadProfilePic'>
+                              <input
+                                 type='file'
+                                 id='uploadProfilePic'
+                                 style={{ display: 'none' }}
+                                 onChange={uploadHandler}
                               />
-                           </DottedBox>
-                        </UploadBox>
-                     </label>
+                              {/* <img src="https://i.ibb.co/g4KCfd5/Group-221.png" alt=""  style={{height: 300}}/> */}
+                              <UploadBox>
+                                 <ProductDetailList
+                                    list='Add Photo'
+                                    description='(Max size 5MB .jpg or .jpeg format)'
+                                    home={true}
+                                 />
+                                 <DottedBox
+                                    sx={{
+                                       border: `${
+                                          previewImage
+                                             ? ''
+                                             : '2px dashed rgba(0,0,0,0.6)'
+                                       }`,
+                                    }}
+                                 >
+                                    <img
+                                       src={
+                                          previewImage
+                                             ? previewImage
+                                             : 'https://i.ibb.co/M23FX1T/upload-Plus.png'
+                                       }
+                                       alt=''
+                                       style={{
+                                          width: '150px',
+                                          height: '150px',
+                                          borderRadius: '50%',
+                                       }}
+                                    />
+                                 </DottedBox>
+                              </UploadBox>
+                           </label>
 
-                     {file && (
-                        <Box
-                           sx={{
-                              width: '100%',
-                              maxWidth: '410px',
-                              background: '#d0d7d9',
-                              p: 2,
-                              borderRadius: 2,
-                           }}
-                        >
+                           {file && (
+                              <Box
+                                 sx={{
+                                    width: '100%',
+                                    maxWidth: '410px',
+                                    background: '#d0d7d9',
+                                    p: 2,
+                                    borderRadius: 2,
+                                 }}
+                              >
+                                 <Box
+                                    sx={{
+                                       display: 'flex',
+                                       justifyContent: 'space-between',
+                                       alignItems: 'center',
+                                       width: '98%',
+                                    }}
+                                 >
+                                    <Box>
+                                       <PhotographIcon style={{ width: 20 }} />
+                                       <Typography
+                                          variant='body2'
+                                          component='a'
+                                          sx={{ ml: 1 }}
+                                       >
+                                          {file && file.name}
+                                       </Typography>
+                                    </Box>
+                                    {fileUploadDone ? (
+                                       <Box>
+                                          <CheckIcon
+                                             style={{
+                                                width: 30,
+                                                color: 'green',
+                                             }}
+                                          />
+                                          <XIcon
+                                             style={{
+                                                width: 20,
+                                                cursor: 'pointer',
+                                             }}
+                                             onClick={profileCancelHandler}
+                                          />
+                                       </Box>
+                                    ) : (
+                                       <XIcon
+                                          style={{
+                                             width: 20,
+                                             cursor: 'pointer',
+                                          }}
+                                          onClick={profileCancelHandler}
+                                       />
+                                    )}
+                                 </Box>
+                                 {fileSizeError ? (
+                                    <>
+                                       <Typography sx={{ color: 'red' }}>
+                                          {fileSizeError} Try Another!
+                                       </Typography>
+                                    </>
+                                 ) : (
+                                    !fileUploadDone && (
+                                       <LinearProgressWithLabel
+                                          variant='determinate'
+                                          value={percentage}
+                                       />
+                                    )
+                                 )}
+                              </Box>
+                           )}
+                        </Grid>
+                        <Grid item md={6}>
+                           <SolrufTextField
+                              label='Name'
+                              {...register('name', {
+                                 required: {
+                                    value: true,
+                                    message: 'Name is required',
+                                 },
+                              })}
+                           />
+                           <SolrufTextField
+                              sx={{ my: 2 }}
+                              label='Phone Number'
+                              {...register('mobile', {
+                                 required: {
+                                    value: true,
+                                    message: 'Number is required',
+                                 },
+                              })}
+                           />
+                           <SolrufTextField
+                              label='Email'
+                              {...register('email', {
+                                 required: {
+                                    value: true,
+                                    message: 'User Email is Required',
+                                 },
+                                 pattern: {
+                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                                    message: 'Invalid email address',
+                                 },
+                              })}
+                           />
+
+                           <SolrufTextField
+                              size='string'
+                              iconText={<InsertLinkIcon />}
+                              sx={{ my: 2 }}
+                              label='Video Intro'
+                              style={{ marginBottom: '1rem' }}
+                              {...register('video_url', {
+                                 required: {
+                                    value: true,
+                                    message: 'Video is Required',
+                                 },
+                              })}
+                           />
+
+                           <Select
+                              value={selectedCountry}
+                              onChange={handleChange}
+                              options={options}
+                              placeholder='State'
+                              className='react-select-container '
+                              styles={customStyles}
+                           />
+                        </Grid>
+                     </Grid>
+
+                     <Textarea
+                        rows='5'
+                        placeholder='Description'
+                        {...register('description', {
+                           required: {
+                              value: true,
+                              message: 'Description is Required',
+                           },
+                           minLength: {
+                              value: 10,
+                              message:
+                                 'Description must be at least 10 characters',
+                           },
+                        })}
+                     ></Textarea>
+
+                     <Grid container spacing={3}>
+                        <Grid item sm={12} md={6}>
+                           <SolrufTextField
+                              label='Company'
+                              {...register('company', {
+                                 required: {
+                                    value: true,
+                                    message: 'Company is Required',
+                                 },
+                              })}
+                           />
+                           <SolrufTextField
+                              sx={{ my: 1.5 }}
+                              label='GST No'
+                              {...register('gst', {
+                                 required: {
+                                    value: true,
+                                    message: 'GST number is Required',
+                                 },
+                              })}
+                           />
+                           <SolrufTextField
+                              label='Location'
+                              {...register('location', {
+                                 required: {
+                                    value: true,
+                                    message: 'User Email is Required',
+                                 },
+                              })}
+                           />
+                        </Grid>
+                        <Grid item sm={12} md={6}>
+                           <SolrufTextField
+                              label='Pin Code'
+                              type='number'
+                              {...register('pincode', {
+                                 required: {
+                                    value: true,
+                                    message: 'Pin Code is Required',
+                                 },
+                              })}
+                           />
+                           <SolrufTextField
+                              sx={{ my: 1.5 }}
+                              label='City / District'
+                              {...register('city', {
+                                 required: {
+                                    value: true,
+                                    message: 'City / District is Required',
+                                 },
+                              })}
+                           />
+
+                           <TurnOverBox>
+                              <input
+                                 type='number'
+                                 placeholder='Turnover'
+                                 {...register('turnover', {
+                                    required: {
+                                       value: true,
+                                       message: 'TurnOver is Required',
+                                    },
+                                 })}
+                                 name='turnover'
+                                 onChange={(event) => +event.target.value}
+                              />
+
+                              <select
+                                 name='turnoverType'
+                                 {...register('turnover_type', {
+                                    required: {
+                                       value: true,
+                                       message: 'Turnover Type is Required',
+                                    },
+                                 })}
+                              >
+                                 <option value='lakhs'>Lakhs</option>
+                                 <option value='crore'>Crore</option>
+                              </select>
+                           </TurnOverBox>
+                           {/* ====== Total projects box ====== */}
                            <Box
                               sx={{
                                  display: 'flex',
-                                 justifyContent: 'space-between',
+                                 justifyContent: 'center',
                                  alignItems: 'center',
-                                 width: '98%',
+                                 my: 3,
                               }}
                            >
-                              <Box>
-                                 <PhotographIcon style={{ width: 20 }} />
-                                 <Typography
-                                    variant='body2'
-                                    component='a'
-                                    sx={{ ml: 1 }}
-                                 >
-                                    {file && file.name}
-                                 </Typography>
+                              <Typography
+                                 variant='body1'
+                                 component='p'
+                                 sx={{ mr: 2 }}
+                              >
+                                 Total Projects
+                              </Typography>
+                              <Box
+                                 sx={{
+                                    border: '2px solid #ffd05b',
+                                    borderRadius: '5px',
+                                 }}
+                              >
+                                 <PlusIcon
+                                    style={{
+                                       width: 30,
+                                       background: '#ffd05b',
+                                       padding: '.3rem',
+                                    }}
+                                    onClick={() => {
+                                       setProjectNumber((prev) => +prev + 1);
+                                    }}
+                                 />
+                                 <input
+                                    type='text'
+                                    style={{
+                                       width: '50px',
+                                       textAlign: 'center',
+                                       border: 'none',
+                                    }}
+                                    value={projectNumber}
+                                    onChange={(e) =>
+                                       setProjectNumber(e.target.value)
+                                    }
+                                 />
+                                 <MinusIcon
+                                    style={{
+                                       width: 30,
+                                       background: '#ffd05b',
+                                       padding: '.3rem',
+                                    }}
+                                    onClick={() =>
+                                       setProjectNumber((projectNumber) => {
+                                          if (projectNumber > 1) {
+                                             return projectNumber - 1;
+                                          } else {
+                                             return projectNumber;
+                                          }
+                                       })
+                                    }
+                                 />
                               </Box>
-                              {fileUploadDone ? (
-                                 <Box>
-                                    <CheckIcon
-                                       style={{ width: 30, color: 'green' }}
-                                    />
-                                    <XIcon
-                                       style={{ width: 20, cursor: 'pointer' }}
-                                       onClick={profileCancelHandler}
-                                    />
-                                 </Box>
-                              ) : (
-                                 <XIcon
-                                    style={{ width: 20, cursor: 'pointer' }}
-                                    onClick={profileCancelHandler}
-                                 />
-                              )}
                            </Box>
-                           {fileSizeError ? (
-                              <>
-                                 <Typography sx={{ color: 'red' }}>
-                                    {fileSizeError} Try Another!
-                                 </Typography>
-                              </>
-                           ) : (
-                              !fileUploadDone && (
-                                 <LinearProgressWithLabel
-                                    variant='determinate'
-                                    value={percentage}
-                                 />
-                              )
-                           )}
-                        </Box>
-                     )}
-                  </Grid>
-                  <Grid item md={6}>
-                     <SolrufTextField
-                        label='Name'
-                        {...register('name', {
-                           required: {
-                              value: true,
-                              message: 'Name is required',
-                           },
-                        })}
-                     />
-                     <SolrufTextField
-                        sx={{ my: 2 }}
-                        label='Phone Number'
-                        {...register('mobile', {
-                           required: {
-                              value: true,
-                              message: 'Number is required',
-                           },
-                        })}
-                     />
-                     <SolrufTextField
-                        label='Email'
-                        {...register('email', {
-                           required: {
-                              value: true,
-                              message: 'User Email is Required',
-                           },
-                           pattern: {
-                              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-                              message: 'Invalid email address',
-                           },
-                        })}
-                     />
-
-                     <SolrufTextField
-                        size='string'
-                        iconText={<InsertLinkIcon />}
-                        sx={{ my: 2 }}
-                        label='Video Intro'
-                        style={{ marginBottom: '1rem' }}
-                        {...register('video_url', {
-                           required: {
-                              value: true,
-                              message: 'Video is Required',
-                           },
-                        })}
-                     />
-
+                        </Grid>
+                     </Grid>
                      <Select
-                        value={selectedCountry}
-                        onChange={handleChange}
-                        options={options}
-                        placeholder='State'
-                        className='react-select-container '
+                        // value={selectedService}
+                        onChange={handleServices}
+                        options={services}
+                        placeholder='Search Services'
+                        className='react-select-container'
                         styles={customStyles}
                      />
-                  </Grid>
-               </Grid>
 
-               <Textarea
-                  rows='5'
-                  placeholder='Description'
-                  {...register('description', {
-                     required: {
-                        value: true,
-                        message: 'Description is Required',
-                     },
-                     minLength: {
-                        value: 10,
-                        message: 'Description must be at least 10 characters',
-                     },
-                  })}
-               ></Textarea>
-
-               <Grid container spacing={3}>
-                  <Grid item sm={12} md={6}>
-                     <SolrufTextField
-                        label='Company'
-                        {...register('company', {
+                     <Box sx={{ mt: 2 }}>
+                        {selectedService.map((item, index) => {
+                           return (
+                              <Chip
+                                 label={item}
+                                 key={index}
+                                 sx={{
+                                    ml: 1,
+                                    borderRadius: 1,
+                                    bgcolor: '#D0D7D9',
+                                    fontWeight: 500,
+                                    fontSize: '1.1rem',
+                                 }}
+                              />
+                           );
+                        })}
+                     </Box>
+                     <Textarea
+                        rows='5'
+                        placeholder='After sale service policy'
+                        {...register('return_policy', {
                            required: {
                               value: true,
-                              message: 'Company is Required',
+                              message: 'Policy is Required',
+                           },
+                           minLength: {
+                              value: 10,
+                              message: 'Policy must be at least 10 characters',
                            },
                         })}
-                     />
-                     <SolrufTextField
-                        sx={{ my: 1.5 }}
-                        label='GST No'
-                        {...register('gst', {
-                           required: {
-                              value: true,
-                              message: 'GST number is Required',
-                           },
-                        })}
-                     />
-                     <SolrufTextField
-                        label='Location'
-                        {...register('location', {
-                           required: {
-                              value: true,
-                              message: 'User Email is Required',
-                           },
-                        })}
-                     />
-                  </Grid>
-                  <Grid item sm={12} md={6}>
-                     <SolrufTextField
-                        label='Pin Code'
-                        type='number'
-                        {...register('pincode', {
-                           required: {
-                              value: true,
-                              message: 'Pin Code is Required',
-                           },
-                        })}
-                     />
-                     <SolrufTextField
-                        sx={{ my: 1.5 }}
-                        label='City / District'
-                        {...register('city', {
-                           required: {
-                              value: true,
-                              message: 'City / District is Required',
-                           },
-                        })}
-                     />
-
-                     <TurnOverBox>
-                        <input
-                           type='text'
-                           placeholder='Turnover'
-                           {...register('turnover', {
-                              required: {
-                                 value: true,
-                                 message: 'TurnOver is Required',
-                              },
-                           })}
-                        />
-
-                        <select
-                           name='turnoverType'
-                           {...register('turnover_type', {
-                              required: {
-                                 value: true,
-                                 message: 'Turnover Type is Required',
-                              },
-                           })}
-                        >
-                           <option value='lakhs'>Lakhs</option>
-                           <option value='crore'>Crore</option>
-                        </select>
-                     </TurnOverBox>
-                     {/* ====== Total projects box ====== */}
-                     <Box
-                        sx={{
-                           display: 'flex',
-                           justifyContent: 'center',
-                           alignItems: 'center',
-                           my: 3,
-                        }}
-                     >
-                        <Typography
-                           variant='body1'
-                           component='p'
-                           sx={{ mr: 2 }}
-                        >
-                           Total Projects
+                     ></Textarea>
+                     <CertificateBox>
+                        <Typography variant='h6'>
+                           Add Certificates (Upto 5Mb)
                         </Typography>
-                        <Box
-                           sx={{
-                              border: '2px solid #ffd05b',
-                              borderRadius: '5px',
-                           }}
-                        >
-                           <PlusIcon
-                              style={{
-                                 width: 30,
-                                 background: '#ffd05b',
-                                 padding: '.3rem',
-                              }}
-                              onClick={() => {
-                                 setProjectNumber((prev) => +prev + 1);
-                              }}
-                           />
+                        <CertificateNameBox>
                            <input
                               type='text'
-                              style={{
-                                 width: '50px',
-                                 textAlign: 'center',
-                                 border: 'none',
-                              }}
-                              value={projectNumber}
-                              onChange={(e) => setProjectNumber(e.target.value)}
+                              placeholder='Certificate Name'
+                              ref={nameRef}
                            />
-                           <MinusIcon
+
+                           <label
+                              htmlFor='serviceFile'
                               style={{
-                                 width: 30,
+                                 width: '20%',
+                                 height: '100%',
                                  background: '#ffd05b',
-                                 padding: '.3rem',
                               }}
-                              onClick={() =>
-                                 setProjectNumber((projectNumber) => {
-                                    if (projectNumber > 1) {
-                                       return projectNumber - 1;
-                                    } else {
-                                       return projectNumber;
-                                    }
-                                 })
-                              }
-                           />
-                        </Box>
-                     </Box>
-                  </Grid>
-               </Grid>
-               <Select
-                  // value={selectedService}
-                  onChange={handleServices}
-                  options={services}
-                  placeholder='Search Services'
-                  className='react-select-container'
-                  styles={customStyles}
-               />
-
-               <Box sx={{ mt: 2 }}>
-                  {selectedService.map((item, index) => {
-                     return (
-                        <Chip
-                           label={item}
-                           key={index}
-                           sx={{
-                              ml: 1,
-                              borderRadius: 1,
-                              bgcolor: '#D0D7D9',
-                              fontWeight: 500,
-                              fontSize: '1.1rem',
-                           }}
-                        />
-                     );
-                  })}
-               </Box>
-               <Textarea
-                  rows='5'
-                  placeholder='After sale service policy'
-                  {...register('return_policy', {
-                     required: {
-                        value: true,
-                        message: 'Policy is Required',
-                     },
-                     minLength: {
-                        value: 10,
-                        message: 'Policy must be at least 10 characters',
-                     },
-                  })}
-               ></Textarea>
-               <CertificateBox>
-                  <Typography variant='h6'>
-                     Add Certificates (Upto 5Mb)
-                  </Typography>
-                  <CertificateNameBox>
-                     <input
-                        type='text'
-                        placeholder='Certificate Name'
-                        ref={nameRef}
-                     />
-
-                     <label
-                        htmlFor='serviceFile'
-                        style={{
-                           width: '20%',
-                           height: '100%',
-                           background: '#ffd05b',
-                        }}
-                        {...getRootProps()}
-                     >
-                        <input
-                           {...getInputProps()}
-                           multiple
-                           // onChange={(e) => console.log(e.target.files)}
-                        />
-                        <Box
-                           sx={{
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              height: '100%',
-                           }}
-                        >
-                           <PlusIcon style={{ width: 25 }} />{' '}
-                           <Typography variant='body1' sx={{ ml: 2 }}>
-                              Add File
+                              {...getRootProps()}
+                           >
+                              <input
+                                 {...getInputProps()}
+                                 multiple
+                                 // onChange={(e) => console.log(e.target.files)}
+                              />
+                              <Box
+                                 sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    height: '100%',
+                                 }}
+                              >
+                                 <PlusIcon style={{ width: 25 }} />{' '}
+                                 <Typography variant='body1' sx={{ ml: 2 }}>
+                                    Add File
+                                 </Typography>
+                              </Box>
+                           </label>
+                        </CertificateNameBox>
+                        {certificateNameError && (
+                           <Typography style={{ color: 'red' }}>
+                              {certificateNameError}
                            </Typography>
-                        </Box>
-                     </label>
-                  </CertificateNameBox>
-                  {certificateNameError && (
-                     <Typography style={{ color: 'red' }}>
-                        {certificateNameError}
-                     </Typography>
-                  )}
+                        )}
 
-                  {/* ================================================ */}
+                        {/* ================================================ */}
 
-                  {certificateFiles.map((fileWrapper, i) => {
-                     return fileWrapper?.errors?.length ? (
-                        <UploadError
-                           file={fileWrapper.file}
-                           errors={fileWrapper.errors}
-                           onDelete={deleteHandler}
-                        />
-                     ) : (
-                        <SingleFIleUploadWithProgress
-                           key={i}
-                           file={fileWrapper.file}
-                           onDelete={deleteHandler}
-                           onFileUpload={onFileUpload}
-                        />
-                     );
-                  })}
-               </CertificateBox>
+                        {certificateFiles.map((fileWrapper, i) => {
+                           return fileWrapper?.errors?.length ? (
+                              <UploadError
+                                 file={fileWrapper.file}
+                                 errors={fileWrapper.errors}
+                                 onDelete={deleteHandler}
+                              />
+                           ) : (
+                              <SingleFIleUploadWithProgress
+                                 key={i}
+                                 file={fileWrapper.file}
+                                 onDelete={deleteHandler}
+                                 onFileUpload={onFileUpload}
+                              />
+                           );
+                        })}
+                     </CertificateBox>
 
-               <YellowButton style={{ marginLeft: '85%', marginTop: '2rem' }}>
-                  Save
-               </YellowButton>
+                     <YellowButton
+                        style={{ marginLeft: '85%', marginTop: '2rem' }}
+                     >
+                        Save
+                     </YellowButton>
+
+                     {/* =========================== mobile ui ===========================*/}
+                  </>
+               ) : (
+                  <>
+                     {/* ========= basic details for mobile ========= */}
+                     <CustomAccordion
+                        title='Basic Details'
+                        noPadding={true}
+                        sx={{ background: 'transparent' }}
+                     >
+                        <Grid item md={6}>
+                           <SolrufTextField
+                              sx={{ background: '#ffffff' }}
+                              size='small'
+                              label='Name'
+                              {...register('name', {
+                                 required: {
+                                    value: true,
+                                    message: 'Name is required',
+                                 },
+                              })}
+                           />
+                           <SolrufTextField
+                              size='small'
+                              sx={{ my: 2, background: '#ffffff' }}
+                              label='Phone Number'
+                              {...register('mobile', {
+                                 required: {
+                                    value: true,
+                                    message: 'Number is required',
+                                 },
+                              })}
+                           />
+                           <SolrufTextField
+                              sx={{ background: '#ffffff' }}
+                              size='small'
+                              label='Email'
+                              {...register('email', {
+                                 required: {
+                                    value: true,
+                                    message: 'User Email is Required',
+                                 },
+                                 pattern: {
+                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                                    message: 'Invalid email address',
+                                 },
+                              })}
+                           />
+
+                           <SolrufTextField
+                              size='small'
+                              sx={{ my: 1.5, background: '#ffffff' }}
+                              label='GST No'
+                              {...register('gst', {
+                                 required: {
+                                    value: true,
+                                    message: 'GST number is Required',
+                                 },
+                              })}
+                           />
+                           <SolrufTextField
+                              sx={{ background: '#ffffff' }}
+                              size='small'
+                              iconText={<InsertLinkIcon />}
+                              label='Video Intro'
+                              style={{ marginBottom: '1rem' }}
+                              {...register('video_url', {
+                                 required: {
+                                    value: true,
+                                    message: 'Video is Required',
+                                 },
+                              })}
+                           />
+                           <Textarea
+                              rows='5'
+                              placeholder='Description'
+                              {...register('description', {
+                                 required: {
+                                    value: true,
+                                    message: 'Description is Required',
+                                 },
+                                 minLength: {
+                                    value: 10,
+                                    message:
+                                       'Description must be at least 10 characters',
+                                 },
+                              })}
+                              style={{ marginTop: '0rem' }}
+                           ></Textarea>
+                           {/* ========= profile image uploader for mobile ========= */}
+                           <label
+                              htmlFor='uploadProfilePic'
+                              style={{ width: '100%' }}
+                           >
+                              <input
+                                 type='file'
+                                 id='uploadProfilePic'
+                                 style={{ display: 'none' }}
+                                 onChange={uploadHandler}
+                              />
+
+                              <img
+                                 src='https://i.ibb.co/C23nQcK/Frame-165.png'
+                                 alt='upload profile'
+                                 style={{
+                                    maxWidth: '100%',
+                                    margin: '0 auto',
+                                    display: 'block',
+                                 }}
+                              />
+                           </label>
+                           {file && (
+                              <Box
+                                 sx={{
+                                    width: '100%',
+                                    maxWidth: '410px',
+                                    background: '#ffffff',
+                                    p: 2,
+                                    borderRadius: 2,
+                                 }}
+                              >
+                                 <Box
+                                    sx={{
+                                       display: 'flex',
+                                       justifyContent: 'space-between',
+                                       alignItems: 'center',
+                                       width: '98%',
+                                    }}
+                                 >
+                                    <Box>
+                                       <PhotographIcon style={{ width: 20 }} />
+                                       <Typography
+                                          variant='body2'
+                                          component='a'
+                                          sx={{ ml: 1 }}
+                                       >
+                                          {file && file.name}
+                                       </Typography>
+                                    </Box>
+                                    {fileUploadDone ? (
+                                       <Box>
+                                          <CheckIcon
+                                             style={{
+                                                width: 30,
+                                                color: 'green',
+                                             }}
+                                          />
+                                          <XIcon
+                                             style={{
+                                                width: 20,
+                                                cursor: 'pointer',
+                                             }}
+                                             onClick={profileCancelHandler}
+                                          />
+                                       </Box>
+                                    ) : (
+                                       <XIcon
+                                          style={{
+                                             width: 20,
+                                             cursor: 'pointer',
+                                          }}
+                                          onClick={profileCancelHandler}
+                                       />
+                                    )}
+                                 </Box>
+                                 {fileSizeError ? (
+                                    <>
+                                       <Typography sx={{ color: 'red' }}>
+                                          {fileSizeError} Try Another!
+                                       </Typography>
+                                    </>
+                                 ) : (
+                                    !fileUploadDone && (
+                                       <LinearProgressWithLabel
+                                          variant='determinate'
+                                          value={percentage}
+                                       />
+                                    )
+                                 )}
+                              </Box>
+                           )}
+                        </Grid>
+                     </CustomAccordion>
+                     {/* ========= company details for mobile ========= */}
+                     <CustomAccordion
+                        title='Company Details'
+                        noPadding={true}
+                        sx={{ background: 'transparent' }}
+                     >
+                        <Grid item md={6}>
+                           <SolrufTextField
+                              sx={{ background: '#ffffff' }}
+                              size='small'
+                              label='Pin Code'
+                              type='number'
+                              {...register('pincode', {
+                                 required: {
+                                    value: true,
+                                    message: 'Pin Code is Required',
+                                 },
+                              })}
+                           />
+                           <SolrufTextField
+                              sx={{ my: 2, background: '#ffffff' }}
+                              size='small'
+                              label='City / District'
+                              {...register('city', {
+                                 required: {
+                                    value: true,
+                                    message: 'City / District is Required',
+                                 },
+                              })}
+                           />
+
+                           <SolrufTextField
+                              sx={{ background: '#ffffff', mb: 2 }}
+                              size='small'
+                              label='Location'
+                              {...register('location', {
+                                 required: {
+                                    value: true,
+                                    message: 'User Email is Required',
+                                 },
+                              })}
+                           />
+
+                           <Select
+                              value={selectedCountry}
+                              onChange={handleChange}
+                              options={options}
+                              placeholder='State'
+                              className='react-select-container '
+                              styles={customStyles}
+                           />
+
+                           <TurnOverBox sx={{ mt: 2, height: '40px' }}>
+                              <input
+                                 style={{ width: '60%' }}
+                                 type='number'
+                                 placeholder='Turnover'
+                                 {...register('turnover', {
+                                    required: {
+                                       value: true,
+                                       message: 'TurnOver is Required',
+                                    },
+                                 })}
+                                 name='turnover'
+                                 onChange={(event) => +event.target.value}
+                              />
+
+                              <select
+                                 style={{ width: '40%' }}
+                                 name='turnoverType'
+                                 {...register('turnover_type', {
+                                    required: {
+                                       value: true,
+                                       message: 'Turnover Type is Required',
+                                    },
+                                 })}
+                              >
+                                 <option value='lakhs'>Lakhs</option>
+                                 <option value='crore'>Crore</option>
+                              </select>
+                           </TurnOverBox>
+                           <Box
+                              sx={{
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'space-between',
+                              }}
+                           >
+                              <Typography>Total Projects</Typography>
+                              <QuantityController
+                                 quantity={projectNumber}
+                                 setQuantity={setProjectNumber}
+                              />
+                           </Box>
+                        </Grid>
+                     </CustomAccordion>
+                     <CustomAccordion
+                        title='Certification'
+                        noPadding={true}
+                        sx={{ background: 'transparent' }}
+                     >
+                        <Grid item md={6}>
+                           <CertificateBox>
+                              <Typography variant='h6'>
+                                 Add Certificates (Upto 5Mb)
+                              </Typography>
+                              <CertificateNameBox>
+                                 <input
+                                    style={{ width: '60%' }}
+                                    type='text'
+                                    placeholder='Certificate Name'
+                                    ref={nameRef}
+                                 />
+
+                                 <label
+                                    htmlFor='serviceFile'
+                                    style={{
+                                       width: '40%',
+                                       height: '100%',
+                                       background: '#ffd05b',
+                                    }}
+                                    {...getRootProps()}
+                                 >
+                                    <input
+                                       {...getInputProps()}
+                                       multiple
+                                       // onChange={(e) => console.log(e.target.files)}
+                                    />
+                                    <Box
+                                       sx={{
+                                          display: 'flex',
+                                          justifyContent: 'center',
+                                          alignItems: 'center',
+                                          height: '100%',
+                                       }}
+                                    >
+                                       <PlusIcon style={{ width: 25 }} />{' '}
+                                       <Typography
+                                          variant='body1'
+                                          sx={{ ml: 2 }}
+                                       >
+                                          Add File
+                                       </Typography>
+                                    </Box>
+                                 </label>
+                              </CertificateNameBox>
+                              {certificateNameError && (
+                                 <Typography style={{ color: 'red' }}>
+                                    {certificateNameError}
+                                 </Typography>
+                              )}
+
+                              {/* ================================================ */}
+
+                              {certificateFiles.map((fileWrapper, i) => {
+                                 return fileWrapper?.errors?.length ? (
+                                    <UploadError
+                                       file={fileWrapper.file}
+                                       errors={fileWrapper.errors}
+                                       onDelete={deleteHandler}
+                                    />
+                                 ) : (
+                                    <SingleFIleUploadWithProgress
+                                       key={i}
+                                       file={fileWrapper.file}
+                                       onDelete={deleteHandler}
+                                       onFileUpload={onFileUpload}
+                                    />
+                                 );
+                              })}
+                           </CertificateBox>
+                        </Grid>
+                     </CustomAccordion>
+
+                     <YellowButton
+                        style={{
+                           marginLeft: 'auto',
+                           marginTop: '2rem',
+                           width: '100%',
+                        }}
+                     >
+                        Save
+                     </YellowButton>
+                  </>
+               )}
             </FormBox>
-
-            <ProjectsPage />
          </Container>
+         {!matches ? (
+            <Container maxWidth='xl' sx={{ mt: 5 }}>
+               <ProjectsPage />
+            </Container>
+         ) : (
+            <ProjectsPageForMobile />
+         )}
       </Box>
    );
 };

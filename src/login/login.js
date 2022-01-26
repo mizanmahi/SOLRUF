@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import Loader from '../components/Loader/Loader';
 import { useDispatch } from 'react-redux';
 import { saveUser } from '../redux/slices/userSlice';
+import { Box } from '@mui/system';
+import { closeLoginModal } from '../redux/slices/loginModalSlice';
 
 function Login(props) {
    // console.log(props.number)
@@ -39,7 +41,7 @@ function Login(props) {
 
       axios
          .post('https://api-dev.solruf.com/api/verify-otp', {
-            mobile: `${props.number.phone}`,
+            mobile: `${props.number?.phone}`,
             otp: otpinput,
          })
          .then(({ data }) => {
@@ -52,8 +54,10 @@ function Login(props) {
             dispatch(saveUser(data));
             setLoading(false);
             props.setUser(data); // setting user info to the local storage
-            props.setShowDashboard(true); // setting the dashboard menu to be visible
-            navigate('/dashboard'); // navigating to the dashboard
+            // props.setShowDashboard(true); // setting the dashboard menu to be visible
+            // navigate('/dashboard'); // navigating to the dashboard
+            setMsg('');
+            dispatch(closeLoginModal());
          })
          .catch((d) => {
             setSwitch('same');
@@ -83,13 +87,13 @@ function Login(props) {
                />
             </div>
             <div className='message'>
-               Enter OTP sent your {props.number.phone}.
+               Enter OTP Sent To {props.number?.phone}
             </div>
          </div>
          <div style={{ color: 'red' }} className='errormsg'>
             {msg}
          </div>
-         <div className='loginVerificatinInputButton'>
+         <Box className='loginVerificatinInputButton'>
             <input
                style={border}
                className='login-input'
@@ -101,11 +105,12 @@ function Login(props) {
                className='login-btn'
                onClick={resendOTPHandle}
                type='button'
+               style={{ padding: '0px .8rem' }}
             >
                Resend OTP
             </button>
             <br />
-         </div>
+         </Box>
          {loading ? (
             <Loader />
          ) : (
