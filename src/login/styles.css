@@ -56,6 +56,12 @@
    padding: 1.5rem 2rem;
 }
 
+@media only screen and (max-width: 600px) {
+   .signup_Ragistration {
+      padding: 1.5rem 0rem;
+   }
+}
+
 .signup-message {
    display: flex;
    justify-content: space-between;
@@ -86,35 +92,48 @@
 
 .fname,
 .lname {
-   width: 160;
+   width: 100%;
    height: 40px;
    outline: none;
-   border: 1px solid #ffd05b;
+   border: 2px solid #ffd05b;
    background-color: #e9ecef;
    padding: 4% 0% 4% 0%;
-   border-radius: 8px;
+   border-radius: 6px;
    text-align: center;
 }
 
 .lname {
+   /* margin-left: 1rem; */
+   /* margin-top: 1.5rem; */
    margin-left: 1rem;
 }
+
+@media screen and (max-width: 600px) {
+   .lname {
+      margin-left: 0px;
+      margin-top: 1.5rem;
+   }
+}
+   
+
 
 .register,
 .conf-resend-sms {
    width: 100%;
-   height: 35px;
    border: 2px solid #ffd05b;
-   border-radius: 10px;
+   border-radius: 6px;
    background-color: #ffd05b;
+   font-weight: 600;
+   padding: 0.5rem 1rem;
 }
 .register:hover {
-   transform: scale(1.01);
+   /* transform: scale(1.01); */
+   background-color: #fed95b;
 }
 
 /* otp confirmation */
 .conf_container {
-   border: 1px solid grey;
+   /* border: 1px solid grey; */
    background-color: white;
    border-radius: 5px;
    width: max-content;
@@ -138,6 +157,7 @@
    border: 1px solid #ffd05b;
    border-radius: 0px 8px 8px 0px;
    background-color: #ffd05b;
+   padding: 0 0.8rem;
 }
 
 .otp-cnf-btn:hover {

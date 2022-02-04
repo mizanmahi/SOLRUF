@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Grid, Typography, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { styled } from '@mui/material/styles';
@@ -14,13 +14,16 @@ import AddProject from '../AddProject/AddProject';
 import SearchProduct from '../SearchProduct/SearchProduct';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useNavigate } from 'react-router';
+import { axiAuth } from '../../utils/axiosInstance';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeProjectToBeEdited, setProjects } from '../../redux/slices/projectSlice';
 
 const HeaderBox = styled(Box)(({ theme }) => {
    return {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginTop: '1rem'
+      marginTop: '1.2rem',
    };
 });
 
@@ -36,8 +39,8 @@ const ProjectsBox = styled(Box)(({ theme }) => {
 const ProjectsPageBox = styled(Box)(({ theme }) => {
    return {
       background: '#D0D7D9',
-      padding: theme.spacing(.5),
-      borderRadius: theme.spacing(3),
+      padding: theme.spacing(0.5),
+      borderRadius: theme.spacing(2),
       marginTop: theme.spacing(10),
       border: `2px solid ${theme.palette.primary.main}`,
       position: 'relative',
@@ -50,7 +53,6 @@ const TopButtonBox = styled(Box)(({ theme }) => {
       display: 'flex',
       position: 'absolute',
       bottom: '100%',
-
    };
 });
 
@@ -72,14 +74,17 @@ const UploadProjectBox = styled(Box)(({ theme }) => {
 });
 
 const ProjectsPage = () => {
+   // const [projects, setProjects] = useState([]);
    const [projectPage, setProjectPage] = useState(true);
    const [showForm, setShowForm] = useState(false);
    const [showProductForm, setShowProductForm] = useState(false);
    const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
    const navigate = useNavigate();
 
+   const dispatch = useDispatch();
+   const { projects } = useSelector((state) => state.project);
+
    const showFormHandler = () => {
-      console.log(matches);
       if (matches) {
          navigate('/m.addProject');
       }
@@ -102,6 +107,21 @@ const ProjectsPage = () => {
       setShowForm(false);
       setShowProductForm(false);
    };
+
+   useEffect(() => {
+      axiAuth('api/vendor/projects?page=1')
+         .then(({ data }) => {
+            dispatch(setProjects(data.projects));
+         })
+         .catch((err) => {
+            console.log(err);
+         });
+   }, []);
+
+   const backToProjectHandler = () => {
+      setShowForm(false);
+      dispatch(removeProjectToBeEdited());
+   }
 
    return (
       <ProjectsPageBox>
@@ -137,10 +157,6 @@ const ProjectsPage = () => {
                   <Typography variant='h5' fontWeight='bold'>
                      Add Your {projectPage ? 'Projects' : 'Product'} right here
                   </Typography>
-
-                  {/* <YellowButton>
-                     <AddIcon /> Add {projectPage ? 'Project' : 'Product'}
-                  </YellowButton> */}
                </HeaderBox>
             )}
 
@@ -149,7 +165,7 @@ const ProjectsPage = () => {
                   <Button
                      startIcon={<KeyboardBackspaceIcon />}
                      sx={{ color: '#4D4D4D' }}
-                     onClick={() => setShowForm(false)}
+                     onClick={backToProjectHandler}
                   >
                      Back To Project
                   </Button>
@@ -169,18 +185,19 @@ const ProjectsPage = () => {
                            />
                         </UploadProjectBox>
                      </Grid>
+
                      {projectPage && (
                         <>
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
-                           <SingleProject />
+                           {projects.map((project) => (
+                              <SingleProject
+                                 key={project.project_id}
+                                 project={project}
+                                 setShowForm={setShowForm}
+                              />
+                           ))}
                         </>
                      )}
+
                      {!projectPage && !showForm && !showProductForm && (
                         <>
                            <Grid item xs={12} sm={6} lg={4}>

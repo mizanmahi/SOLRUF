@@ -18,6 +18,7 @@ import { axiAuth } from '../../utils/axiosInstance';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
 const AddProjectBox = styled(Box)(({ theme }) => {
    return {
@@ -173,6 +174,10 @@ const ReturnPeriodBox = styled(Box)(({ theme }) => {
 const AddProject = () => {
    const [projectImages, setProjectImages] = useState([]);
 
+   const { projectToBeEdited } = useSelector((state) => state.project);
+
+   console.log(projectToBeEdited);
+
    const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
       const mappedAcceptedFiles = acceptedFiles.map((file) => {
          return {
@@ -252,6 +257,11 @@ const AddProject = () => {
             projectData
          );
          console.log(data);
+         if (data.message === `Project created successfully`) {
+            reset();
+            setProjectImages([]);
+            alert(data.message);
+         }
       } catch (error) {
          console.log(error.message);
       }
@@ -315,7 +325,10 @@ const AddProject = () => {
                <Grid container spacing={3}>
                   <Grid item sm={12} md={6} lg={4}>
                      <SolrufTextField
-                        label='Product Name'
+                        defaultValue={
+                           projectToBeEdited ? projectToBeEdited.name : ''
+                        }
+                        label='Project Name'
                         {...register('name', {
                            required: {
                               value: true,
@@ -385,13 +398,14 @@ const AddProject = () => {
                   <Grid item md={6}>
                      <CustomSelect
                         name='fieldName'
-                        value={category_id}
+                        // value={category_id}
+
                         label='Project Category'
                         changeHandler={handleTagChange}
                      >
                         {categories.map((category) => (
                            <MenuItem value={category?.category_id}>
-                              {category?.name + category?.id}
+                              {category?.name}
                            </MenuItem>
                         ))}
                      </CustomSelect>
@@ -416,6 +430,11 @@ const AddProject = () => {
                         <Grid container columnSpacing={3}>
                            <Grid item sm={12} md={6} lg={4}>
                               <SolrufTextField
+                                 defaultValue={
+                                    projectToBeEdited
+                                       ? projectToBeEdited.project_cost
+                                       : ''
+                                 }
                                  label='Project Cost'
                                  type='text'
                                  iconText={
@@ -496,7 +515,6 @@ const AddProject = () => {
                               <SolrufTextField
                                  label='City/District'
                                  type='text'
-                                 size='small'
                                  {...register('city', {
                                     required: {
                                        value: true,
@@ -527,12 +545,11 @@ const AddProject = () => {
                               <SolrufTextField
                                  label='Customer Name'
                                  type='text'
-                                 size='small'
                                  {...register('customer_name', {
                                     required: {
                                        value: true,
                                        message: 'Name is required',
-                                    }
+                                    },
                                  })}
                               />
                            </Grid>
@@ -545,7 +562,7 @@ const AddProject = () => {
                                     required: {
                                        value: true,
                                        message: 'Review is required',
-                                    }
+                                    },
                                  })}
                               ></CustomTextArea>
                            </Grid>

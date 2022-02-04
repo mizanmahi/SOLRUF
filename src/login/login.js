@@ -24,7 +24,7 @@ function Login(props) {
    const navigate = useNavigate();
 
    function resendOTPHandle() {
-      axios.post(`${domainName.domain}login`, {
+      axios.post(`${domainName.domain}`, {
          mobile: `${props.number.phone}`,
       });
    }
@@ -123,3 +123,19 @@ function Login(props) {
 }
 
 export default Login;
+
+
+// verify response
+/* 
+{
+    "message": "OTP Verified",
+    "token": "46|7ku5DrgDMQPuE6ZM98Y7UrbUGIo75O8Kn32kJEhD",
+    "user": {
+        "first_name": "Sumit",
+        "last_name": "Agar.",
+        "email": "sazzzadh888@gmail.com",
+        "mobile": "9932383997",
+        "profile_image": null
+    }
+} 
+*/

@@ -1,8 +1,16 @@
-import { FormControl, InputLabel, Select } from '@mui/material';
+import { FormControl, InputLabel, Select, TextField } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 
-const CustomSelect = ({ value, changeHandler, children, name, label, sx }) => {
+const CustomSelect = ({
+   value,
+   changeHandler,
+   children,
+   name,
+   label,
+   sx,
+   defaultValue,
+}) => {
    return (
       <Box sx={{ minWidth: 120, ...sx }}>
          <FormControl
@@ -19,7 +27,10 @@ const CustomSelect = ({ value, changeHandler, children, name, label, sx }) => {
                value={value}
                label='Select category'
                onChange={changeHandler}
-               sx={{ background: '#fff', '&:hover .MuiOutlinedInput-root': {borderColor: '#ffd05b'} }}
+               sx={{
+                  background: '#fff',
+                  '&:hover .MuiOutlinedInput-root': { borderColor: '#ffd05b' },
+               }}
                //    size='small'
             >
                {children}

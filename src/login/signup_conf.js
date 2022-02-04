@@ -8,12 +8,15 @@ import domainName from '../domain/domainname.json';
 import { Typography } from '@mui/material';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useNavigate } from 'react-router-dom';
+import { axiAuth } from '../utils/axiosInstance';
+import { useDispatch } from 'react-redux';
+import { closeLoginModal } from '../redux/slices/loginModalSlice';
+import { saveUser } from '../redux/slices/userSlice';
 
 console.log(domainName.domain);
 
 function Signupconf(props) {
-
-   const [user, setUser] = useLocalStorage('user', null)
+   const [user, setUser] = useLocalStorage('user', null);
    const navigate = useNavigate();
 
    console.log(props.number);
@@ -31,27 +34,33 @@ function Signupconf(props) {
       });
    }
 
+   const dispatch = useDispatch();
+
    function confirmHandle(e) {
       e.preventDefault();
       let getvalue = JSON.parse(window.localStorage.getItem('user'));
       console.log(getvalue);
 
-      axios
-         .post(`${domainName.domain}verify-otp`, {
+      axiAuth
+         .post(`api/verify-otp`, {
             mobile: `${props.number.phone}`,
             otp: otpinput,
          })
-         .then(({data}) => {
+         .then(({ data }) => {
             setSwitch('welcome');
             setMsg('');
             setBorderColor({
                border: '1px solid #ffba08',
             });
 
-            setUser(data)
+            setUser(data);
             console.log(data);
+
+            dispatch(closeLoginModal());
+            dispatch(saveUser(data));
             props.setShowDashboard(true);
-            navigate('/dashboard'); // navigating to the dashboard
+
+            // navigate('/dashboard'); // navigating to the dashboard
          })
          .catch((d) => {
             setSwitch('same');
@@ -86,7 +95,7 @@ function Signupconf(props) {
                Enter OTP sent to {props.number.phone}.
             </Typography>
          </div>
-         <form style={{marginTop: '2rem'}}>
+         <form style={{ marginTop: '2rem' }}>
             <div className='otpConfirmationInputButton'>
                <div style={{ color: 'red' }} className='errormsg'>
                   {msg}

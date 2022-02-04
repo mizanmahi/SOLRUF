@@ -4,8 +4,59 @@ import Checkuser from './checkuser';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import domainName from '../domain/domainname.json';
+import { Box, styled, Typography } from '@mui/material';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 
-//let gobj={};
+const UserTypeBox = styled(Box)(({ theme }) => ({
+   display: 'block',
+   padding: '1rem 0',
+}));
+
+const UserBox = styled(Box)(({ theme }) => ({
+   display: 'flex',
+   justifyContent: 'space-between',
+   background: '#D0D7D9',
+   padding: '.5rem',
+   borderRadius: '6px',
+   border: '2px solid #000000',
+   marginBottom: '1rem',
+   cursor: 'pointer',
+   flex: 1,
+   '&:hover': {
+      opacity: '0.9',
+   },
+}));
+const VendorBox = styled(Box)(({ theme }) => ({
+   display: 'flex',
+   justifyContent: 'space-between',
+   background: '#D0D7D9',
+   padding: '.5rem',
+   borderRadius: '6px',
+   border: '2px solid #000000',
+   cursor: 'pointer',
+   flex: 1,
+   '&:hover': {
+      opacity: '0.9',
+   },
+}));
+
+const Text = styled(Box)(({ theme }) => ({
+   textAlign: 'right',
+   flex: '1',
+}));
+
+const Circle = styled(Box)(({ theme }) => ({
+   width: '1.5rem',
+   height: '1.5rem',
+   borderRadius: '50%',
+   border: '2px solid #000000',
+   marginRight: '1rem',
+}));
+
 let userDetails;
 function Signup(props) {
    //console.log(props.number);
@@ -63,8 +114,6 @@ function Signup(props) {
          emailconfirmation = true;
       }
 
-
-
       if (
          firstname.length >= 1 &&
          lastname.length > 0 &&
@@ -77,32 +126,42 @@ function Signup(props) {
          gobj.email = useremail;
          gobj.phone = userphone;
 
-
          // backend code
          userDetails = {
             first_name: firstname,
             last_name: lastname,
             email: useremail,
             mobile: userphone,
+            role,
          };
 
          axios
             .post(`https://api-dev.solruf.com/api/register`, userDetails)
             .then(({ data }) => {
                console.log(data);
-               if (data.message === 'success') {
+               if (data.message === 'Success') {
                   setSwitch('confirm');
                }
             })
             .catch((d) => setSwitch('same'));
-      }else {
-          console.log('Something went wrong!');
+      } else {
+         console.log('Something went wrong!');
       }
    }
 
    function handleBack() {
       setSwitch('ragister');
    }
+
+   const [role, setRole] = useState('User');
+   console.log(role);
+
+   const handleUserClick = (event) => {
+      setRole('User');
+   };
+   const handleVendorClick = (event) => {
+      setRole('Vendor');
+   };
 
    return switching === 'signup' ? (
       <div className='signup_Ragistration'>
@@ -121,29 +180,30 @@ function Signup(props) {
                {props.number ? props.number.phone : `Phone No`}.
             </div>
          </div>
-         <form style={{marginTop: '2rem'}}>
+         <form style={{ marginTop: '2rem' }}>
             <div style={{ color: 'red' }} className='errormsg'>
                {namemsg}
             </div>
-            <input
-               style={{ border: `${namecol}` }}
-               className='fname'
-               type='text'
-               value={firstname}
-               placeholder='First Name'
-               onChange={(e) => setFirstName(e.target.value)}
-               required
-            />
-            <input
-               style={{ border: `${namecol}` }}
-               className='lname'
-               type='text'
-               value={lastname}
-               placeholder='Last Name'
-               onChange={(e) => setUserlname(e.target.value)}
-               required
-            />
-            <br />
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: {xs: 'column',sm: 'row'} }}>
+               <input
+                  style={{ border: `${namecol}` }}
+                  className='fname'
+                  type='text'
+                  value={firstname}
+                  placeholder='First Name'
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+               />
+               <input
+                  style={{ border: `${namecol}` }}
+                  className='lname'
+                  type='text'
+                  value={lastname}
+                  placeholder='Last Name'
+                  onChange={(e) => setUserlname(e.target.value)}
+                  required
+               />
+            </Box>
             <br />
             <div style={{ color: 'red' }} className='errormsg'>
                {emailmsg}
@@ -174,6 +234,67 @@ function Signup(props) {
             />
             <br />
             <br />
+            <Box
+               sx={{
+                  mb: 2,
+                  mt: 1,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+               }}
+            >
+               <Typography variant='h5' fontWeight={600}>
+                  Register as{' '}
+               </Typography>
+
+               <UserTypeBox>
+                  <UserBox
+                     sx={{
+                        background: role === 'User' ? '#ffd05b' : '#D0D7D9',
+                     }}
+                     onClick={handleUserClick}
+                  >
+                     <Circle
+                        sx={{
+                           background: role === 'User' ? '#000000' : '#D0D7D9',
+                        }}
+                     ></Circle>
+                     <Text>
+                        <Typography variant='h6' fontWeight={600}>
+                           {' '}
+                           Purchase consumer
+                        </Typography>
+                        <Typography variant='body2'>
+                           You are here to purchase solar products.
+                        </Typography>
+                     </Text>
+                  </UserBox>
+                  <VendorBox
+                     sx={{
+                        background: role === 'Vendor' ? '#ffd05b' : '#D0D7D9',
+                     }}
+                     onClick={handleVendorClick}
+                  >
+                     <Circle
+                        sx={{
+                           background:
+                              role === 'Vendor' ? '#000000' : '#D0D7D9',
+                        }}
+                     ></Circle>
+                     <Text>
+                        <Typography variant='h6' fontWeight={600}>
+                           {' '}
+                           Solar Installer / Vendor
+                        </Typography>
+                        <Typography variant='body2'>
+                           You have a solar product/service company and woulkd
+                           like to promote yout business along with procurement.
+                        </Typography>
+                     </Text>
+                  </VendorBox>
+               </UserTypeBox>
+            </Box>
             <button className='register' onClick={handleUser} type='button'>
                Register
             </button>
@@ -184,7 +305,7 @@ function Signup(props) {
    ) : switching === 'ragister' ? (
       <Checkuser number={gobj} />
    ) : (
-      <Confirm number={gobj} setShowDashboard={props.setShowDashboard}/>
+      <Confirm number={gobj} setShowDashboard={props.setShowDashboard} />
    );
 }
 

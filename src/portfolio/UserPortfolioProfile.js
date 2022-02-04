@@ -185,8 +185,18 @@ const HtmlTooltip = styled(({ className, ...props }) => (
    },
 }));
 
-const UserPortfolioProfile = () => {
-   const tags = ['Tag #1', 'Tag #2', 'Tag #3', 'Tag #4', 'Tag #5','Tag #2', 'Tag #3', 'Tag #4', 'Tag #5'];
+const UserPortfolioProfile = ({ noPadding }) => {
+   const tags = [
+      'Tag #1',
+      'Tag #2',
+      'Tag #3',
+      'Tag #4',
+      'Tag #5',
+      'Tag #2',
+      'Tag #3',
+      'Tag #4',
+      'Tag #5',
+   ];
 
    const [open, setOpen] = useState(false);
    const handleOpen = () => setOpen(true);
@@ -236,10 +246,15 @@ const UserPortfolioProfile = () => {
       });
    }, []);
 
+   const WrapperStyle = {
+      py: noPadding ? '0' : 4,
+      background: noPadding ? 'transparent' : '#F3F3F3',
+   };
+
    return (
-      <Box sx={{background: '#F3F3F3', py: 4}}>
+      <Box sx={WrapperStyle}>
          <Container maxWidth='xl'>
-            <Box sx={{ bgcolor: '#ffffff', p: [1, 3.9], borderRadius: 4, }}>
+            <Box sx={{ bgcolor: '#ffffff', p: [1, 3.9], borderRadius: 4, boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
                <Grid container rowSpacing={2}>
                   <Grid item xs={12} sm={12} md={6}>
                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -348,7 +363,12 @@ const UserPortfolioProfile = () => {
                               }}
                            />
                            <Typography variant='h6' fontSize='1.1rem'>
-                              <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
+                              <span
+                                 style={{
+                                    fontWeight: '600',
+                                    fontSize: '1.2rem',
+                                 }}
+                              >
                                  Location: -
                               </span>
                               41, Prajkta Kunj Apt, Sarsole Gaon, Sec 6, Plot
@@ -361,7 +381,12 @@ const UserPortfolioProfile = () => {
                               style={{ height: '1.7rem', marginRight: '.5rem' }}
                            />
                            <Typography variant='h6' fontSize='1.1rem'>
-                              <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
+                              <span
+                                 style={{
+                                    fontWeight: '600',
+                                    fontSize: '1.2rem',
+                                 }}
+                              >
                                  City / District: -
                               </span>
                               Mumbai, Maharashtra
@@ -372,7 +397,12 @@ const UserPortfolioProfile = () => {
                               style={{ height: '1.7rem', marginRight: '.5rem' }}
                            />
                            <Typography variant='h6' fontSize='1.1rem'>
-                              <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
+                              <span
+                                 style={{
+                                    fontWeight: '600',
+                                    fontSize: '1.2rem',
+                                 }}
+                              >
                                  Mobile Number: -
                               </span>
                               00011199999
@@ -383,7 +413,12 @@ const UserPortfolioProfile = () => {
                               style={{ height: '1.7rem', marginRight: '.5rem' }}
                            />
                            <Typography variant='h6' fontSize='1.1rem'>
-                              <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
+                              <span
+                                 style={{
+                                    fontWeight: '600',
+                                    fontSize: '1.2rem',
+                                 }}
+                              >
                                  Email: -
                               </span>
                               emmail@gmail.com
@@ -782,20 +817,47 @@ const UserPortfolioProfile = () => {
                               ></Box>
                            </Box>
                            <Box sx={{ display: ['none', 'block'] }}>
-                              <Typography sx={{ mb: 2, mt: 4 }} variant='h6' fontSize='1.1rem'>
-                                 <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
+                              <Typography
+                                 sx={{ mb: 2, mt: 4 }}
+                                 variant='h6'
+                                 fontSize='1.1rem'
+                              >
+                                 <span
+                                    style={{
+                                       fontWeight: '600',
+                                       fontSize: '1.2rem',
+                                    }}
+                                 >
                                     Turn Over: -
                                  </span>
                                  35lacs/year
                               </Typography>
-                              <Typography sx={{ mb: 2 }} variant='h6' fontSize='1.1rem'>
-                                 <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
+                              <Typography
+                                 sx={{ mb: 2 }}
+                                 variant='h6'
+                                 fontSize='1.1rem'
+                              >
+                                 <span
+                                    style={{
+                                       fontWeight: '600',
+                                       fontSize: '1.2rem',
+                                    }}
+                                 >
                                     Total Participation: -
                                  </span>
                                  300/400
                               </Typography>
-                              <Typography sx={{ mb: 2 }} variant='h6' fontSize='1.1rem'>
-                                 <span style={{ fontWeight: '600', fontSize: '1.2rem' }}>
+                              <Typography
+                                 sx={{ mb: 2 }}
+                                 variant='h6'
+                                 fontSize='1.1rem'
+                              >
+                                 <span
+                                    style={{
+                                       fontWeight: '600',
+                                       fontSize: '1.2rem',
+                                    }}
+                                 >
                                     GST No: -
                                  </span>
                                  123098

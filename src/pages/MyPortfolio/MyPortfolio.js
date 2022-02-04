@@ -358,6 +358,7 @@ const MyPortfolio = () => {
             setFile(null);
          }
       } catch (error) {
+         console.log('error occurred');
          console.log(error.message);
       }
    };

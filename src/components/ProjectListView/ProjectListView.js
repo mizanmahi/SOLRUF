@@ -6,6 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import ProjectModal from '../ProjectModal/ProjectModal';
+import { useNavigate } from 'react-router';
 const ProjectList = styled(Box)(({ theme }) => ({
    width: '100%',
    display: 'flex',
@@ -37,22 +38,35 @@ const Number = styled(Box)(({ theme }) => ({
    marginRight: '0.5rem',
 }));
 
-const ProjectListView = () => {
+const ProjectListView = ({ project }) => {
    const [tag, setTag] = useState(0);
    const [projectModalOpen, setProjectModalOpen] = useState(false);
-   const handleModalOPen = () => {
+   const navigate = useNavigate(); 
+    
+   const handleModalOPen = (e) => {
       setProjectModalOpen(true);
    };
+
+   console.log(project);
+   const { name } = project;
 
    const handleModalClose = (e) => {
       e.stopPropagation();
       setProjectModalOpen(false);
    };
+
+   const handleEdit = (e) => {
+      e.stopPropagation();
+      navigate(`/editProjectMobile/${project.project_id}`);
+   };
+
    return (
       <ProjectList onClick={handleModalOPen}>
          <TitleBox>
             <Number>1</Number>
-            <Typography fontWeight={600}>Kanpur Power Grid...</Typography>
+            <Typography fontWeight={600}>
+               {name.length < 15 ? name : name.slice(0, 20) + '...'}
+            </Typography>
          </TitleBox>
          <ActionBox>
             {tag === 0 ? (
@@ -79,6 +93,7 @@ const ProjectListView = () => {
                   p: 0.2,
                   mx: 1,
                }}
+               onClick={handleEdit}
             />
             <DeleteIcon sx={{ color: '#F20519' }} />
          </ActionBox>

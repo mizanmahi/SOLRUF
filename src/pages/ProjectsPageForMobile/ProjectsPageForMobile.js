@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Grid, Typography, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { styled } from '@mui/material/styles';
@@ -18,6 +18,7 @@ import SolrufTextField from '../../components/TextField/TextField';
 import SearchIcon from '@mui/icons-material/Search';
 import ProjectListView from '../../components/ProjectListView/ProjectListView';
 import ProjectModal from '../../components/ProjectModal/ProjectModal';
+import { axiAuth } from '../../utils/axiosInstance';
 
 const HeaderBox = styled(Box)(({ theme }) => {
    return {
@@ -40,7 +41,7 @@ const ProjectsBox = styled(Box)(({ theme }) => {
 const ProjectsPageBox = styled(Box)(({ theme }) => {
    return {
       background: '#D0D7D9',
-      padding: theme.spacing(.5),
+      padding: theme.spacing(0.5),
       paddingBottom: '1rem',
       borderRadius: theme.spacing(1),
       marginTop: theme.spacing(10),
@@ -111,6 +112,17 @@ const ProjectsPageForMobile = () => {
       setShowProductForm(false);
    };
 
+   const [projects, setProjects] = useState([]);
+
+   useEffect(() => {
+      axiAuth.get('api/vendor/projects?page=1').then(({ data }) => {
+         console.log(data);
+         console.log('fetch projects');
+         setProjects(data.projects);
+         console.log(data.projects[0]);
+      });
+   }, []);
+
    return (
       <ProjectsPageBox>
          <Container maxWidth='xl'>
@@ -124,7 +136,6 @@ const ProjectsPageForMobile = () => {
                      borderBottom: 'none',
                      borderRadius: '5px 5px 0 0',
                      padding: '0.6rem 1rem',
-                     
                   }}
                   onClick={showProjectsPageHandler}
                >
@@ -136,9 +147,8 @@ const ProjectsPageForMobile = () => {
                      background: `${projectPage ? '#ffd05d' : '#D0D7D9'}`,
                      border: '2px solid #ffd05d',
                      borderBottom: 'none',
-                     borderRadius: '5px 5px 0 0', 
+                     borderRadius: '5px 5px 0 0',
                      padding: '0.6rem 1rem',
-                     
                   }}
                   onClick={showProductPageHandler}
                >
@@ -197,22 +207,16 @@ const ProjectsPageForMobile = () => {
 
                      {projectPage && (
                         <>
-                           <Grid item xs={12} md={6} lg={4}>
-                              <ProjectListView />
-                           </Grid>
-                           <Grid item xs={12} md={6} lg={4}>
-                              <ProjectListView />
-                           </Grid>
-                           <Grid item xs={12} md={6} lg={4}>
-                              <ProjectListView />
-                           </Grid>
-                           <Grid item xs={12} md={6} lg={4}>
-                              <ProjectListView />
-                           </Grid>
-                           <Grid item xs={12} md={6} lg={4}>
-                              <ProjectListView />
-                           </Grid>
-                        
+                           {projects.map((project, index) => {
+                              return (
+                                 <Grid item xs={12} md={6} lg={4}>
+                                    <ProjectListView
+                                       project={project}
+                                       key={project.project_id}
+                                    />
+                                 </Grid>
+                              );
+                           })}
                         </>
                      )}
                      {!projectPage && !showForm && !showProductForm && (

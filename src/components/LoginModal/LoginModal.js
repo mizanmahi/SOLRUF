@@ -5,16 +5,22 @@ import CloseIcon from '@mui/icons-material/Close';
 import { styled } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { closeLoginModal } from '../../redux/slices/loginModalSlice';
+import {
+   setLoginMode,
+   setRegisterMode,
+   setVerificationMode,
+   setVerificationMode2,
+} from '../../redux/slices/loginStepSlice';
 
 const style = {
    top: '50%',
    left: '50%',
    transform: 'translate(-50%, -50%)',
-   width: '100%',
-   maxWidth: '500px',
+   width: 'fit-content',
+   maxWidth: '600px',
    bgcolor: 'background.paper',
    boxShadow: 24,
-   p: 4,
+   p: 5,
    position: 'relative',
    borderRadius: '5px',
 };
@@ -25,7 +31,7 @@ const CloseIconBox = styled(Box)(({ theme }) => ({
    right: '8px',
    background: '#efefef',
    borderRadius: '8px',
-   padding: '2px',
+   padding: '1px',
    cursor: 'pointer',
    '&:hover': {
       background: '#ddd',
@@ -36,6 +42,14 @@ const LoginModal = ({ children }) => {
    const { isOpen } = useSelector((state) => state.loginModal);
    const dispatch = useDispatch();
 
+   const closeHandler = () => {
+      dispatch(closeLoginModal());
+      dispatch(setLoginMode(true));
+      dispatch(setRegisterMode(false));
+      dispatch(setVerificationMode(false));
+      dispatch(setVerificationMode2(false));
+   };
+
    return (
       <div>
          <Modal
@@ -45,8 +59,8 @@ const LoginModal = ({ children }) => {
             aria-describedby='modal-modal-description'
          >
             <Box sx={style}>
-               <CloseIconBox onClick={() => dispatch(closeLoginModal())}>
-                  <CloseIcon />
+               <CloseIconBox onClick={closeHandler}>
+                  <CloseIcon sx={{fontSize: '1.3rem'}} />
                </CloseIconBox>
                {children}
             </Box>

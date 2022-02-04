@@ -34,6 +34,13 @@ import { useDispatch } from 'react-redux';
 import { saveUser } from './redux/slices/userSlice';
 import LoginModal from './components/LoginModal/LoginModal';
 import Login from './login/login';
+import MyDashboard from './pages/MyDashboard/MyDashboard';
+import DashboardPortfolio from './pages/Dashboard/DashboardPortfolio/DashboardPortfolio';
+import CustomerLeads from './pages/Dashboard/CustomerLeads/CustomerLeads';
+import Blogs from './pages/Blogs/Blogs';
+import SolarMaintenance from './pages/Blogs/SolarMaintenance/SolarMaintenance';
+import PvSystems from './pages/Blogs/PvSystems/PvSystems';
+import SolarSteps from './pages/Dashboard/SolarSteps/SolarSteps';
 
 function App() {
    const [showDashboard, setShowDashboard] = useState(false);
@@ -46,7 +53,6 @@ function App() {
          dispatch(saveUser(user));
       }
    }, [user, dispatch]);
-
 
    return (
       <ThemeProvider theme={theme}>
@@ -67,13 +73,21 @@ function App() {
                      }
                   />
                   <Route
-                     path='/dashboard'
+                     path='/dashboard/*'
                      element={
-                        <Layout>
+                        <Layout noFooter={true}>
                            <Dashboard />
                         </Layout>
                      }
-                  />
+                  >
+                     <Route path='myDashboard' element={<MyDashboard />} />
+                     <Route path='profile' element={<ProfileSharingPage />} />
+                     <Route
+                        path='portfolio'
+                        element={<DashboardPortfolio noPadding={true} />}
+                     />
+                     <Route path='customerLeads' element={<CustomerLeads />} />
+                  </Route>
                   <Route
                      path='/profileSharing/:profileId'
                      element={
@@ -215,6 +229,40 @@ function App() {
                      element={
                         <Layout header={false}>
                            <UserPortfolioProfile />
+                        </Layout>
+                     }
+                  />
+                  {/*  ========= blogs ========= */}
+                  <Route
+                     path='/blogs'
+                     element={
+                        <Layout header={false}>
+                           <Blogs />
+                        </Layout>
+                     }
+                  />
+
+                  <Route
+                     path='/blogs/maintenance'
+                     element={
+                        <Layout header={false}>
+                           <SolarMaintenance />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/typesOfPvSystems'
+                     element={
+                        <Layout header={false}>
+                           <PvSystems />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/solarSteps'
+                     element={
+                        <Layout header={false}>
+                           <SolarSteps />{' '}
                         </Layout>
                      }
                   />

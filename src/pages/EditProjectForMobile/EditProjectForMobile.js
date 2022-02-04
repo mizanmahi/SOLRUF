@@ -1,7 +1,7 @@
 import { Box } from '@mui/system';
 import React, { useCallback, useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { Grid, MenuItem, Typography } from '@mui/material';
+import { Grid, MenuItem, Select, TextField, Typography } from '@mui/material';
 import SolrufTextField from '../../components/TextField/TextField';
 import { useDropzone } from 'react-dropzone';
 import UploadError from '../MyPortfolio/UploadError';
@@ -20,6 +20,8 @@ import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
+import Loader from '../../components/Loader/Loader';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const AddProjectBox = styled(Box)(({ theme }) => {
    return {
@@ -57,7 +59,7 @@ const PowerCapacityBox = styled(Box)(({ theme }) => {
       display: 'flex',
       justifyContent: 'stretch',
       alignItems: 'stretch',
-      height: '54px',
+      height: '58px',
       marginTop: '3px',
       boxSizing: 'border-box',
       borderRadius: '5px',
@@ -94,7 +96,7 @@ const MonthsTakenBox = styled(Box)(({ theme }) => {
       display: 'flex',
       justifyContent: 'stretch',
       alignItems: 'stretch',
-      height: '54px',
+      height: '58px',
       marginTop: '3px',
       boxSizing: 'border-box',
       borderRadius: '5px',
@@ -162,6 +164,52 @@ const ReturnPeriodBox = styled(Box)(({ theme }) => {
    };
 });
 
+const ConsultTextField = styled(TextField)(({ theme }) => ({
+   '& label.Mui-focused': {
+      color: theme.palette.primary.dark,
+   },
+   '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+         borderColor: theme.palette.primary.main,
+         borderWidth: '2px',
+      },
+      '&:hover fieldset': {
+         borderColor: theme.palette.primary.main,
+      },
+      '&.Mui-focused fieldset': {
+         borderColor: theme.palette.primary.main,
+      },
+   },
+   width: '100%',
+   marginTop: '.2rem',
+   '& .MuiFormHelperText-root': {
+      
+   }
+}));
+
+const ImageBox = styled(Box)(({ theme }) => {
+   return {
+      background: '#F3F3F3',
+      maxWidth: '80px',
+      borderRadius: '5px',
+      overflow: 'hidden',
+      position: 'relative',
+      '& img': {
+         width: '100%',
+      },
+      '& svg': {
+         position: 'absolute',
+         top: 0,
+         right: 0,
+         zIndex: 1,
+         cursor: 'pointer',
+         '&:hover': {
+            color: 'red'
+         }
+      }
+   };
+})
+
 const EditProjectForMobile = () => {
    const [projectImages, setProjectImages] = useState([]);
    const navigate = useNavigate();
@@ -201,10 +249,9 @@ const EditProjectForMobile = () => {
       setProjectImages((cur) => cur.filter((fw) => fw.file !== file));
    };
 
-   const [category_id, setCategory_id] = useState('');
+   const [category_id, setCategory_id] = useState(22);
 
    const handleTagChange = (e) => {
-      console.log(e.target.value);
       e.preventDefault();
       setCategory_id(e.target.value);
    };
@@ -273,15 +320,19 @@ const EditProjectForMobile = () => {
 
    const { projectId } = useParams();
 
-    const [project, setProject] = useState({});
+   const [project, setProject] = useState({});
+   const [loadingProject, setLoadingProject] = useState(true);
 
    useEffect(() => {
-      axiAuth.get('api/vendor/projects?page=1').then(({ data }) => {
+      setLoadingProject(true);
+      axiAuth.get(`api/vendor/projects/${projectId}`).then(({ data }) => {
          console.log(data);
-         setProject(data.projects[0]);
-         console.log(data.projects[0]);
+         setProject(data.project);
+         setLoadingProject(false);
       });
-   }, []);
+   }, [projectId]);
+
+   console.log(project);
 
    return (
       <motion.div
@@ -289,356 +340,414 @@ const EditProjectForMobile = () => {
          animate={{ x: 0, opacity: 1 }}
          transition={{ duration: 0.3, delay: 0.1 }}
       >
-         <AddProjectBox>
-            <Box component='form' onSubmit={handleSubmit(submitHandler)}>
-               {/* nav section */}
-               <Box
-                  sx={{
-                     display: 'flex',
-                     justifyContent: 'space-between',
-                     alignItems: 'center',
-                     marginBottom: '2rem',
-                  }}
-               >
-                  <ArrowBackIcon
-                     sx={{ fontSize: 40, cursor: 'pointer' }}
-                     onClick={() => navigate(-1)}
-                  />
+         {loadingProject ? (
+            <Loader />
+         ) : (
+            <AddProjectBox>
+               <Box component='form' onSubmit={handleSubmit(submitHandler)}>
+                  {/* nav section */}
                   <Box
                      sx={{
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
+                        marginBottom: '2rem',
                      }}
                   >
-                     {tag === 0 ? (
-                        <PushPinOutlinedIcon
-                           sx={{
-                              fontSize: '40px',
-                              cursor: 'pointer',
-                              color: '#ffd05b',
-                           }}
-                           onClick={() => setTag(1)}
-                        />
-                     ) : (
-                        <PushPinIcon
-                           sx={{
-                              fontSize: '40px',
-                              cursor: 'pointer',
-                              color: '#ffd05b',
-                           }}
-                           onClick={() => setTag(0)}
-                        />
-                     )}
-                     <YellowButton style={{ marginLeft: '1rem' }} type='submit'>
-                        Update
-                     </YellowButton>
-                  </Box>
-               </Box>
-               <Grid container spacing={1}>
-                  <Grid item xs={12} sm={12} md={6} lg={4}>
-                     <SolrufTextField
-                        label='Product Name'
-                        defaultValue={'Mizanar rahaman'}
-                        {...register('name', {
-                           required: {
-                              value: true,
-                              message: 'Name is required',
-                           },
-                        })}
+                     <ArrowBackIcon
+                        sx={{ fontSize: 40, cursor: 'pointer' }}
+                        onClick={() => navigate(-1)}
                      />
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={6} lg={4}>
-                     <MonthsTakenBox>
-                        <input
-                           type='number'
-                           placeholder='Months Taken'
-                           {...register('duration', {
-                              required: {
-                                 value: true,
-                                 message: 'Duration is Required',
-                              },
-                           })}
-                           name='duration'
-                           onChange={(event) => +event.target.value}
-                        />
-
-                        <select
-                           name='duration_type'
-                           {...register('duration_type', {
-                              required: {
-                                 value: true,
-                                 message: 'Duration Type is Required',
-                              },
-                           })}
-                        >
-                           <option value='months'>Month</option>
-                           <option value='year'>Year</option>
-                        </select>
-                     </MonthsTakenBox>
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={6} lg={4}>
-                     <PowerCapacityBox>
-                        <input
-                           type='number'
-                           placeholder='Capacity'
-                           {...register('power_capacity', {
-                              required: {
-                                 value: true,
-                                 message: 'Capacity is Required',
-                              },
-                           })}
-                           name='power_capacity'
-                           onChange={(event) => +event.target.value}
-                        />
-
-                        <select
-                           name='capacity_type'
-                           {...register('power_capacity_type', {
-                              required: {
-                                 value: true,
-                                 message: 'Capacity Type is Required',
-                              },
-                           })}
-                        >
-                           <option value='kw'>Kw</option>
-                           <option value='mw'>Mw</option>
-                        </select>
-                     </PowerCapacityBox>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                     <CustomSelect
-                        sx={{ mt: 0.6 }}
-                        name='fieldName'
-                        value={category_id}
-                        label='Project Category'
-                        changeHandler={handleTagChange}
+                     <Box
+                        sx={{
+                           display: 'flex',
+                           justifyContent: 'space-between',
+                           alignItems: 'center',
+                        }}
                      >
-                        {categories.map((category) => (
-                           <MenuItem
-                              value={category?.category_id}
-                              key={category.category_id}
+                        {tag === 0 ? (
+                           <PushPinOutlinedIcon
+                              sx={{
+                                 fontSize: '40px',
+                                 cursor: 'pointer',
+                                 color: '#ffd05b',
+                              }}
+                              onClick={() => setTag(1)}
+                           />
+                        ) : (
+                           <PushPinIcon
+                              sx={{
+                                 fontSize: '40px',
+                                 cursor: 'pointer',
+                                 color: '#ffd05b',
+                              }}
+                              onClick={() => setTag(0)}
+                           />
+                        )}
+                        <YellowButton
+                           style={{ marginLeft: '1rem' }}
+                           type='submit'
+                        >
+                           Update
+                        </YellowButton>
+                     </Box>
+                  </Box>
+                  <Grid container spacing={1}>
+                     <Grid item xs={12} sm={12} md={6} lg={4}>
+                        <SolrufTextField
+                           label='Project Name'
+                           defaultValue={project.name}
+                           {...register('name', {
+                              required: {
+                                 value: true,
+                                 message: 'Name is required',
+                              },
+                           })}
+                        />
+                     </Grid>
+                     <Grid item xs={12} sm={12} md={6} lg={4}>
+                        <MonthsTakenBox>
+                           <input
+                              defaultValue={project.duration}
+                              type='number'
+                              placeholder='Months Taken'
+                              {...register('duration', {
+                                 required: {
+                                    value: true,
+                                    message: 'Duration is Required',
+                                 },
+                              })}
+                              name='duration'
+                              onChange={(event) => +event.target.value}
+                           />
+
+                           <select
+                              defaultValue={project.duration_type}
+                              name='duration_type'
+                              {...register('duration_type', {
+                                 required: {
+                                    value: true,
+                                    message: 'Duration Type is Required',
+                                 },
+                              })}
                            >
-                              {category?.name + category?.id}
-                           </MenuItem>
-                        ))}
-                     </CustomSelect>
-                  </Grid>
-                  <Grid item xs={12} md={12}>
-                     <CustomTextArea
-                        rows='5'
-                        placeholder='Description (1000 characters)'
-                        {...register('description', {
-                           required: {
-                              value: true,
-                              message: 'Name is required',
-                           },
-                        })}
-                        style={{ marginTop: '.3rem' }}
-                     ></CustomTextArea>
-                  </Grid>
+                              <option value='months'>Month</option>
+                              <option value='year'>Year</option>
+                           </select>
+                        </MonthsTakenBox>
+                     </Grid>
+                     <Grid item xs={12} sm={12} md={6} lg={4}>
+                        <PowerCapacityBox>
+                           <input
+                              defaultValue={project.power_capacity}
+                              type='number'
+                              placeholder='Capacity'
+                              {...register('power_capacity', {
+                                 required: {
+                                    value: true,
+                                    message: 'Capacity is Required',
+                                 },
+                              })}
+                              name='power_capacity'
+                              onChange={(event) => +event.target.value}
+                           />
 
-                  <Grid item md={12}>
-                     {/* <SolrufAccordion /> */}
-
-                     <CustomAccordion
-                        title='Project Cost and Return On Investment'
-                        noPadding={true}
-                     >
-                        <Grid container spacing={1}>
-                           <Grid item xs={12} sm={12} md={6} lg={4}>
-                              <SolrufTextField
-                                 label='Project Cost'
-                                 type='text'
-                                 iconText={
-                                    <Typography variant='body2'>INR</Typography>
-                                 }
-                                 size='large'
-                                 {...register('cost', {
-                                    required: {
-                                       value: true,
-                                       message: 'Name is required',
-                                    },
-                                 })}
-                              />
-                           </Grid>
-                           <Grid item xs={12} sm={12} md={6} lg={4}>
-                              <ReturnPeriodBox>
-                                 <input
-                                    type='number'
-                                    placeholder='Return Period'
-                                    {...register('return_period', {
-                                       required: {
-                                          value: true,
-                                          message: 'Return Period is Required',
-                                       },
-                                    })}
-                                    name='return_period'
-                                    onChange={(event) => +event.target.value}
-                                 />
-
-                                 <select
-                                    name='return_period_type'
-                                    {...register('return_period_type', {
-                                       required: {
-                                          value: true,
-                                          message: 'Period Type is Required',
-                                       },
-                                    })}
-                                 >
-                                    <option value='month'>Month</option>
-                                    <option value='year'>Year</option>
-                                 </select>
-                              </ReturnPeriodBox>
-                           </Grid>
-                           <Grid item xs={12} sm={12} md={6} lg={4}>
-                              <SolrufTextField
-                                 label='Amount of Return'
-                                 type='text'
-                                 iconText={
-                                    <Typography variant='body2'>INR</Typography>
-                                 }
-                                 size='large'
-                                 {...register('return_amount', {
-                                    required: {
-                                       value: true,
-                                       message: 'Name is required',
-                                    },
-                                 })}
-                              />
-                           </Grid>
-                        </Grid>
-                     </CustomAccordion>
-
-                     <CustomAccordion title='Location' noPadding={true}>
-                        <Grid container spacing={1}>
-                           <Grid item xs={12} sm={12} md={6} lg={4}>
-                              <SolrufTextField
-                                 label='State'
-                                 type='text'
-                                 {...register('state', {
-                                    required: {
-                                       value: true,
-                                       message: 'State is required',
-                                    },
-                                 })}
-                              />
-                           </Grid>
-                           <Grid item xs={12} sm={12} md={6} lg={4}>
-                              <SolrufTextField
-                                 label='City/District'
-                                 type='text'
-                                 size='small'
-                                 {...register('city', {
-                                    required: {
-                                       value: true,
-                                       message: 'Name is required',
-                                    },
-                                 })}
-                              />
-                           </Grid>
-                           <Grid item xs={12} sm={12} md={6} lg={4}>
-                              <SolrufTextField
-                                 label='Pin Code'
-                                 type='text'
-                                 size='large'
-                                 {...register('pincode', {
-                                    required: {
-                                       value: true,
-                                       message: 'Name is required',
-                                    },
-                                 })}
-                              />
-                           </Grid>
-                        </Grid>
-                     </CustomAccordion>
-
-                     <CustomAccordion title='Customer Details' noPadding={true}>
-                        <Grid container spacing={1}>
-                           <Grid item xs={12} sm={12} md={6} lg={4}>
-                              <SolrufTextField
-                                 label='Customer Name'
-                                 type='text'
-                                 size='small'
-                                 {...register('customer_name', {
-                                    required: {
-                                       value: true,
-                                       message: 'Name is required',
-                                    },
-                                 })}
-                              />
-                           </Grid>
-                           <Grid item xs={12} sm={12}>
-                              <CustomTextArea
-                                 rows='5'
-                                 placeholder='Customer Review'
-                                 {...register('customer_review', {
-                                    required: {
-                                       value: true,
-                                       message: 'Review is required',
-                                    },
-                                 })}
-                                 style={{ marginTop: '0rem' }}
-                              ></CustomTextArea>
-                           </Grid>
-                        </Grid>
-                     </CustomAccordion>
-
-                     <CustomAccordion title='Upload Image'>
-                        <Grid container columnSpacing={3}>
-                           <Grid item xs={12} md={12} lg={4}>
-                              <FileInputBox {...getRootProps()}>
-                                 <input {...getInputProps()} />
-
-                                 <img
-                                    src='https://i.ibb.co/C23nQcK/Frame-165.png'
-                                    alt=''
-                                 />
-                              </FileInputBox>
-                           </Grid>
-                           <Grid item xs={12} md={12} lg={5}>
-                              <Box
-                                 sx={{
-                                    background: '',
-                                    p: 2,
-                                    maxHeight: '300px',
-                                    overflowY: 'auto',
-                                 }}
+                           <select
+                              defaultValue={project.power_capacity_type}
+                              name='capacity_type'
+                              {...register('power_capacity_type', {
+                                 required: {
+                                    value: true,
+                                    message: 'Capacity Type is Required',
+                                 },
+                              })}
+                           >
+                              <option value='kw'>Kw</option>
+                              <option value='mw'>Mw</option>
+                           </select>
+                        </PowerCapacityBox>
+                     </Grid>
+                     <Grid item xs={12} md={6}>
+                        {/* <CustomSelect
+                           sx={{ mt: 0.6 }}
+                           name='fieldName'
+                           defaultValue={22}
+                           value={category_id}
+                           // label='Project Category'
+                           changeHandler={handleTagChange}
+                           // defaultValue={project.category_id}
+                        >
+                           {categories.map((category) => (
+                              <MenuItem
+                                 value={category?.category_id}
+                                 key={category.category_id}
                               >
-                                 {projectImages.map((fileWrapper, i) => {
-                                    return fileWrapper?.errors?.length ? (
-                                       <UploadError
-                                          key={i}
-                                          file={fileWrapper.file}
-                                          errors={fileWrapper.errors}
-                                          onDelete={deleteHandler}
-                                       />
-                                    ) : (
-                                       <SingleFIleUploadWithProgress
-                                          key={i}
-                                          file={fileWrapper.file}
-                                          onDelete={deleteHandler}
-                                          onFileUpload={onFileUpload}
-                                       />
-                                    );
-                                 })}
-                              </Box>
+                                 { category?.name}
+                              </MenuItem>
+                           ))}
+                        </CustomSelect> */}
+
+                        <ConsultTextField
+                           select
+                           onChange={handleTagChange}
+                           variant='outlined'
+                           label='Project Category'
+                           fullWidth
+                           // defaultValue={22}
+                           value={category_id}
+                        >
+                           {categories.map((category) => (
+                              <MenuItem
+                                 value={category?.category_id}
+                                 key={category.category_id}
+                              >
+                                 {category?.name}
+                              </MenuItem>
+                           ))}
+                        </ConsultTextField>
+                     </Grid>
+                     <Grid item xs={12} md={12}>
+                        <CustomTextArea
+                           defaultValue={project.description}
+                           rows='5'
+                           placeholder='Description (1000 characters)'
+                           {...register('description', {
+                              required: {
+                                 value: true,
+                                 message: 'Name is required',
+                              },
+                           })}
+                           style={{ marginTop: '.3rem' }}
+                        ></CustomTextArea>
+                     </Grid>
+
+                     <Grid item md={12}>
+                        {/* <SolrufAccordion /> */}
+
+                        <CustomAccordion
+                           title='Project Cost and Return On Investment'
+                           noPadding={true}
+                        >
+                           <Grid container spacing={1}>
+                              <Grid item xs={12} sm={12} md={6} lg={4}>
+                                 <SolrufTextField
+                                    defaultValue={project.project_cost}
+                                    label='Project Cost'
+                                    type='text'
+                                    iconText={
+                                       <Typography variant='body2'>
+                                          INR
+                                       </Typography>
+                                    }
+                                    size='large'
+                                    {...register('cost', {
+                                       required: {
+                                          value: true,
+                                          message: 'Name is required',
+                                       },
+                                    })}
+                                 />
+                              </Grid>
+                              <Grid item xs={12} sm={12} md={6} lg={4}>
+                                 <ReturnPeriodBox>
+                                    <input
+                                       defaultValue={project.return_period}
+                                       type='number'
+                                       placeholder='Return Period'
+                                       {...register('return_period', {
+                                          required: {
+                                             value: true,
+                                             message:
+                                                'Return Period is Required',
+                                          },
+                                       })}
+                                       name='return_period'
+                                       onChange={(event) => +event.target.value}
+                                    />
+
+                                    <select
+                                       defaultValue={project.return_period_type}
+                                       name='return_period_type'
+                                       {...register('return_period_type', {
+                                          required: {
+                                             value: true,
+                                             message: 'Period Type is Required',
+                                          },
+                                       })}
+                                    >
+                                       <option value='month'>Month</option>
+                                       <option value='year'>Year</option>
+                                    </select>
+                                 </ReturnPeriodBox>
+                              </Grid>
+                              <Grid item xs={12} sm={12} md={6} lg={4}>
+                                 <SolrufTextField
+                                    defaultValue={project.return_amount}
+                                    label='Amount of Return'
+                                    type='text'
+                                    iconText={
+                                       <Typography variant='body2'>
+                                          INR
+                                       </Typography>
+                                    }
+                                    size='large'
+                                    {...register('return_amount', {
+                                       required: {
+                                          value: true,
+                                          message: 'Name is required',
+                                       },
+                                    })}
+                                 />
+                              </Grid>
                            </Grid>
-                           {/* <DesignLayoutUploadWithProgress /> */}
-                        </Grid>
-                     </CustomAccordion>
+                        </CustomAccordion>
+
+                        <CustomAccordion title='Location' noPadding={true}>
+                           <Grid container spacing={1}>
+                              <Grid item xs={12} sm={12} md={6} lg={4}>
+                                 <SolrufTextField
+                                    defaultValue={project.state}
+                                    label='State'
+                                    type='text'
+                                    {...register('state', {
+                                       required: {
+                                          value: true,
+                                          message: 'State is required',
+                                       },
+                                    })}
+                                 />
+                              </Grid>
+                              <Grid item xs={12} sm={12} md={6} lg={4}>
+                                 <SolrufTextField
+                                    defaultValue={project.city}
+                                    label='City/District'
+                                    type='text'
+                                    // size='small'
+                                    {...register('city', {
+                                       required: {
+                                          value: true,
+                                          message: 'Name is required',
+                                       },
+                                    })}
+                                 />
+                              </Grid>
+                              <Grid item xs={12} sm={12} md={6} lg={4}>
+                                 <SolrufTextField
+                                    defaultValue={project.pincode}
+                                    label='Pin Code'
+                                    type='text'
+                                    size='large'
+                                    {...register('pincode', {
+                                       required: {
+                                          value: true,
+                                          message: 'Name is required',
+                                       },
+                                    })}
+                                 />
+                              </Grid>
+                           </Grid>
+                        </CustomAccordion>
+
+                        <CustomAccordion
+                           title='Customer Details'
+                           noPadding={true}
+                        >
+                           <Grid container spacing={1}>
+                              <Grid item xs={12} sm={12} md={6} lg={4}>
+                                 <SolrufTextField
+                                    label='Customer Name'
+                                    type='text'
+                                    // size='small'
+                                    {...register('customer_name', {
+                                       required: {
+                                          value: true,
+                                          message: 'Name is required',
+                                       },
+                                    })}
+                                 />
+                              </Grid>
+                              <Grid item xs={12} sm={12}>
+                                 <CustomTextArea
+                                    rows='5'
+                                    placeholder='Customer Review'
+                                    {...register('customer_review', {
+                                       required: {
+                                          value: true,
+                                          message: 'Review is required',
+                                       },
+                                    })}
+                                    style={{ marginTop: '0rem' }}
+                                 ></CustomTextArea>
+                              </Grid>
+                           </Grid>
+                        </CustomAccordion>
+
+                        <CustomAccordion title='Upload Image'>
+                           <Grid container columnSpacing={3}>
+                              <Grid item xs={12} md={12} lg={4}>
+                                 <FileInputBox {...getRootProps()}>
+                                    <input {...getInputProps()} />
+
+                                    <img
+                                       src='https://i.ibb.co/C23nQcK/Frame-165.png'
+                                       alt=''
+                                    />
+                                 </FileInputBox>
+                              </Grid>
+                              <Grid item xs={12} md={12} lg={5}>
+                                 <Box sx={{mt: 1.5}}>
+                                    {
+                                       project.images.map((image, index) => (
+                                          <ImageBox>
+                                             <img src={image} alt="project" />
+                                             <DeleteIcon />
+                                          </ImageBox>
+                                       ))
+                                    }
+                                 </Box>
+                                 <Box
+                                    sx={{
+                                       background: '',
+                                       p: 2,
+                                       maxHeight: '300px',
+                                       overflowY: 'auto',
+                                    }}
+                                 >
+                                    {projectImages.map((fileWrapper, i) => {
+                                       return fileWrapper?.errors?.length ? (
+                                          <UploadError
+                                             key={i}
+                                             file={fileWrapper.file}
+                                             errors={fileWrapper.errors}
+                                             onDelete={deleteHandler}
+                                          />
+                                       ) : (
+                                          <SingleFIleUploadWithProgress
+                                             key={i}
+                                             file={fileWrapper.file}
+                                             onDelete={deleteHandler}
+                                             onFileUpload={onFileUpload}
+                                          />
+                                       );
+                                    })}
+                                 </Box>
+                              </Grid>
+                              {/* <DesignLayoutUploadWithProgress /> */}
+                           </Grid>
+                        </CustomAccordion>
+                     </Grid>
+                     <Grid item xs={12}>
+                        <YellowButton
+                           style={{ width: '100%', marginTop: '1rem' }}
+                           type='submit'
+                        >
+                           Submit
+                        </YellowButton>
+                     </Grid>
                   </Grid>
-                  <Grid item xs={12}>
-                     <YellowButton
-                        style={{ width: '100%', marginTop: '1rem' }}
-                        type='submit'
-                     >
-                        Submit
-                     </YellowButton>
-                  </Grid>
-               </Grid>
-            </Box>
-         </AddProjectBox>
+               </Box>
+            </AddProjectBox>
+         )}
       </motion.div>
    );
 };
