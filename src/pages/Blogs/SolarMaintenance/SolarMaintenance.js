@@ -10,7 +10,7 @@ const SolarMaintenance = () => {
    return (
       <Wrapper>
          <BlogIntroSection title='Solar Maintenance' />
-         <Container maxWidth='xl'>
+         <Container maxWidth='lg'>
             <Typography sx={{my: 10}}>
                Solar panels require extremely little maintenance because they
                have no moving parts. However, you should check them a few times

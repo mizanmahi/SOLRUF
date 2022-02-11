@@ -3,7 +3,6 @@ import {
    Container,
    Divider,
    Drawer,
-   Grid,
    styled,
    Typography,
    useMediaQuery,
@@ -14,32 +13,28 @@ import { Link, NavLink } from 'react-router-dom';
 import YellowButton from '../YellowButton/YellowButton';
 import SearchIcon from '@mui/icons-material/Search';
 import { useDispatch, useSelector } from 'react-redux';
-import { openLoginModal } from '../../redux/slices/loginModalSlice';
+import {
+   openLoginModal,
+   setLoginRedirect,
+} from '../../redux/slices/loginModalSlice';
 import Avatar from '@mui/material/Avatar';
 import PersonIcon from '@mui/icons-material/Person';
 import { removeUser } from '../../redux/slices/userSlice';
-import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import LoginModal from '../LoginModal/LoginModal';
-import Login from '../../login/checkuser';
 import MenuIcon from '@mui/icons-material/Menu';
-import CustomDrawer from '../CustomDrawer/CustomDrawer';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import GavelIcon from '@mui/icons-material/Gavel';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import DesktopMacIcon from '@mui/icons-material/DesktopMac';
-import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+
 import LogoutIcon from '@mui/icons-material/Logout';
 import ArticleIcon from '@mui/icons-material/Article';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import ArrowBack from '@mui/icons-material/ArrowBack';
 import AuthGuard from '../AuthGuard/AuthGuard';
 import LoginIcon from '@mui/icons-material/Login';
+import { useNavigate } from 'react-router';
 
 const Wrapper = styled(Box)(({ theme }) => ({
    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
@@ -78,6 +73,7 @@ const CustomMenuItem = styled(Typography)(({ theme }) => ({
    textDecoration: 'none',
    transition: 'all 0.2s ease',
    borderBottom: '2px solid transparent',
+   cursor: 'pointer',
    '&:hover': {
       color: '#000000',
       borderBottom: '2px solid #ffd05b',
@@ -244,7 +240,7 @@ const FooterMenu = styled(Box)(({ theme }) => ({
 
 const MainHeader = () => {
    const dispatch = useDispatch();
-   const { user } = useSelector((state) => state.user);
+   const { user, role } = useSelector((state) => state.user);
    const matchMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
    const matchSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
@@ -296,6 +292,19 @@ const MainHeader = () => {
 
    const logo1 = 'https://i.ibb.co/rpxqJQB/Sol-Ruf-animated-Logo-1.png';
    const logo2 = 'https://i.ibb.co/CzpgVFq/51.png';
+
+   const navigate = useNavigate();
+
+   const portfolioRouteHandler = () => {
+      if (!user) {
+         dispatch(openLoginModal());
+         dispatch(setLoginRedirect('/adminPortfolio'));
+      } else {
+         navigate('/adminPortfolio');
+      }
+   };
+
+   console.log(role); 
 
    return (
       <Wrapper
@@ -355,11 +364,11 @@ const MainHeader = () => {
 
                   <CustomMenuItem
                      variant='h6'
-                     component={Link}
-                     to='/adminPortfolio'
+                     // component={Link}
+                     onClick={portfolioRouteHandler}
                      color='textPrimary'
                   >
-                     portfolio
+                     Portfolio
                   </CustomMenuItem>
 
                   <CustomMenuItem

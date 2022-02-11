@@ -1,25 +1,20 @@
 import React from 'react';
 import { Container, Divider, Grid, styled, Typography } from '@mui/material';
-import { Box, typography } from '@mui/system';
+import { Box, } from '@mui/system';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import YellowButton from '../../components/YellowButton/YellowButton';
 import BlogIntroSection from '../../components/BlogIntroSection/BlogIntroSection';
 import { useNavigate } from 'react-router-dom';
+import RecentBlogList from './RecentBlogList/RecentBlogList';
 // import Card from '@mui/material/Card';
 
 const Wrapper = styled(Box)(({ theme }) => ({
    // background: '#D0D7D9',
 }));
 
-const RecentBlogsList = styled(Box)(({ theme }) => ({
-   boxShadow: '0px 4px 15px rgba(0,0,0,0.2)',
-   borderRadius: '10px',
-   padding: '1rem',
-}));
 
 const BlogCards = styled(Box)(({ theme }) => ({
-   //    boxShadow: '0px 4px 15px rgba(0,0,0,0.2)',
    borderRadius: '5px',
    margin: '3rem 0',
    position: 'relative',
@@ -33,7 +28,6 @@ const BlogCard = styled(Box)(({ theme }) => ({
    flexDirection: 'column',
 }));
 
-const SingleBlogList = styled(Box)(({ theme }) => ({}));
 
 const Blogs = () => {
 
@@ -45,50 +39,7 @@ const Blogs = () => {
          <Container maxWidth='xl'>
             <Grid container spacing={2}>
                <Grid item xs={12} md={3}>
-                  <RecentBlogsList>
-                     <SingleBlogList>
-                        <Typography
-                           sx={{ fontWeight: 'bold', m: 0 }}
-                           variant='h6'
-                        >
-                           Solar Products
-                        </Typography>
-                        <Typography sx={{ my: 1 }}>
-                           Lorem ipsum dolor sit amet, consectetur adipisicing
-                           elit. Corporis, nostrum.
-                        </Typography>
-                        <YellowButton>Read More</YellowButton>
-                     </SingleBlogList>
-                     <Divider sx={{ my: 2 }} />
-                     <SingleBlogList>
-                        <Typography
-                           sx={{ fontWeight: 'bold', m: 0 }}
-                           variant='h6'
-                        >
-                           Solar Design
-                        </Typography>
-                        <Typography sx={{ my: 1 }}>
-                           Lorem ipsum dolor sit amet, consectetur adipisicing
-                           elit. Corporis, nostrum.
-                        </Typography>
-                        <YellowButton>Read More</YellowButton>
-                     </SingleBlogList>
-                     <Divider sx={{ my: 2 }} />
-
-                     <SingleBlogList>
-                        <Typography
-                           sx={{ fontWeight: 'bold', m: 0 }}
-                           variant='h6'
-                        >
-                           Netmetering
-                        </Typography>
-                        <Typography sx={{ my: 1 }}>
-                           Lorem ipsum dolor sit amet, consectetur adipisicing
-                           elit. Corporis, nostrum.
-                        </Typography>
-                        <YellowButton>Read More</YellowButton>
-                     </SingleBlogList>
-                  </RecentBlogsList>
+                  <RecentBlogList />
                </Grid>
                <Grid item xs={12} md={9}>
                   <Typography>
@@ -237,7 +188,7 @@ const Blogs = () => {
                                  </CardContent>
                               </Box>
                               <Box sx={{ p: 2 }}>
-                                 <YellowButton>Read More</YellowButton>
+                                 <YellowButton onClick={() => navigate('/blogs/solarInstallationProcess')} >Read More</YellowButton>
                               </Box>
                            </BlogCard>
                         </Grid>
@@ -277,7 +228,7 @@ const Blogs = () => {
                                  </CardContent>
                               </Box>
                               <Box sx={{ p: 2 }}>
-                                 <YellowButton>Read More</YellowButton>
+                                 <YellowButton onClick={()=> navigate('/blogs/solarComponents')}>Read More</YellowButton>
                               </Box>
                            </BlogCard>
                         </Grid>

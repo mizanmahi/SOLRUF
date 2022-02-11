@@ -4,7 +4,7 @@ import Modal from '@mui/material/Modal';
 import CloseIcon from '@mui/icons-material/Close';
 import { styled } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeLoginModal } from '../../redux/slices/loginModalSlice';
+import { closeLoginModal, setLoginRedirect } from '../../redux/slices/loginModalSlice';
 import {
    setLoginMode,
    setRegisterMode,
@@ -48,6 +48,7 @@ const LoginModal = ({ children }) => {
       dispatch(setRegisterMode(false));
       dispatch(setVerificationMode(false));
       dispatch(setVerificationMode2(false));
+      dispatch(setLoginRedirect());
    };
 
    return (

@@ -16,7 +16,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useState } from 'react';
 import Loader from '../Loader/Loader';
 import { saveUser } from '../../redux/slices/userSlice';
-import { closeLoginModal } from '../../redux/slices/loginModalSlice';
+import { closeLoginModal, removeLoginRedirect } from '../../redux/slices/loginModalSlice';
+import { Navigate, useNavigate } from 'react-router';
 
 const Wrapper = styled(Box)(({ theme }) => ({}));
 const Form = styled(Box)(({ theme }) => ({}));
@@ -113,8 +114,13 @@ const AuthGuard = () => {
 
    const { loginMode, registerMode, verificationMode, verificationMode2 } =
       useSelector((state) => state.loginStep); // mode switching state
+   const { from } = useSelector((state) => state.loginModal); // modal state
+
+   console.log(from)
 
    const dispatch = useDispatch();
+
+   const navigate = useNavigate();
 
    const [phone, setPhone] = useState('');
    const [sendingOtp, setSendingOtp] = useState(false);
@@ -174,6 +180,10 @@ const AuthGuard = () => {
                setVerifying(false);
                dispatch(saveUser(data));
                dispatch(closeLoginModal());
+               if(from){
+                  navigate(from);
+                  dispatch(removeLoginRedirect());
+               }
             }
          } catch (error) {
             setOtpError('Invalid OTP');

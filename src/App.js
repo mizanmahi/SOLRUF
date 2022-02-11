@@ -41,6 +41,19 @@ import Blogs from './pages/Blogs/Blogs';
 import SolarMaintenance from './pages/Blogs/SolarMaintenance/SolarMaintenance';
 import PvSystems from './pages/Blogs/PvSystems/PvSystems';
 import SolarSteps from './pages/Dashboard/SolarSteps/SolarSteps';
+import SolarInstallationProcess from './pages/Blogs/SolarInstallationProcess/SolarInstallationProcess';
+import SolarComponents from './pages/Blogs/SolarComponents/SolarComponents';
+import SolarDesign from './pages/Blogs/SolarDesign/SolarDesign';
+import SolarProducts from './pages/Blogs/SolarProducts/SolarProducts';
+import NetMetering from './pages/Blogs/NetMetering/NetMetering';
+import Maharashtra from './pages/Blogs/NetMetering/Maharashtra/Maharashtra';
+import Dilhi from './pages/Blogs/NetMetering/Dilhi/Dilhi';
+import Gujrat from './pages/Blogs/NetMetering/Gujrat/Gujrat';
+import Haryana from './pages/Blogs/NetMetering/Haryana/Haryana';
+import Karnataka from './pages/Blogs/NetMetering/Karnataka/Karnataka';
+import Punjab from './pages/Blogs/NetMetering/Punjab/Punjab';
+import WestBengal from './pages/Blogs/NetMetering/WestBengal/WestBengal';
+import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute';
 
 function App() {
    const [showDashboard, setShowDashboard] = useState(false);
@@ -75,9 +88,11 @@ function App() {
                   <Route
                      path='/dashboard/*'
                      element={
-                        <Layout noFooter={true}>
-                           <Dashboard />
-                        </Layout>
+                        <ProtectedRoute>
+                           <Layout noFooter={true}>
+                              <Dashboard />
+                           </Layout>
+                        </ProtectedRoute>
                      }
                   >
                      <Route path='myDashboard' element={<MyDashboard />} />
@@ -163,9 +178,11 @@ function App() {
                   <Route
                      path='/adminPortfolio'
                      element={
-                        <Layout>
-                           <MyPortfolio />
-                        </Layout>
+                        <ProtectedRoute>
+                           <Layout>
+                              <MyPortfolio />
+                           </Layout>
+                        </ProtectedRoute>
                      }
                   />
                   <Route
@@ -263,6 +280,106 @@ function App() {
                      element={
                         <Layout header={false}>
                            <SolarSteps />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/solarInstallationProcess'
+                     element={
+                        <Layout header={false}>
+                           <SolarInstallationProcess />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/solarComponents'
+                     element={
+                        <Layout header={false}>
+                           <SolarComponents />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/solarDesign'
+                     element={
+                        <Layout header={false}>
+                           <SolarDesign />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/solarProducts'
+                     element={
+                        <Layout header={false}>
+                           <SolarProducts />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/netMetering'
+                     element={
+                        <Layout header={false}>
+                           <NetMetering />{' '}
+                        </Layout>
+                     }
+                  />
+
+                  {/* net metering policy, state wise */}
+
+                  <Route
+                     path='/blogs/netMetering/maharashtra'
+                     element={
+                        <Layout header={false}>
+                           <Maharashtra />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/netMetering/dilhi'
+                     element={
+                        <Layout header={false}>
+                           <Dilhi />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/netMetering/gujrat'
+                     element={
+                        <Layout header={false}>
+                           <Gujrat />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/netMetering/haryana'
+                     element={
+                        <Layout header={false}>
+                           <Haryana />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/net-metering/karnataka'
+                     element={
+                        <Layout header={false}>
+                           <Karnataka />{' '}
+                        </Layout>
+                     }
+                  />
+                  <Route
+                     path='/blogs/net-metering/punjab'
+                     element={
+                        <Layout header={false}>
+                           <Punjab />{' '}
+                        </Layout>
+                     }
+                  />
+
+                  <Route
+                     path='/blogs/net-metering/west-bengal'
+                     element={
+                        <Layout header={false}>
+                           <WestBengal />{' '}
                         </Layout>
                      }
                   />

@@ -7,7 +7,8 @@ import BlogTitledBox from '../../../components/BlogTitledBox/BlogTitledBox';
 import CustomAccordionForBlogs from '../../../components/CustomAccordionForBlogs/CustomAccordionForBlogs';
 
 const Wrapper = styled(Box)(({ theme }) => ({
-   marginBottom: '1rem',
+   paddingBottom: '2rem',
+   background: '#F3F3F3'
 }));
 const Flex = styled(Box)(({ theme }) => ({
    display: 'flex',
@@ -49,7 +50,7 @@ const PvSystems = () => {
                solar system at any time.
             </Typography>
             {/*  accordion 1 */}
-            <CustomAccordionForBlogs title='1. Grid-Connect Systems'>
+            <CustomAccordionForBlogs title='1. Grid-Connect Systems' defaultExpanded={true}>
                <BlogAccordionContent
                   text={text1}
                   imageUrl='https://i.ibb.co/PtW7Myq/image-10.png'
@@ -117,7 +118,7 @@ const PvSystems = () => {
                />
             </CustomAccordionForBlogs>
 
-            <Flex>
+            <Flex sx={{}}>
                <BlogTitledBox title='BATTERY BANK' sx={{ mr: 3 }}>
                In a hybrid system once the solar power is used by the appliances in your property, any excess power will be sent to the battery bank. Once the battery bank is fully charged, it will stop receiving power from the solar system. The energy from the battery can then be discharged and used to power your home, usually during the peak evening period when the cost of electricity is typically at its highest.
                </BlogTitledBox>

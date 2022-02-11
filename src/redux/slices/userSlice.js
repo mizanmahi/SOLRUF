@@ -4,6 +4,7 @@ const user = JSON.parse(localStorage.getItem('user'));
 
 const initialState = {
    user,
+   role: user ? user.role : '',
 };
 
 export const userSlice = createSlice({
@@ -12,6 +13,7 @@ export const userSlice = createSlice({
    reducers: {
       saveUser: (state, action) => {
          state.user = action.payload;
+         state.role = action.payload.user.role;
          localStorage.setItem('user', JSON.stringify(action.payload));
       },
       removeUser: (state, action) => {

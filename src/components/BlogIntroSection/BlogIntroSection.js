@@ -7,7 +7,6 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 
 const IntroSection = styled(Box)(({ theme }) => ({
-   backgroundImage: 'url(https://i.ibb.co/ZXMgkjT/image-6.png)',
    backgroundSize: 'cover',
    backgroundPosition: 'center',
    backgroundRepeat: 'no-repeat',
@@ -57,16 +56,52 @@ const IntroTitle = styled(Typography)(({ theme }) => ({
    bottom: '0',
    left: '50%',
    transform: 'translate(-50%, 50%)',
-   background:'#ffffff',
+   background: '#ffffff',
    borderRadius: '8px',
    padding: '0.5rem 1rem',
    zIndex: '1',
    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
 }));
 
-const BlogIntroSection = ({ title }) => {
+const IntroTitle2 = styled(Typography)(({ theme }) => ({
+   fontSize: '2.5rem',
+   fontWeight: 'bold',
+   color: '#000000',
+   position: 'absolute',
+   bottom: '5%',
+   right: '40px',
+   // transform: 'translate(-50%, 50%)',
+   background: '#ffffff',
+   borderRadius: '8px',
+   padding: '0.5rem 1rem',
+   zIndex: '1',
+   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+   textAlign: 'right',
+   '@media (max-width: 600px)': {
+      fontSize: '1.5rem',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '100%',
+      textAlign: 'center',
+   }
+}));
+
+const BlogIntroSection = ({
+   title,
+   backgroundImageUrl,
+   subtitle,
+   sx,
+   icon,
+}) => {
    return (
-      <IntroSection>
+      <IntroSection
+         sx={{
+            ...sx,
+            backgroundImage: backgroundImageUrl
+               ? `url(${backgroundImageUrl})`
+               : 'url(https://i.ibb.co/ZXMgkjT/image-6.png)',
+         }}
+      >
          <OverLay />
          <SocialBox>
             <Typography>Share</Typography>
@@ -75,7 +110,13 @@ const BlogIntroSection = ({ title }) => {
             <LinkedInIcon />
             <InstagramIcon />
          </SocialBox>
-         <IntroTitle>{title}</IntroTitle>
+         {!subtitle && <IntroTitle>{title}</IntroTitle>}
+         {subtitle && (
+            <IntroTitle2>
+               {title} <br />
+               {icon} {subtitle}
+            </IntroTitle2>
+         )}
       </IntroSection>
    );
 };
