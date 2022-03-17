@@ -4,17 +4,19 @@ import HorizontalBookProduct from '../../components/HorizontalBookProduct/Horizo
 import BookProduct from '../../portfolio/BookProducts/BookProduct/BookProduct';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import { Box } from '@mui/system';
-import { Link } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const Wrapper = styled('div')(({ theme }) => ({
-}));
+
+const Wrapper = styled('div')(({ theme }) => ({}));
 const ButtonNext = styled(Button)(({ theme }) => ({
    background: theme.palette.primary.main,
    padding: '0.5rem 1rem',
 }));
-const FinalizeProduct = () => {
+const FinalizeProduct = ({nextHandler}) => {
    return (
       <Wrapper>
+            <Button startIcon={<ArrowBackIcon />} sx={{color: '#000000', mt: 2}} onClick={() => nextHandler(1)}>Back</Button>
+
          <Container maxWidth='xl'>
             <Grid container spacing={3} alignItems='center' sx={{ mt: 2 }}>
                <Grid item xs={12} md={5} lg={4}>
@@ -74,8 +76,6 @@ const FinalizeProduct = () => {
                </Button>
 
                <ButtonNext
-                  component={Link}
-                  to='/finalizeProduct'
                   sx={{
                      color: '#4D4D4D',
                      mx: 'auto',

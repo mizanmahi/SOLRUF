@@ -12,6 +12,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SliderWithCustomImagePreview from '../../../components/SliderWithCustomImagePreview/SliderWithCustomImagePreview';
 import { useDispatch } from 'react-redux';
 import { increase } from '../../../redux/slices/counterSlice';
+import SliderWIthThumbnail from '../../../components/SliderWIthThumbnail/SliderWIthThumbnail';
 
 const RArrow = styled('div')({
    background: 'transparent',
@@ -78,7 +79,7 @@ const modalStyles = {
    p: 4,
 };
 
-const BookProduct = ({ editDelete, noModal, style }) => {
+const BookProduct = ({ editDelete, noModal, style, bookingOn }) => {
    const [open, setOpen] = useState(false);
    const dispatch = useDispatch();
 
@@ -91,6 +92,7 @@ const BookProduct = ({ editDelete, noModal, style }) => {
       e.stopPropagation();
       setOpen(false);
    };
+   console.log(editDelete);
 
    const [openSnackbar, setOpenSnackBar] = React.useState(false);
 
@@ -108,11 +110,17 @@ const BookProduct = ({ editDelete, noModal, style }) => {
       setOpenSnackBar(true);
    };
 
+   const images = [
+      'https://i.ibb.co/rpjvXbN/project2.png',
+      'https://i.ibb.co/Btf6tbT/project3.png',
+      'https://i.ibb.co/wMbGYm4/project1.png',
+   ];
+
    return (
       <>
          <Box
             sx={{
-               bgcolor: 'primary.light',
+               bgcolor: '#ffffff',
                p: 5.5,
                borderRadius: 5,
                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
@@ -202,7 +210,13 @@ const BookProduct = ({ editDelete, noModal, style }) => {
                      </YellowButton>
                   ) : (
                      <>
-                        <Box>
+                        <Box
+                           sx={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                           }}
+                        >
                            <YellowButton
                               style={{
                                  border: '2px solid #FFD05B',
@@ -230,7 +244,15 @@ const BookProduct = ({ editDelete, noModal, style }) => {
                      </>
                   )}
                </Box>
-               <img src="https://i.ibb.co/PDPmLL2/sale-1-1.png" alt="" style={{position: 'absolute', top: '3%'}} />
+               <img
+                  src={`${
+                     bookingOn
+                        ? 'https://i.ibb.co/YNmYkyg/Frame-169-1.png'
+                        : 'https://i.ibb.co/PDPmLL2/sale-1-1.png'
+                  }`}
+                  alt=''
+                  style={{ position: 'absolute', top: '3%' }}
+               />
             </Box>
             {/*  ================== Modal Start ================== */}
             <Modal
@@ -277,8 +299,10 @@ const BookProduct = ({ editDelete, noModal, style }) => {
                   <Box sx={{ mb: 4 }}>
                      <Grid container spacing={5} alignItems='center'>
                         <Grid item md={12} lg={4}>
-                           {/* ================== Slider with custom image preview indicator */}
-                           <SliderWithCustomImagePreview />
+                           {/* ================== Slider with  thumbnail */}
+                           <Box sx={{ maxWidth: '450px', p: 2 }}>
+                              <SliderWIthThumbnail images={images} loop={false} sliderPerView={images.length} />
+                           </Box>
                         </Grid>
                         {/*  === description list start === */}
                         <Grid item md={12} lg={8}>

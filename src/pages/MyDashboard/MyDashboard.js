@@ -11,6 +11,14 @@ import React from 'react';
 import PersonIcon from '@mui/icons-material/Person';
 import { useState, useEffect } from 'react';
 import YellowButton from '../../components/YellowButton/YellowButton';
+import { axiAuth } from '../../utils/axiosInstance';
+import Loader from '../../components/Loader/Loader';
+import CreatePortfolio from '../../components/CreatePortfolio/CreatePortfolio';
+import { useDispatch } from 'react-redux';
+import { setCreatePortfolio } from '../../redux/slices/portfolio.slice';
+import { useNavigate } from 'react-router';
+import CopyText from '../../components/CopyText/CopyText';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 const Portfolio = styled(Container)(({ theme }) => ({
    boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.1)',
@@ -24,6 +32,9 @@ const Portfolio = styled(Container)(({ theme }) => ({
       flexDirection: 'column',
       alignItems: 'center',
    },
+   '@media (max-width: 600px)': {
+      padding: theme.spacing(1),
+   },
 }));
 
 const InstallerInfo = styled(Box)(({ theme }) => ({
@@ -36,31 +47,9 @@ const InstallerInfo = styled(Box)(({ theme }) => ({
    },
 }));
 
-const CertificateNameBox = styled('div')(({ theme }) => {
-   return {
-      width: '100%',
-      border: '3px solid #FFD05B',
-      borderRadius: '5px',
-      outline: 'none',
-      fontFamily: theme.typography.fontFamily,
-      height: '55px',
-      overflow: 'hidden',
-      display: 'flex',
-      '& input': {
-         border: 'none',
-         width: '90%',
-         height: '100%',
-         padding: '1rem',
-      },
-      '& input[type=file]': {
-         display: 'none',
-      },
-   };
-});
-
 const Cards = styled('div')(({ theme }) => ({
    display: 'flex',
-   justifyContent: 'space-between',
+   justifyContent: 'flex-end',
    marginTop: '2rem',
 }));
 const DashboardCard = styled('div')(({ theme }) => ({
@@ -72,6 +61,8 @@ const DashboardCard = styled('div')(({ theme }) => ({
    flexDirection: 'column',
    alignItems: 'center',
    minHeight: '180px',
+   width: '100%',
+   maxWidth: '150px',
 }));
 const Circle = styled('div')(({ theme }) => ({
    width: '100px',
@@ -112,163 +103,204 @@ const BottomDetailedImage = styled('div')(({ theme }) => ({
    },
 }));
 
-const tags = ['Tag #1', 'Tag #2', 'Tag #3', 'Tag #4', 'Tag #5'];
-
 const MyDashboard = () => {
    const matchMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
    const matchSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
-   const [time, setTime] = useState(new Date());
    const [projects, setProjects] = useState([]);
 
-   useEffect(() => {}, []);
+   const [portfolioData, setPortfolioData] = useState({});
+   const [profileDataLoading, setProfileDataLoading] = useState(true);
+
+   // useEffect(() => {
+   //    axiAuth.get('api/admin/products?page=1').then(({ data }) => {
+   //       console.log(data);
+   //    });
+   // }, []);
+
+   useEffect(() => {
+      setProfileDataLoading(true);
+      axiAuth
+         .get('api/vendor/profile')
+         .then(({ data }) => {
+            setPortfolioData(data.portfolio);
+            setProfileDataLoading(false);
+            console.log(data);
+
+            console.log(data.portfolio.services);
+         })
+         .catch((err) => {
+            console.log('Portfolio data error', err);
+            setProfileDataLoading(false);
+         });
+   }, []);
+
+   useEffect(() => {
+      axiAuth
+         .get('api/vendor/projects?page=1')
+         .then(({ data }) => {
+            setProjects(data.projects);
+         })
+         .catch((err) => {
+            console.log('Projects data error', err);
+         });
+   }, []);
+
+   console.log(portfolioData);
+
+   const dispatch = useDispatch();
+   let navigate = useNavigate();
+
+   const createPortfolioHandler = () => {
+      console.log('create portfolio button clicked from dashboard');
+      dispatch(setCreatePortfolio(true));
+
+      // redirect to portfolio page
+      navigate('/dashboard/portfolio');
+   };
+
    return (
-      <Container maxWidth='xl'>
-         <Grid container spacing={2} sx={{}}>
-            <Grid item xs={12} lg={8}>
-               <Portfolio>
-                  <Box>
-                     <Typography
-                        variant='h6'
-                        sx={{ color: '#000000', fontWeight: 600 }}
-                     >
-                        My Portfolio
-                     </Typography>
-                     <InstallerInfo>
-                        <PersonIcon sx={{ fontSize: 30 }} />
-                        <Typography variant='body1'>Installer Name</Typography>
-                     </InstallerInfo>
-                     <Box sx={{ maxWidth: '60%', my: 2 }}>
-                        {tags.map((tag, i) => (
-                           <Chip
-                              label={tag}
-                              sx={{
-                                 color: '#fff',
-                                 borderRadius: 1,
-                                 bgcolor: 'blue',
-                                 fontWeight: 600,
-                                 fontSize: '1.1rem',
-                                 marginRight: '.5rem',
-                                 mb: '.5rem',
-                              }}
+      <Container maxWidth='xl' sx={{p: [1, 2]}}>
+         <Grid container spacing={2}>
+            <Grid item xs={12} xl={9}>
+               {profileDataLoading ? (
+                  <Loader />
+               ) : portfolioData.name ? (
+                  <Portfolio>
+                     <Box sx={{ flex: 5 }}>
+                        <Typography
+                           variant='body1'
+                           sx={{ color: '#000000', fontWeight: 600 }}
+                        >
+                           My Portfolio
+                        </Typography>
+                        <InstallerInfo>
+                           <PersonIcon sx={{ fontSize: 30 }} />
+                           <Typography
+                              variant='h6'
+                              sx={{ color: '#000000', fontWeight: 600 }}
+                           >
+                              {portfolioData.name}
+                           </Typography>
+                        </InstallerInfo>
+                        <Box sx={{ maxWidth: '80%', my: 2 }}>
+                           {portfolioData?.services?.length < 4
+                              ? portfolioData?.services?.map((service, i) => (
+                                   <Chip
+                                      key={i}
+                                      label={service}
+                                      sx={{
+                                         color: '#fff',
+                                         borderRadius: 1,
+                                         bgcolor: 'blue',
+                                         fontWeight: 600,
+                                         fontSize: '1rem',
+                                         marginRight: '.3rem',
+                                         mb: '.5rem',
+                                      }}
+                                   />
+                                ))
+                              : portfolioData?.services
+                                   ?.slice(0, 3)
+                                   .map((service, i) => (
+                                      <Chip
+                                         key={i}
+                                         label={service}
+                                         sx={{
+                                            color: '#fff',
+                                            borderRadius: 1,
+                                            bgcolor: 'blue',
+                                            fontWeight: 600,
+                                            fontSize: '1.1rem',
+                                            marginRight: '.5rem',
+                                            mb: '.5rem',
+                                         }}
+                                      />
+                                   ))}
+                           {portfolioData?.services?.length > 3 ? (
+                              <MoreHorizIcon
+                                 sx={{
+                                    fontSize: '40px',
+                                    display: 'block',
+                                    color: 'blue',
+                                 }}
+                              />
+                           ) : null}
+                        </Box>
+                        <TopDetailedImageBox>
+                           <img
+                              src='https://i.ibb.co/gzFf82v/Frame-184-1.png'
+                              alt=''
+                              style={{ marginLeft: -10, cursor: 'pointer' }}
+                              onClick={() => navigate('/dashboard/portfolio')}
                            />
-                        ))}
+                        </TopDetailedImageBox>
                      </Box>
-                     <TopDetailedImageBox>
+                     {/*  === portfolio right */}
+                     <Box sx={{ flex: 6 }}>
+                        <Box>
+                           <Typography
+                              sx={{ textAlign: 'right', fontWeight: 600 }}
+                              gutterBottom
+                           >
+                              Consumer Sharable Link
+                           </Typography>
+                           <CopyText title={`profile/${portfolioData.slug}`} />
+                        </Box>
+                        <Cards>
+                           <DashboardCard sx={{ mr: 2.5 }}>
+                              <Circle>
+                                 <Typography
+                                    variant='h4'
+                                    fontWeight={600}
+                                    sx={{ color: '#000000' }}
+                                 >
+                                    {projects?.length}
+                                 </Typography>
+                              </Circle>
+                              <Typography
+                                 textAlign='center'
+                                 fontWeight={600}
+                                 sx={{ mt: 2 }}
+                              >
+                                 Projects Added
+                              </Typography>
+                           </DashboardCard>
+                           <DashboardCard>
+                              <Circle>
+                                 <Typography
+                                    variant='h4'
+                                    fontWeight={600}
+                                    sx={{ color: '#000000' }}
+                                 >
+                                    0
+                                 </Typography>
+                              </Circle>
+                              <Typography
+                                 textAlign='center'
+                                 fontWeight={600}
+                                 sx={{ mt: 2 }}
+                              >
+                                 Products Added
+                              </Typography>
+                           </DashboardCard>
+                        </Cards>
+                     </Box>
+                     <BottomDetailedImage>
                         <img
                            src='https://i.ibb.co/gzFf82v/Frame-184-1.png'
                            alt=''
-                           style={{ marginLeft: -10 }}
+                           style={{ display: 'block', margin: '0 auto' }}
                         />
-                     </TopDetailedImageBox>
-                  </Box>
-                  {/*  === portfolio right */}
-                  <Box>
-                     {/* shareable link */}
-                     <Box
-                        sx={{
-                           display: 'flex',
-                           flexDirection: 'column',
-                           justifyContent: 'flex-end',
-                           alignItems: 'flex-end',
-                        }}
-                     >
-                        <Typography
-                           variant='body1'
-                           gutterBottom
-                           fontWeight={500}
-                        >
-                           Consumer Sharable Link
-                        </Typography>
-                        <CertificateNameBox
-                           style={{
-                              width: '100%',
-                              margin: '0',
-                              minWidth: '270px',
-                              height: '45px',
-                           }}
-                        >
-                           <input
-                              type='text'
-                              placeholder='https://frederik.info'
-                           />
-
-                           <label
-                              htmlFor='serviceFile'
-                              style={{
-                                 width: '10%',
-                                 minWidth: '100px',
-                                 height: '100%',
-                                 background: '#ffd05b',
-                              }}
-                           >
-                              <Box
-                                 sx={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    height: '100%',
-                                 }}
-                              >
-                                 <Typography
-                                    variant='body1'
-                                    sx={{ cursor: 'pointer' }}
-                                 >
-                                    Copy
-                                 </Typography>
-                              </Box>
-                           </label>
-                        </CertificateNameBox>
-                     </Box>
-                     <Cards>
-                        <DashboardCard sx={{ mr: 1.5 }}>
-                           <Circle>
-                              <Typography
-                                 variant='h4'
-                                 fontWeight={600}
-                                 sx={{ color: '#000000' }}
-                              >
-                                 50
-                              </Typography>
-                           </Circle>
-                           <Typography
-                              textAlign='center'
-                              fontWeight={600}
-                              sx={{ mt: 2 }}
-                           >
-                              Projects Added
-                           </Typography>
-                        </DashboardCard>
-                        <DashboardCard>
-                           <Circle>
-                              <Typography
-                                 variant='h4'
-                                 fontWeight={600}
-                                 sx={{ color: '#000000' }}
-                              >
-                                 20
-                              </Typography>
-                           </Circle>
-                           <Typography
-                              textAlign='center'
-                              fontWeight={600}
-                              sx={{ mt: 2 }}
-                           >
-                              Projects Added
-                           </Typography>
-                        </DashboardCard>
-                     </Cards>
-                  </Box>
-                  <BottomDetailedImage>
-                     <img
-                        src='https://i.ibb.co/gzFf82v/Frame-184-1.png'
-                        alt=''
-                        style={{ display: 'block', margin: '0 auto' }}
-                     />
-                  </BottomDetailedImage>
-               </Portfolio>
+                     </BottomDetailedImage>
+                  </Portfolio>
+               ) : (
+                  <CreatePortfolio
+                     createPortfolioHandler={createPortfolioHandler}
+                  />
+               )}
             </Grid>
-            <Grid item xs={12} lg={4}>
+            <Grid item xs={12} xl={3}>
                <UpcomingMeetings>
                   <Typography
                      sx={{

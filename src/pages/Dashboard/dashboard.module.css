@@ -1,3 +1,21 @@
 .dashboardLink {
-    background: #ffd05b;
+   background: #ffd05b;
+}
+
+centered {
+   display: grid;
+   place-items: center;
+}
+
+also-centered {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+absolutely-centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

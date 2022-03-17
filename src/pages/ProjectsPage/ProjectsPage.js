@@ -16,7 +16,12 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useNavigate } from 'react-router';
 import { axiAuth } from '../../utils/axiosInstance';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeProjectToBeEdited, setProjects } from '../../redux/slices/projectSlice';
+import {
+   removeProjectToBeEdited,
+   setProjects,
+} from '../../redux/slices/projectSlice';
+import ProjectsPageForMobile from '../ProjectsPageForMobile/ProjectsPageForMobile';
+import ProductPageForMobile from '../ProductPageForMobile/ProductPageForMobile';
 
 const HeaderBox = styled(Box)(({ theme }) => {
    return {
@@ -39,12 +44,13 @@ const ProjectsBox = styled(Box)(({ theme }) => {
 const ProjectsPageBox = styled(Box)(({ theme }) => {
    return {
       background: '#D0D7D9',
-      padding: theme.spacing(0.5),
-      borderRadius: theme.spacing(2),
+      // padding: theme.spacing(0.5),
+      borderRadius: theme.spacing(1.5),
       marginTop: theme.spacing(10),
       border: `2px solid ${theme.palette.primary.main}`,
       position: 'relative',
       paddingBottom: '1.5rem',
+      boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.1)',
    };
 });
 
@@ -58,11 +64,11 @@ const TopButtonBox = styled(Box)(({ theme }) => {
 
 const UploadProjectBox = styled(Box)(({ theme }) => {
    return {
-      border: `2px solid ${theme.palette.primary.main}`,
+      // border: `2px solid ${theme.palette.primary.main}`,
       background: '#fff',
       // width: '320px',
       maxWidth: '100%',
-      minWidth: '330px',
+      // minWidth: '330px',
       height: '100%',
       borderRadius: '10px',
       display: 'flex',
@@ -116,12 +122,12 @@ const ProjectsPage = () => {
          .catch((err) => {
             console.log(err);
          });
-   }, []);
+   }, [showForm]);
 
    const backToProjectHandler = () => {
       setShowForm(false);
       dispatch(removeProjectToBeEdited());
-   }
+   };
 
    return (
       <ProjectsPageBox>
@@ -152,14 +158,6 @@ const ProjectsPage = () => {
                </YellowButton>
             </TopButtonBox>
 
-            {!showForm && (
-               <HeaderBox>
-                  <Typography variant='h5' fontWeight='bold'>
-                     Add Your {projectPage ? 'Projects' : 'Product'} right here
-                  </Typography>
-               </HeaderBox>
-            )}
-
             {showForm && (
                <HeaderBox>
                   <Button
@@ -169,15 +167,13 @@ const ProjectsPage = () => {
                   >
                      Back To Project
                   </Button>
-
-                  {/* <YellowButton>Save</YellowButton> */}
                </HeaderBox>
             )}
 
             {!showForm && !showProductForm && (
                <ProjectsBox>
-                  <Grid container spacing={3}>
-                     <Grid item md={6} lg={4}>
+                  <Grid container spacing={2}>
+                     <Grid item xs={12} md={6} lg={4}>
                         <UploadProjectBox onClick={showFormHandler}>
                            <img
                               src='https://i.ibb.co/9TQjBdx/Group-31.png'
@@ -188,49 +184,65 @@ const ProjectsPage = () => {
 
                      {projectPage && (
                         <>
-                           {projects.map((project) => (
-                              <SingleProject
-                                 key={project.project_id}
-                                 project={project}
-                                 setShowForm={setShowForm}
-                              />
-                           ))}
+                           {!matches ? (
+                              projects.map((project) => (
+                                 <SingleProject
+                                    key={project.project_id}
+                                    project={project}
+                                    setShowForm={setShowForm}
+                                 />
+                              ))
+                           ) : (
+                              <ProjectsPageForMobile />
+                           )}
                         </>
                      )}
 
                      {!projectPage && !showForm && !showProductForm && (
                         <>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
+                           {!matches ? (
+                              <>
+                                 <Grid item xs={12} sm={6} lg={4}>
+                                    <BookProduct editDelete={true} />
+                                 </Grid>
+                                 <Grid item xs={12} sm={6} lg={4}>
+                                    <BookProduct editDelete={true} />
+                                 </Grid>
+                                 <Grid item xs={12} sm={6} lg={4}>
+                                    <BookProduct editDelete={true} />
+                                 </Grid>
+                                 <Grid item xs={12} sm={6} lg={4}>
+                                    <BookProduct editDelete={true} />
+                                 </Grid>
+                                 <Grid item xs={12} sm={6} lg={4}>
+                                    <BookProduct editDelete={true} />
+                                 </Grid>
+                                 <Grid item xs={12} sm={6} lg={4}>
+                                    <BookProduct editDelete={true} />
+                                 </Grid>
+                                 <Grid item xs={12} sm={6} lg={4}>
+                                    <BookProduct editDelete={true} />
+                                 </Grid>
+                                 <Grid item xs={12} sm={6} lg={4}>
+                                    <BookProduct editDelete={true} />
+                                 </Grid>
+                              </>
+                           ) : (
+                              <ProductPageForMobile />
+                           )}
                         </>
                      )}
                   </Grid>
                </ProjectsBox>
             )}
-            {showForm && <AddProject />}
-            {showProductForm && <SearchProduct />}
+
+            {showForm && (
+               <AddProject backToProjectHandler={backToProjectHandler} />
+            )}
+
+            {showProductForm && (
+               <SearchProduct showProductPageHandler={showProductPageHandler} />
+            )}
          </Container>
       </ProjectsPageBox>
    );

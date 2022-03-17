@@ -31,21 +31,19 @@ const useStyle = makeStyles((theme) => {
          justifyContent: 'center',
          alignItems: 'center',
          borderRadius: '0 20px 20px 0',
-         background: '#F3F3F3',
+         background: '#ffffff',
          boxShadow: '7px 7px 30px rgba(0, 0, 0, 0.13)',
       },
    };
 });
 
-const BookNow = ({ setShowProducts }) => {
+const BookNow = ({ onClick }) => {
    const classes = useStyle();
    const navigate = useNavigate();
 
    const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
-   const clickHandler = () => {
-      setShowProducts(true);
-   };
+  
    const clickHandlerOnMobile = (e) => {
       e.preventDefault();
       console.log('clicked mobile handler');
@@ -53,13 +51,13 @@ const BookNow = ({ setShowProducts }) => {
    }
 
    return (
-      <Box sx={{ mb: 10 }}>
+      <Box sx={{ mb: 10 }} >
          <Grid container sx={{display: ['none', 'flex']}} rowSpacing={2}>
             <Grid item sm={12} md={9} lg={8}>
                <Box className={classes.bannerBox}>
                   <Typography
                      variant='h4'
-                     sx={{ fontWeight: 600, color: '#000', fontSize: ['1rem'], }}
+                     sx={{ fontWeight: 600, color: '#000', fontSize: ['1.5rem'], }}
                   >
                      Book a Product in Advance
                   </Typography>
@@ -70,7 +68,7 @@ const BookNow = ({ setShowProducts }) => {
                   className={classes.buttonBox}
                   sx={{ display: ['none', 'flex'], }}
                >
-                  <YellowButton onClick={clickHandler}>Book Now</YellowButton>
+                  <YellowButton onClick={onClick}>Book Now</YellowButton>
                </Box>
             </Grid>
          </Grid>

@@ -6,3 +6,8 @@
     fill: #ffd05b;
     transform: scale(1.05);
 } */
+
+.dilhiSvg svg{
+    stroke: 'red' !important;
+    stroke-width: 6 !important;
+}

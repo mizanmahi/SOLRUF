@@ -1,6 +1,7 @@
 import { Box, Button, Typography } from '@mui/material';
 import React from 'react';
 import { CheckIcon } from '@heroicons/react/outline';
+import CloseIcon from '@mui/icons-material/Close';
 
 const FileHeader = ({ file, onDelete, errors, progress, url }) => {
    return (
@@ -29,7 +30,7 @@ const FileHeader = ({ file, onDelete, errors, progress, url }) => {
                }}
                onClick={() => onDelete(file)}
             >
-               X
+               <CloseIcon />
             </Button>
          )}
 
@@ -55,7 +56,7 @@ const FileHeader = ({ file, onDelete, errors, progress, url }) => {
                   }}
                   onClick={() => onDelete(file)}
                >
-                  X
+                  <CloseIcon />
                </Button>
             </Box>
          )}

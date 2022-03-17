@@ -1,28 +1,25 @@
 import axios from 'axios';
 
 const headers = {
-   'Content-Type': 'application/json',
-   Accept: 'application/json',
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
 };
 
-console.log(localStorage.getItem('user'));
-
-if (localStorage.getItem('user') !== null) {
-   const token = JSON.parse(localStorage.getItem('user'))?.token;
-   console.log(token);
-   headers.authorization = `Bearer ${token}`;
-}
+const formDataHeaders = {
+  'Content-Type': 'multipart/form-data',
+};
 
 const baseURL = 'https://api-dev.solruf.com/';
 // const baseURL = 'http://localhost:5000'
 
-//@ creating a axios instance with some basic configuration
+//* creating a axios instance with some basic configuration
 export const axiosInstance = axios.create({
-   baseURL,
+  baseURL,
 });
 
-//@ axios instance with auth token
+//* axios instance with auth token
 export const axiAuth = axios.create({
-   baseURL,
-   headers,
+  baseURL,
+  headers,
+  ...headers,
 });

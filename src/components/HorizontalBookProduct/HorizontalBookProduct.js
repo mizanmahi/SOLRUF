@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import Slider from 'react-slick';
 import ProductDetailList from '../ProductDetailList/ProductDetailList';
 import SliderWithCustomImagePreview from '../SliderWithCustomImagePreview/SliderWithCustomImagePreview';
-import LightButton from '../YellowButton/LightButton/LightButton';
 import YellowButton from '../YellowButton/YellowButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -26,27 +25,35 @@ const LArrow = styled('div')({
 
 const RightArrow = (props) => {
    const { className, style, onClick } = props;
+   const rightClickHandler = (e) => {
+      e.stopPropagation();
+      onClick();
+   };
    return (
       <RArrow
          className={className}
          style={{ ...style, display: 'block' }}
-         onClick={onClick}
+         onClick={rightClickHandler}
       ></RArrow>
    );
 };
 const LeftArrow = (props) => {
    const { className, style, onClick } = props;
+   const leftClickHandler = (e) => {
+      e.stopPropagation();
+      onClick();
+   };
    return (
       <LArrow
          className={className}
          style={{ ...style, display: 'block' }}
-         onClick={onClick}
+         onClick={leftClickHandler}
       ></LArrow>
    );
 };
 
 const settings = {
-   dots: true,
+   // dots: true,
    infinite: true,
    speed: 500,
    slidesToShow: 1,
@@ -66,6 +73,15 @@ const modalStyles = {
    p: 4,
 };
 
+const Img = styled('img')(({ theme }) => ({
+   width: '70px',
+   height: '70px',
+   position: 'absolute',
+   top: '2rem',
+   left: '1rem',
+   zIndex: '100',
+}));
+
 const HorizontalBookProduct = ({ editDelete, style, noModal }) => {
    const [open, setOpen] = useState(false);
 
@@ -80,25 +96,29 @@ const HorizontalBookProduct = ({ editDelete, style, noModal }) => {
    };
 
    const Wrapper = styled('div')(({ theme }) => ({
-      background: theme.palette.primary.light,
-      padding: '30px 40px',
-      borderRadius: 5,
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      background: '#ffffff',
+      padding: '30px 40px 30px 60px',
+      borderRadius: '10px',
+      boxShadow: '0 0px 12px rgba(0,0,0,0.1)',
       cursor: 'pointer',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      position: 'relative',
-      maxWidth: '700px',
+      // maxWidth: '900px',
       width: '100%',
-      margin: '0 auto',
+      margin: '2rem auto',
+      position: 'relative',
+      '&:hover': {
+         boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+      }
    }));
 
    return (
       <Wrapper style={{ ...style }} onClick={handleOpen}>
+         <Img src='https://i.ibb.co/FqRNHT9/Frame-169.png' alt='' />
          <Box
             sx={{
-               width: '300px',
+               width: '60%',
                order: 0,
                flex: '0 1 auto',
                alignSelf: 'center',

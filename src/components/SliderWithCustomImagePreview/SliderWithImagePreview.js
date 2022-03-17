@@ -1,8 +1,8 @@
 import { Box } from '@mui/system';
 import React from 'react';
 import Slider from 'react-slick';
-import SampleNextArrow from '../../portfolio/Projects/NextArrow';
-import PrevArrow from '../../portfolio/Projects/PrevArrow';
+// import SampleNextArrow from '../../portfolio/Projects/NextArrow';
+// import PrevArrow from '../../portfolio/Projects/PrevArrow';
 import classes from './SliderWithCustomImagePreview.module.css';
 
 const settings = {

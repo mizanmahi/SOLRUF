@@ -12,7 +12,6 @@ import CustomAccordion from '../../components/CustomAccordion/CustomAccordion';
 import CustomTextArea from '../../components/CustomTextArea/CustomTextArea';
 import YellowButton from '../../components/YellowButton/YellowButton';
 import { useForm } from 'react-hook-form';
-import CustomSelect from '../../components/CustomSelect/CustomSelect';
 import { axiAuth } from '../../utils/axiosInstance';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PushPinIcon from '@mui/icons-material/PushPin';

@@ -33,36 +33,13 @@ const AddProjectBox = styled(Box)(({ theme }) => {
 
 const FileInputBox = styled(Box)(({ theme }) => {
    return {
-      //   border: '2px solid #FFD05B',
-      //   height: 200,
-      //   width: '100%',
-      //   maxWidth: '300px',
-      //   background: '#F3F3F3',
-      //   borderRadius: 20,
-      //   padding: theme.spacing(2),
-      //   display: 'flex',
-      //   flexDirection: 'column',
-      //   justifyContent: 'center',
-      //   alignItems: 'center',
-      //   position: 'relative',
       '& img': {
          maxWidth: '100%',
       },
    };
 });
 
-const DottedBox = styled(Box)(({ theme }) => {
-   return {
-      position: 'absolute',
-      width: '80%',
-      height: '80%',
-      border: '2px dashed #FFD05B',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'column',
-   };
-});
+
 
 const PowerCapacityBox = styled(Box)(({ theme }) => {
    return {
@@ -258,10 +235,10 @@ const AddProjectForMobile = () => {
             projectData
          );
          console.log(data);
-         if(data.message === 'Project created successfully'){
-             reset();
-             setProjectImages([]);
-             toast.success(data.message);
+         if (data.message === 'Project created successfully') {
+            reset();
+            setProjectImages([]);
+            toast.success(data.message);
          }
       } catch (error) {
          console.log(error.message);
@@ -283,8 +260,6 @@ const AddProjectForMobile = () => {
          console.log(error.message);
       }
    }, []);
-
-
 
    return (
       <motion.div
@@ -339,7 +314,7 @@ const AddProjectForMobile = () => {
                   </Box>
                </Box>
                <Grid container spacing={1}>
-                  <Grid item xs={12} xs={12} sm={12} md={6} lg={4}>
+                  <Grid item xs={12} sm={12} md={6} lg={4}>
                      <SolrufTextField
                         label='Product Name'
                         {...register('name', {
@@ -591,23 +566,6 @@ const AddProjectForMobile = () => {
                            <Grid item xs={12} md={12} lg={4}>
                               <FileInputBox {...getRootProps()}>
                                  <input {...getInputProps()} />
-
-                                 {/* <DottedBox>
-                                    <Typography
-                                       variant='body2'
-                                       textAlign='center'
-                                    >
-                                       Add image (Upto 5 mb jpg, jpeg format)
-                                    </Typography>
-                                    <img
-                                       src='https://i.ibb.co/M23FX1T/upload-Plus.png'
-                                       alt=''
-                                       style={{
-                                          width: '100',
-                                          height: '100',
-                                       }}
-                                    />
-                                 </DottedBox> */}
                                  <img
                                     src='https://i.ibb.co/C23nQcK/Frame-165.png'
                                     alt=''
@@ -647,7 +605,10 @@ const AddProjectForMobile = () => {
                      </CustomAccordion>
                   </Grid>
                   <Grid item xs={12}>
-                     <YellowButton style={{ width: '100%', marginTop: '1rem' }} type='submit'>
+                     <YellowButton
+                        style={{ width: '100%', marginTop: '1rem' }}
+                        type='submit'
+                     >
                         Submit
                      </YellowButton>
                   </Grid>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -15,6 +15,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router';
 import ProjectTag from '../../../components/ProjectTag/ProjectTag';
 import ProductDetailList from '../../../components/ProductDetailList/ProductDetailList';
+import { axiAuth } from '../../../utils/axiosInstance';
+import CollapsableText from '../../../components/CollapsableText/CollapsableText';
+import CalculateIcon from '@mui/icons-material/Calculate';
+import HistoryIcon from '@mui/icons-material/History';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import ResponsiveSlider from '../../../components/ResponsiveSlider/ResponsiveSlider';
 
 // import classes from '../projects.module.css'
 
@@ -85,10 +91,64 @@ const modalStyles = {
    left: '50%',
    transform: 'translate(-50%, -50%)',
    width: '60%',
+   '@media (max-width: 1500px)': {
+      width: '75%',
+   },
+   '@media (max-width: 1300px)': {
+      width: '85%',
+   },
+   '@media (max-width: 1000px)': {
+      width: '90%',
+   },
+   '@media (max-width: 600px)': {
+      width: '100%',
+   },
    bgcolor: 'background.paper',
    boxShadow: 24,
    p: 4,
 };
+
+const InfoBoxWrapper = styled(Box)(({ theme }) => ({
+   display: 'flex',
+   justifyContent: 'space-between',
+   alignItems: 'stretch',
+}));
+const InfoBox = styled(Box)(({ theme }) => ({
+   display: 'flex',
+   justifyContent: 'space-between',
+   alignItems: 'stretch',
+   '@media (max-width: 800px)': {
+      flexDirection: 'column',
+      alignItems: 'center',
+   },
+   flex: 1,
+   padding: theme.spacing(1.5),
+   background: '#FFD05B',
+   borderRadius: theme.spacing(1),
+   marginRight: theme.spacing(4),
+   '&:last-child': {
+      marginRight: 0,
+   },
+   '& .iconBox': {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingRight: theme.spacing(1.5),
+      borderRight: '3px solid #4D4D4D',
+      '@media (max-width: 800px)': {
+         borderRight: 0,
+      },
+      '& svg': {
+         fontSize: '50px',
+      },
+   },
+   '& .textBox': {
+      textAlign: 'right',
+      '@media (max-width: 800px)': {
+         textAlign: 'center',
+      },
+   },
+}));
 
 const settings = {
    infinite: true,
@@ -125,13 +185,35 @@ const settings = {
    ],
 };
 
-const Project = ({ imageUrl, state, kwValue, description }) => {
+const Project = ({
+   project_id,
+   imageUrl,
+   state,
+   kwValue,
+   description,
+   category,
+}) => {
    const classes = useStyle();
+
+   const [open, setOpen] = useState(false);
 
    const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
    const navigate = useNavigate();
 
-   const [open, setOpen] = useState(false);
+   const [projectDetails, setProjectDetails] = useState({});
+
+   useEffect(() => {
+      axiAuth
+         .get(`api/vendor/projects/${project_id}`)
+         .then(({ data }) => {
+            console.log(data);
+            setProjectDetails(data.project);
+         })
+         .catch((err) => {
+            console.log('Error fetching project details');
+         });
+   }, [project_id]);
+
    const handleOpen = () => {
       if (matches) {
          navigate('/projectDetails');
@@ -146,10 +228,11 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
          <Card
             sx={{
                maxWidth: '100%',
-               // minHeight: 550,
+               width: '400px',
+               // minHeight: 350,
                minWidth: '250px',
                mx: '2rem',
-               bgcolor: '#F3F3F3',
+               bgcolor: '#ffffff',
                borderRadius: 4,
                boxShadow: 0,
                position: 'relative',
@@ -158,10 +241,10 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
          >
             <CardMedia
                component='img'
-               height='350'
+               // height='450'
                image={imageUrl}
                alt='green iguana'
-               sx={{ height: ['auto'] }}
+               sx={{ height: ['250px'] }}
             />
             <Box
                className={classes.addressBox}
@@ -193,7 +276,7 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
             </Box>
             <Box className={classes.typeBox} sx={{}}>
                <Typography sx={{ color: '#ffffff', fontWeight: 600 }}>
-                  Commercial
+                  {category?.name}
                </Typography>
             </Box>
             <CardContent sx={{ pl: 4, mt: 4 }}>
@@ -204,7 +287,9 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                   sx={{ width: ['100%', '100%', '90%'] }}
                >
                   <Typography variant='h5' sx={{ textDecoration: 'none' }}>
-                     {description.substring(0, 35)}...
+                     {description.length > 25
+                        ? description.substring(0, 25) + '...'
+                        : description}
                   </Typography>
                </Box>
             </CardContent>
@@ -246,7 +331,7 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                />
                <Box>
                   <Typography variant='h4' textAlign='center' fontWeight={600}>
-                     The Power Residential Project
+                     {projectDetails?.name}
                   </Typography>
                   <Typography
                      variant='h6'
@@ -259,7 +344,8 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                      }}
                   >
                      {' '}
-                     <LocationOnIcon /> Mumbai, Maharashtra
+                     <LocationOnIcon />
+                     {projectDetails?.city}, {projectDetails?.state}
                   </Typography>
                   <hr />
                </Box>
@@ -276,80 +362,53 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                      <Typography variant='h5' fontWeight={500} gutterBottom>
                         Description
                      </Typography>
-                     <ProjectTag title='commercial' />
+                     <ProjectTag title={projectDetails?.category?.name} />
                   </Box>
 
-                  <Flex sx={{mb: 2}}>
+                  <Flex sx={{ mb: 2 }}>
                      <ProductDetailList
                         list='Power Capacity'
-                        description='1200 KW'
+                        description={`${projectDetails?.power_capacity} ${projectDetails?.power_capacity_type}`}
                         sx={{ mr: 2 }}
                      />
                      <ProductDetailList
                         list='Months Taken'
-                        description='5 Months'
+                        description={`${projectDetails?.duration} ${projectDetails?.duration_type}`}
                      />
                   </Flex>
                   <Typography variant='body1' fontWeight={500} gutterBottom>
-                     Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                     Expedita fugiat, ea consequatur voluptatibus ad tenetur.
-                     Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                     In, eum! Lorem ipsum dolor sit amet consectetur adipisicing
-                     elit. Eius earum quis consectetur officia fuga harum!
+                     <CollapsableText
+                        text={projectDetails?.description}
+                        collapseAt={150}
+                     />
                   </Typography>
 
                   <Box sx={{ my: 3 }}>
-                     <Slider {...settings}>
-                        <Box sx={{}}>
-                           <img
-                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
-                              style={{ maxWidth: '100%' }}
-                              alt=''
-                           />
-                        </Box>
-                        <Box sx={{}}>
-                           <img
-                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
-                              style={{ maxWidth: '100%' }}
-                              alt=''
-                           />
-                        </Box>
-                        <Box sx={{}}>
-                           <img
-                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
-                              style={{ maxWidth: '100%' }}
-                              alt=''
-                           />
-                        </Box>
-                        <Box sx={{}}>
-                           <img
-                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
-                              style={{ maxWidth: '100%' }}
-                              alt=''
-                           />
-                        </Box>
-                        <Box sx={{}}>
-                           <img
-                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
-                              style={{ maxWidth: '100%' }}
-                              alt=''
-                           />
-                        </Box>
-                        <Box sx={{}}>
-                           <img
-                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
-                              style={{ maxWidth: '100%' }}
-                              alt=''
-                           />
-                        </Box>
-                        <Box sx={{}}>
-                           <img
-                              src='https://i.ibb.co/x1tCzB7/Frame-147.png'
-                              style={{ maxWidth: '100%' }}
-                              alt=''
-                           />
-                        </Box>
-                     </Slider>
+                     {/* <Slider {...settings}>
+                        {projectDetails?.images?.length > 0
+                           ? projectDetails?.images.map(({ id, url }, i) => (
+                                <Box
+                                   key={id}
+                                   sx={{
+                                      width: '250px',
+                                      display: 'flex',
+                                      padding: '1rem',
+                                      boxShadow:
+                                         '0px 0px 10px rgba(0, 0, 0, 0.1)',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                   }}
+                                >
+                                   <img
+                                      src={url}
+                                      style={{ maxWidth: '100%' }}
+                                      alt=''
+                                   />
+                                </Box>
+                             ))
+                           : null}
+                     </Slider> */}
+                     <ResponsiveSlider images={projectDetails?.images?.map(img => img.url) || []} />
                   </Box>
                </Box>
 
@@ -359,25 +418,63 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                   <Typography variant='h6' gutterBottom>
                      Project Info
                   </Typography>
-                  <Box
-                     sx={{ display: 'flex', justifyContent: 'space-between' }}
-                  >
-                     <img
-                        src='https://i.ibb.co/QjMph3z/info1.png'
-                        alt=''
-                        style={{ width: '30%' }}
-                     />
-                     <img
-                        src='https://i.ibb.co/RjL28gM/info2.png'
-                        alt=''
-                        style={{ width: '30%' }}
-                     />
-                     <img
-                        src='https://i.ibb.co/XjCLDC4/info3.png'
-                        alt=''
-                        style={{ width: '30%' }}
-                     />
-                  </Box>
+                  <InfoBoxWrapper>
+                     <InfoBox>
+                        <Box className='iconBox'>
+                           <CalculateIcon />
+                        </Box>
+                        <Box className='textBox'>
+                           <Typography variant='h6'>Cost Of Project</Typography>
+                           <Typography
+                              sx={{
+                                 fontWeight: 600,
+                                 fontSize: ['1rem', '1.7rem'],
+                                 color: '#000000',
+                              }}
+                           >
+                              Rs {projectDetails?.project_cost}
+                           </Typography>
+                        </Box>
+                     </InfoBox>
+                     <InfoBox>
+                        <Box className='iconBox'>
+                           <HistoryIcon />
+                        </Box>
+                        <Box className='textBox'>
+                           <Typography variant='h6'>
+                              Period Of Return
+                           </Typography>
+                           <Typography
+                              sx={{
+                                 fontWeight: 600,
+                                 fontSize: ['1rem', '1.7rem'],
+                                 color: '#000000',
+                              }}
+                           >
+                              {`${projectDetails?.return_period} ${projectDetails?.return_period_type}`}
+                           </Typography>
+                        </Box>
+                     </InfoBox>
+                     <InfoBox>
+                        <Box className='iconBox'>
+                           <MonetizationOnIcon />
+                        </Box>
+                        <Box className='textBox'>
+                           <Typography variant='h6'>
+                              Amount Of Return
+                           </Typography>
+                           <Typography
+                              sx={{
+                                 fontWeight: 600,
+                                 fontSize: ['1rem', '1.7rem'],
+                                 color: '#000000',
+                              }}
+                           >
+                              Rs {projectDetails?.return_amount}
+                           </Typography>
+                        </Box>
+                     </InfoBox>
+                  </InfoBoxWrapper>
                </Box>
 
                {/* ====== Customer review ====== */}
@@ -390,19 +487,21 @@ const Project = ({ imageUrl, state, kwValue, description }) => {
                      <Avatar
                         alt='Remy Sharp'
                         src='https://i.ibb.co/SJ05bh1/review-Image.png'
-                        sx={{width: '70px', height: '70px', mb: .5}}
+                        sx={{ width: '70px', height: '70px', mb: 0.5 }}
                      />
                      <Typography variant='h5' fontWeight={500} gutterBottom>
-                        Karan Batra, Flipkart
+                        {projectDetails?.reviews?.length > 0 &&
+                           projectDetails?.reviews[0]['customer_name']}
                      </Typography>
                      <Typography
                         variant='h6'
                         fontWeight={500}
                         textAlign='center'
                      >
-                        ”Lorem ipsum dolor, sit amet consectetur adipisicing
-                        elit. Officiis vero sunt quo culpa voluptates distinctio
-                        molestias fuga impedit facere incidunt!„
+                        ”{' '}
+                        {projectDetails?.reviews?.length > 0 &&
+                           projectDetails?.reviews[0]['customer_review']}
+                        „
                      </Typography>
                   </Box>
                </Box>

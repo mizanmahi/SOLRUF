@@ -13,7 +13,7 @@ const Wrapper = styled(Box)(({ theme }) => ({
    padding: '1rem 1.5rem',
    margin: '2rem 0',
    position: 'sticky',
-   top: '0',
+   top: '154px',
 }));
 
 const StepBox = styled(Box)(({ theme }) => ({

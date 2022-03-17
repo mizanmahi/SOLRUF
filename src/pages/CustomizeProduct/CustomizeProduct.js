@@ -15,10 +15,9 @@ import SolrufTextField from '../../components/TextField/TextField';
 import { useDropzone } from 'react-dropzone';
 import UploadError from '../MyPortfolio/UploadError';
 import SingleFIleUploadWithProgress from '../MyPortfolio/SingleFIleUploadWithProgress';
-import CustomSwitch from '../../components/CustomSwitch/CustomSwitch';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Link } from 'react-router-dom';
 import FileUploadWithProgress from '../../components/FileUploadWithProgress/FileUploadWithProgress';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const FileInputBox = styled(Box)(({ theme }) => {
    return {
@@ -56,7 +55,7 @@ const ButtonNext = styled(Button)(({ theme }) => ({
    padding: '0.5rem 1rem',
 }));
 
-const CustomizeProduct = () => {
+const CustomizeProduct = ({ nextHandler }) => {
    const [document, setDocument] = useState([]);
    const [bookingDocument, setBookingDocument] = useState([]);
    const [availability, setAvailability] = useState(false);
@@ -74,7 +73,7 @@ const CustomizeProduct = () => {
    const { getRootProps, getInputProps } = useDropzone({
       onDrop,
       maxSize: 5000000,
-      
+
       // accept: 'image/jpeg, image/png',
    });
 
@@ -96,13 +95,14 @@ const CustomizeProduct = () => {
    return (
       <div>
          <Container maxWidth='lg'>
+            <Button startIcon={<ArrowBackIcon />} sx={{color: '#000000', mt: 2}} onClick={() => nextHandler(3)}>Back</Button>
             <Box
-               sx={{ maxWidth: '1000px', width: '100%', margin: '2rem auto' }}
+               sx={{ maxWidth: '1000px', width: '100%', margin: '1rem auto' }}
             >
                <SingleProduct />
             </Box>
 
-            <CustomAccordion title='Pricing Details'>
+            <CustomAccordion title='Pricing Details' sx={{background: 'transparent'}}>
                <Grid container spacing={3}>
                   <Grid item sm={12} md={6}>
                      <SolrufTextField
@@ -119,7 +119,7 @@ const CustomizeProduct = () => {
                </Grid>
             </CustomAccordion>
             {/* ============ document uploading ============ */}
-            <CustomAccordion title='Pricing Details'>
+            <CustomAccordion title='Pricing Details' sx={{background: 'transparent'}}>
                <Grid container spacing={3}>
                   <Grid item sm={12} md={6}>
                      <SolrufTextField
@@ -134,25 +134,25 @@ const CustomizeProduct = () => {
                   </Grid>
                   <Grid item sm={12} md={6}>
                      <Box>
-                        {
-                           document.length === 0 && (<FileInputBox {...getRootProps()}>
-                           <input {...getInputProps()} />
+                        {document.length === 0 && (
+                           <FileInputBox {...getRootProps()}>
+                              <input {...getInputProps()} />
 
-                           <DottedBox>
-                              <Typography variant='body2' textAlign='center'>
-                                 Add Document (Upto 5 mb)
-                              </Typography>
-                              <img
-                                 src='https://i.ibb.co/M23FX1T/upload-Plus.png'
-                                 alt=''
-                                 style={{
-                                    width: '100',
-                                    height: '100',
-                                 }}
-                              />
-                           </DottedBox>
-                        </FileInputBox>)
-                        }
+                              <DottedBox>
+                                 <Typography variant='body2' textAlign='center'>
+                                    Add Document (Upto 5 mb)
+                                 </Typography>
+                                 <img
+                                    src='https://i.ibb.co/M23FX1T/upload-Plus.png'
+                                    alt=''
+                                    style={{
+                                       width: '100',
+                                       height: '100',
+                                    }}
+                                 />
+                              </DottedBox>
+                           </FileInputBox>
+                        )}
 
                         {/* ============ */}
 
@@ -244,16 +244,21 @@ const CustomizeProduct = () => {
                   </Grid>
 
                   <Grid item sm={12} md={6}>
-                     <CustomTextArea placeholder='Advance Payment Policy Description' style={{marginTop: '0'}} rows='7' />
+                     <CustomTextArea
+                        placeholder='Advance Payment Policy Description'
+                        style={{ marginTop: '0' }}
+                        rows='7'
+                     />
                   </Grid>
                   <Grid item sm={12} md={6}>
-                     <FileUploadWithProgress document={bookingDocument} setDocument={setBookingDocument} />
+                     <FileUploadWithProgress
+                        document={bookingDocument}
+                        setDocument={setBookingDocument}
+                     />
                   </Grid>
                </Grid>
             )}
             <ButtonNext
-               component={Link}
-               to='/finalizeProduct'
                endIcon={<ArrowForwardIcon />}
                sx={{
                   color: '#4D4D4D',
@@ -266,6 +271,7 @@ const CustomizeProduct = () => {
                      background: '#f7f7f7',
                   },
                }}
+               onClick={() => nextHandler(2)}
             >
                Next
             </ButtonNext>

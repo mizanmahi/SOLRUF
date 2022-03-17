@@ -19,7 +19,7 @@
 
 .mainClass li img {
 
-   filter: grayscale(100%);
+   /* filter: grayscale(100%); */
 }
 
 .mainClass :global(li.slick-active a img) {

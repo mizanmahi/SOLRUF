@@ -1,8 +1,8 @@
-.App{
-    /* border: 1px solid black; */
-    height: auto;
-    font-family: 'Montserrat', sans-serif;
-    /* font-family: 'Roboto', sans-serif; */
+.App {
+  /* border: 1px solid black; */
+  height: auto;
+  font-family: 'Montserrat', sans-serif;
+  /* font-family: 'Roboto', sans-serif; */
 }
 
 input::-webkit-outer-spin-button,
@@ -12,6 +12,13 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type='number'] {
   -moz-appearance: textfield;
+}
+
+input:focus {
+  outline: none;
+}
+.cursor-pointer {
+  cursor: pointer;
 }

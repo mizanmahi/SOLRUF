@@ -8,7 +8,7 @@ const Layout = ({ children, header = true, header2, noFooter }) => {
    return (
       <>
          {/* {header && <Header />} */}
-         {header2 && <SecondaryHeader />}
+         {/* {header2 && <SecondaryHeader />} */}
          {<MainHeader />}
          {children}
          {!noFooter && <Footer />}

@@ -19,8 +19,6 @@ const Nav = styled(Box)(({ theme }) => ({
    alignItems: 'center',
 }));
 
-
-
 const BookProductInAdvancePage = () => {
    const navigate = useNavigate();
 
@@ -32,51 +30,50 @@ const BookProductInAdvancePage = () => {
       left: false,
       bottom: false,
       right: false,
-    });
-  
-    const toggleDrawer = (anchor, open) => (event) => {
+   });
+
+   const toggleDrawer = (anchor, open) => (event) => {
       if (
-        event &&
-        event.type === 'keydown' &&
-        (event.key === 'Tab' || event.key === 'Shift')
+         event &&
+         event.type === 'keydown' &&
+         (event.key === 'Tab' || event.key === 'Shift')
       ) {
-        return;
+         return;
       }
-  
+
       setState({ ...state, [anchor]: open });
-    };
-   
-    
-const list = (anchor) => (
-   <Box
-     sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
-     role="presentation"
-     onClick={toggleDrawer(anchor, false)}
-     onKeyDown={toggleDrawer(anchor, false)}
-   >
-     <List>
-       {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-         <ListItem button key={text}>
-           <ListItemIcon>
-             {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-           </ListItemIcon>
-           <ListItemText primary={text} />
-         </ListItem>
-       ))}
-     </List>
-     <Divider />
-     <List>
-       {['All mail', 'Trash', 'Spam'].map((text, index) => (
-         <ListItem button key={text}>
-           <ListItemIcon>
-             {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-           </ListItemIcon>
-           <ListItemText primary={text} />
-         </ListItem>
-       ))}
-     </List>
-   </Box>
- );
+   };
+
+   const list = (anchor) => (
+      <Box
+         sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
+         role='presentation'
+         onClick={toggleDrawer(anchor, false)}
+         onKeyDown={toggleDrawer(anchor, false)}
+      >
+         <List>
+            {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+               <ListItem button key={text}>
+                  <ListItemIcon>
+                     {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  </ListItemIcon>
+                  <ListItemText primary={text} />
+               </ListItem>
+            ))}
+         </List>
+         <Divider />
+         <List>
+            {['All mail', 'Trash', 'Spam'].map((text, index) => (
+               <ListItem button key={text}>
+                  <ListItemIcon>
+                     {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  </ListItemIcon>
+                  <ListItemText primary={text} />
+               </ListItem>
+            ))}
+         </List>
+      </Box>
+   );
 
    return (
       <Box>
@@ -84,7 +81,7 @@ const list = (anchor) => (
             <Nav>
                <ArrowBackIcon
                   sx={{ fontSize: 40, cursor: 'pointer' }}
-                  onClick={() => navigate('/about')}
+                  onClick={() => navigate(-1)}
                />
                <Typography variant='h6'>Book Product in Advance</Typography>
             </Nav>
@@ -94,21 +91,27 @@ const list = (anchor) => (
                <ProductCardForMobile />
                <ProductCardForMobile />
             </Box>
-          <div>
-      {['left', 'right', 'top', 'bottom'].map((anchor) => (
-        <React.Fragment key={anchor}>
-          <Button onClick={toggleDrawer(anchor, true)}>{anchor}</Button>
-          <SwipeableDrawer
-            anchor={anchor}
-            open={state[anchor]}
-            onClose={toggleDrawer(anchor, false)}
-            onOpen={toggleDrawer(anchor, true)}
-          >
-            {list(anchor)}
-          </SwipeableDrawer>
-        </React.Fragment>
-      ))}
-    </div>
+
+
+
+            <div>
+               {['left', 'right', 'top', 'bottom'].map((anchor) => (
+                  <React.Fragment key={anchor}>
+                     <Button onClick={toggleDrawer(anchor, true)}>
+                        {anchor}
+                     </Button>
+                     <SwipeableDrawer
+                        anchor={anchor}
+                        open={state[anchor]}
+                        onClose={toggleDrawer(anchor, false)}
+                        onOpen={toggleDrawer(anchor, true)}
+                     >
+                        {list(anchor)}
+                     </SwipeableDrawer>
+                  </React.Fragment>
+               ))}
+            </div>
+
          </Container>
       </Box>
    );

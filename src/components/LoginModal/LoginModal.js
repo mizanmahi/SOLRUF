@@ -23,6 +23,7 @@ const style = {
    p: 5,
    position: 'relative',
    borderRadius: '5px',
+   borderTop: '5px solid #ffd05b',
 };
 
 const CloseIconBox = styled(Box)(({ theme }) => ({

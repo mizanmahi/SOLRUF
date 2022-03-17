@@ -15,7 +15,7 @@ const CustomizedAccordion = styled(Accordion)(({ theme }) => ({
 
 }));
 
-const CustomAccordion = ({ children, title, noPadding, ...rest }) => {
+const CustomAccordion = ({ children, title, noPadding, bigTitle, ...rest }) => {
    return (
       <CustomizedAccordion {...rest} disableGutters elevation={0}>
          <AccordionSummary
@@ -23,7 +23,7 @@ const CustomAccordion = ({ children, title, noPadding, ...rest }) => {
             aria-controls='panel1a-content'
             id='panel1a-header'
          >
-            <Typography>{title}</Typography>
+            <Typography variant={bigTitle ? 'h4' : 'h6'}>{title}</Typography>
          </AccordionSummary>
          <AccordionDetails sx={{padding: noPadding ? '1rem 0' : '8px 16px 16px'}}>{children}</AccordionDetails>
       </CustomizedAccordion>

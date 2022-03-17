@@ -8,9 +8,9 @@ const style = {
    top: '50%',
    left: '50%',
    transform: 'translate(-50%, -50%)',
-   bgcolor: '#fff',
+   bgcolor: '#ffffff',
    boxShadow: 24,
-   p: 4,
+   p: 2,
    borderRadius: 5,
 };
 
@@ -18,7 +18,7 @@ const paraStyle = {
    maxHeight: '500px !important',
 };
 
-const CustomModal = ({ open, handleClose }) => {
+const CustomModal = ({ open, handleClose, modalText }) => {
    console.log(open);
 
    return (
@@ -33,7 +33,7 @@ const CustomModal = ({ open, handleClose }) => {
             },
          }}
       >
-         <Box sx={{ ...style, width: ['95%', '70%'] }}>
+         <Box sx={{ ...style, width: ['95%', '70%'], minHeight: '500px' }}>
             <CloseIcon
                style={{
                   position: 'absolute',
@@ -67,37 +67,7 @@ const CustomModal = ({ open, handleClose }) => {
                      <Typography
                         sx={{ mt: 2, maxHeight: '400px', overflowY: 'auto' }}
                      >
-                        Lorem, ipsum dolor sit amet consectetur adipisicing
-                        elit. Animi molestiae eligendi iure hic? Molestiae esse
-                        possimus repellat quisquam, reiciendis veniam commodi
-                        ipsa iste dolorem inventore. Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. Aspernatur cupiditate
-                        ipsam cumque soluta iusto est sed explicabo! Eaque dicta
-                        sapiente obcaecati laudantium saepe itaque veniam
-                        consectetur, placeat illo asperiores maiores! Lorem
-                        ipsum dolor sit amet consectetur. Lorem ipsum dolor sit
-                        amet consectetur adipisicing elit. Consequuntur veniam <br /> <br />
-                        sint consequatur necessitatibus minima. Et facere eum
-                        dolores corrupti, mollitia sunt quidem sequi ex vel
-                        obcaecati architecto delectus molestiae quos.
-                        ipsum dolor sit amet consectetur. Lorem ipsum dolor sit
-                        amet consectetur adipisicing elit. Consequuntur veniam
-                        sint consequatur necessitatibus minima. Et facere eum
-                        dolores corrupti, mollitia sunt quidem sequi ex vel
-                        obcaecati architecto delectus molestiae quos.
-                        obcaecati architecto delectus molestiae quos.
-                        ipsum dolor sit amet consectetur. Lorem ipsum dolor sit<br /> <br />
-                        amet consectetur adipisicing elit. Consequuntur veniam
-                        sint consequatur necessitatibus minima. Et facere eum
-                        dolores corrupti, mollitia sunt quidem sequi ex vel
-                        obcaecati architecto delectus molestiae quos.
-                        obcaecati architecto delectus molestiae quos.
-                        obcaecati architecto delectus molestiae quos.
-                        ipsum dolor sit amet consectetur. Lorem ipsum dolor sit
-                        amet consectetur adipisicing elit. Consequuntur veniam
-                        sint consequatur necessitatibus minima. Et facere eum
-                        dolores corrupti, mollitia sunt quidem sequi ex vel
-                        obcaecati architecto delectus molestiae quos.
+                      {modalText}
                      </Typography>
                   </Box>
                </Grid>

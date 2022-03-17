@@ -6,10 +6,10 @@ import { MinusIcon, PlusIcon } from '@heroicons/react/solid';
 const ItemWrapper = styled('div')(({ theme }) => ({
    maxWidth: '100%',
    background: '#F3F3F3',
-   boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.23)',
    padding: theme.spacing(1.5),
    borderRadius: '8px',
    marginBottom: '1rem',
+   boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)',
 }));
 
 const ItemDetailBox = styled('div')(({ theme }) => ({
@@ -124,7 +124,7 @@ const ItemList = () => {
                </QuantityAndPriceBox>
             </Box>
          </ItemDetailBox>
-         <Typography color='error' sx={{ mt: 1 }}>
+         <Typography color='error' sx={{ mt: 1, cursor: 'pointer' }}>
             Remove
          </Typography>
       </ItemWrapper>

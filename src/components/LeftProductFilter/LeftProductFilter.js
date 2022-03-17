@@ -1,8 +1,22 @@
-import { styled } from '@mui/material';
+import { styled, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 import CustomAccordion from '../../components/CustomAccordion/CustomAccordion';
 import { Chip, FormControlLabel, Radio, RadioGroup } from '@mui/material';
+
+const FilterCategory = styled(Typography)(
+   ({ theme, activeCategory, category }) => ({
+      backgroundColor:
+         category === activeCategory
+            ? theme.palette.primary.main
+            : theme.palette.secondary.light,
+      borderRadius: '1rem',
+      marginBottom: '1rem',
+      padding: '0.4rem .8rem',
+      display: 'inline-block',
+      cursor: 'pointer',
+   })
+);
 
 const LeftProductFilterBox = styled(Box)(({ theme }) => ({
    background: '#ffffff',
@@ -11,47 +25,96 @@ const LeftProductFilterBox = styled(Box)(({ theme }) => ({
    padding: '1rem',
 }));
 
+const categories = [
+   'Solar Panels',
+   'Solar invertors',
+   'Solar roofing',
+   'Solar water heater',
+   'Solar water tanks',
+   'Solar water pipes',
+];
+
+const CustomizedAccordionForFilter = styled(CustomAccordion)(({ theme }) => ({
+   background: 'transparent',
+   '&::before': {
+      background: 'transparent',
+   },
+   '& .MuiButtonBase-root': {
+      // background: theme.palette.secondary.light,
+      borderRadius: '12px',
+      // padding: '0.2rem .8rem',
+      border: 0,
+   },
+   '& .Mui-expanded': {
+      // background: '#ffd05b',
+   },
+}));
+
 const LeftProductFilter = () => {
-   const categories = [
-      'Solar Panels',
-      'Solar invertors',
-      'Solar roofing',
-      'Solar water heater',
-      'Solar water tanks',
-      'Solar water pipes',
-   ];
+   const [powerCapacity, setPowerCapacity] = React.useState('ascending');
+   const [priceRange, setPriceRange] = React.useState('affordable');
 
-   
-   const [powerCapacity, setPowerCapacity] = React.useState('female');
+   const [activeCategory, setActiveCategory] = React.useState('');
 
-   const handleChange = (event) => {
+   const handleActiveCategory = (category) => {
+      setActiveCategory(category);
+      console.log(category);
+   };
+
+   const handlePowerCapacityChange = (event) => {
       setPowerCapacity(event.target.value);
+      console.log(event.target.value);
+   };
+
+   const handlePriceRangeChange = (event) => {
+      setPriceRange(event.target.value);
+      console.log(event.target.value);
    };
 
    return (
       <LeftProductFilterBox>
+         <CustomizedAccordionForFilter
+            title='Categories'
+            defaultExpanded='true'
+            bigTitle='true'
+         >
+            <Box
+               sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+               }}
+            >
+               {categories.map((category, index) => (
+                  <FilterCategory
+                     key={index}
+                     onClick={() => handleActiveCategory(category)}
+                     activeCategory={activeCategory}
+                     category={category}
+                  >
+                     {' '}
+                     {category}{' '}
+                  </FilterCategory>
+               ))}
+            </Box>
+         </CustomizedAccordionForFilter>
 
-            {categories.map((category, index) => (
-               <Chip
-                  key={index}
-                  label={category}
-                  component='p'
-                  href='#basic-chip'
-                  variant='outlined'
-                  clickable
-                  sx={{ mb: 1, mr: 1 }}
-               />
-            ))}
-  
-         <CustomAccordion title='Power Capacity'>
+         <CustomizedAccordionForFilter title='Sort' bigTitle='true'>
+            <Typography
+               sx={{ fontWeight: 600, fontSize: '1.3rem', color: '#000000' }}
+               gutterBottom
+            >
+               Power Capacity
+            </Typography>
+
             <RadioGroup
                aria-label='gender'
                name='controlled-radio-buttons-group'
                value={powerCapacity}
-               onChange={handleChange}
+               onChange={handlePowerCapacityChange}
             >
                <FormControlLabel
-                  value='female'
+                  value='ascending'
                   control={<Radio />}
                   label='Ascending'
                   sx={{
@@ -59,7 +122,7 @@ const LeftProductFilter = () => {
                   }}
                />
                <FormControlLabel
-                  value='male'
+                  value='descending'
                   control={<Radio />}
                   label='Descending'
                   sx={{
@@ -67,16 +130,22 @@ const LeftProductFilter = () => {
                   }}
                />
             </RadioGroup>
-         </CustomAccordion>
-         <CustomAccordion title='Price Range'>
+
+            <Typography
+               sx={{ fontWeight: 600, fontSize: '1.3rem', color: '#000000' }}
+               gutterBottom
+            >
+               Price Range
+            </Typography>
+
             <RadioGroup
                aria-label='gender'
                name='controlled-radio-buttons-group'
-               value={powerCapacity}
-               onChange={handleChange}
+               value={priceRange}
+               onChange={handlePriceRangeChange}
             >
                <FormControlLabel
-                  value='female'
+                  value='expensive'
                   control={<Radio />}
                   label='Expensive'
                   sx={{
@@ -84,7 +153,7 @@ const LeftProductFilter = () => {
                   }}
                />
                <FormControlLabel
-                  value='male'
+                  value='affordable'
                   control={<Radio />}
                   label='Affordable'
                   sx={{
@@ -92,7 +161,7 @@ const LeftProductFilter = () => {
                   }}
                />
             </RadioGroup>
-         </CustomAccordion>
+         </CustomizedAccordionForFilter>
       </LeftProductFilterBox>
    );
 };

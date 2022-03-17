@@ -10,7 +10,7 @@ const ProfileSharingPage = () => {
    return (
       <Box>
          <Typography variant='h4' textAlign='center'>
-            Profile to be shared of {params.profileId}.
+            Profile to be shared of {params.name}.
          </Typography>
       </Box>
    );

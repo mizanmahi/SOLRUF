@@ -13,11 +13,11 @@ const Textarea = styled('textarea')(({ theme }) => {
    };
 });
 
-const CustomTextArea = ({placeholder, style, ...rest}, ref) => {
+const CustomTextArea = ({placeholder, style, rows, ...rest}, ref) => {
    return (
       <Textarea
          ref={ref}
-         rows='5'
+         rows={rows ? rows : 4}
          placeholder={placeholder}
          style={{ marginTop: '1rem', ...style }}
          {...rest}

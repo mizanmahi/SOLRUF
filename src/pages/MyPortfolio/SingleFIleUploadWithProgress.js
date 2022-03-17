@@ -1,4 +1,3 @@
-import { Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import LinearProgressWithLabel from '../../components/ProgressWithLabel/ProgressWithLabel';
 import FileHeader from './FileHeader';
@@ -11,6 +10,8 @@ const SingleFIleUploadWithProgress = ({
 }) => {
    const [progress, setProgress] = useState(0);
    const [url, setUrl] = useState('');
+
+   // const { token } = useSelector((state) => state.user);
 
    useEffect(() => {
       async function upload() {
@@ -40,7 +41,7 @@ function uploadFile(file, onProgress) {
    return new Promise((res, rej) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', url);
-      const token = JSON.parse(localStorage.getItem('user')).token;
+      const token = localStorage.getItem('token')
       xhr.setRequestHeader('authorization', `Bearer ${token}`);
       xhr.onload = function () {
          const response = JSON.parse(xhr.responseText);

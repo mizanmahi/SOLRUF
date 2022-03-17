@@ -1,6 +1,5 @@
 import React,{useState} from 'react'
 import './pagination.css';
-//import Pagination from 'react-bootstrap/Pagination';
 import ReactPaginate from 'react-paginate';
 import Project from './project';
 import solarPlantsJsonData from './indiasolarproject';

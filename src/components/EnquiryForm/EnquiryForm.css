@@ -1,0 +1,173 @@
+.red-box {
+  font-style: normal;
+  font-weight: bold;
+  font-size: 18px;
+  line-height: 22px;
+  display: flex;
+  align-items: center;
+  text-align: right;
+  width: 432px;
+  color: var(--white);
+  height: 64px;
+  right: -9px;
+  top: -14px;
+  background: var(--theme-red);
+  border-radius: 10px;
+  position: relative;
+  top: -15px;
+  right: -10.3%;
+}
+/* plus minus */
+.action-span {
+  cursor: pointer;
+}
+
+.number {
+  margin-left: 37px;
+}
+.minus,
+.plus {
+  width: 44px;
+  height: 29px;
+  right: 48px;
+  top: calc(50% - 29px / 2);
+  background: #ffffff;
+  border: 2px solid #ffd05b;
+  box-sizing: border-box;
+  border-radius: 4px;
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.enquiry-input {
+  width: 61px;
+  height: 29px;
+  right: 96px;
+  top: calc(50% - 29px / 2);
+  text-align: center;
+  background: var(--white);
+  border: 1px solid #000000;
+  border-radius: 4px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* date */
+.dates {
+  height: 45px;
+  left: 493px;
+  right: 30px;
+  top: 75px;
+  background: #ffffff;
+  border: 3px solid #ffd05b;
+  border-radius: 7px;
+}
+/* forms */
+.form-row {
+  margin-bottom: 30px;
+}
+.checkbox-enquiry {
+  background: #ffffff;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #4d4d4d !important;
+  border-radius: 18px;
+  margin-right: 10px;
+  padding-top: 2%;
+}
+.accept-text {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 22px;
+}
+.dflex-center {
+  display: flex;
+  align-items: center;
+}
+.back-right {
+  position: absolute;
+  left: 9%;
+}
+.back-right .fa {
+  font-size: 26px;
+}
+.back-font {
+  font-style: normal;
+  font-weight: normal;
+  font-size: 13px;
+  padding-top: 1%;
+  font-weight: 400;
+}
+
+.h2_success {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 36px;
+  line-height: 44px;
+  color: #000000;
+}
+
+.h3_success {
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 29px;
+  color: #000000;
+}
+
+.enquiry-table {
+  padding: 20px;
+}
+.enquiry-table tbody tr td {
+  height: 60px;
+  top: 135px;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 22px;
+  color: #000000;
+}
+.enquiry-table tbody tr td span {
+  margin-left: 23px;
+
+  margin-top: 20px !important;
+}
+
+.enquiry-table tbody tr td:nth-child(even) {
+  text-align: right;
+}
+
+.enquiry-table tbody tr:nth-child(odd) {
+  border-radius: 7px !important;
+}
+.enquiry-table tbody tr:nth-child(even) {
+  background: #f3f3f3;
+  border-radius: 7px !important;
+}
+.long-btn {
+  width: 360px;
+  height: 45px;
+  left: calc(50% - 360px / 2 - 0.5px);
+  bottom: 30px;
+  background: #ffd05b;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.23);
+  border-radius: 7px;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 22px;
+  text-align: center;
+}
+.table > :not(caption) > * > * {
+  border-bottom-width: 0px !important ;
+}
+.white-shadow {
+  background: #ffffff;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.23);
+  border-radius: 18px;
+}
+.h3_title {
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 31px;
+}

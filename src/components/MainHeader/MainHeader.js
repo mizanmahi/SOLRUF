@@ -15,7 +15,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useDispatch, useSelector } from 'react-redux';
 import {
    openLoginModal,
-   setLoginRedirect,
+   // setLoginRedirect,
 } from '../../redux/slices/loginModalSlice';
 import Avatar from '@mui/material/Avatar';
 import PersonIcon from '@mui/icons-material/Person';
@@ -35,11 +35,13 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import AuthGuard from '../AuthGuard/AuthGuard';
 import LoginIcon from '@mui/icons-material/Login';
 import { useNavigate } from 'react-router';
+// import ContactPageIcon from '@mui/icons-material/ContactPage';
 
 const Wrapper = styled(Box)(({ theme }) => ({
    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
    zIndex: 1000,
-   position: 'relative',
+   position: 'sticky',
+   top: 0,
 }));
 
 const Header = styled(Box)(({ theme }) => ({
@@ -51,20 +53,22 @@ const Header = styled(Box)(({ theme }) => ({
 }));
 
 const Logo = styled(Box)(({ theme }) => ({
-   marginRight: '5rem',
+   marginRight: '1rem',
+   marginLeft: '.5rem',
    '& img': {
       maxWidth: '170px',
       '@media (max-width: 400px)': {
-         maxWidth: '130px',
+         maxWidth: '150px',
+      },
+      '@media (max-width: 350px)': {
+         // display: 'none',
       },
    },
 }));
 
 const Nav = styled(Box)(({ theme }) => ({
    display: 'flex',
-   justifyContent: 'flex-end',
    alignItems: 'center',
-   marginLeft: '3rem',
 }));
 
 const CustomMenuItem = styled(Typography)(({ theme }) => ({
@@ -87,7 +91,7 @@ const SearchBox = styled(Box)(({ theme }) => ({
    display: 'flex',
    alignItems: 'stretch',
    overflow: 'hidden',
-   flex: '1',
+   flex: '0 0 35%',
    boxShadow: '0px 1px 10px rgba(0, 0, 0, 0.10)',
    '&:hover': {
       boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.10)',
@@ -148,7 +152,7 @@ const DashboardMenuLink = styled(NavLink)(({ theme }) => ({
    flexDirection: 'row',
    alignItems: 'center',
    padding: theme.spacing(1.5),
-   marginBottom: theme.spacing(1),
+   marginBottom: theme.spacing(3),
    borderRadius: '50px 0 0 50px',
    color: 'black',
    textDecoration: 'none',
@@ -177,12 +181,17 @@ const LogoBoxInDrawer = styled(Box)(({ theme }) => ({
 const CartBox = styled('header')(({ theme }) => ({
    background: theme.palette.primary.main,
    padding: '.5rem 1rem',
+   margin: '0 1rem',
    display: 'flex',
    alignItems: 'center',
    boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
    borderRadius: '5px',
+   '@media (max-width: 600px)': {
+      margin: '0 0',
+   },
    '@media (max-width: 400px)': {
       padding: '.3rem .5rem',
+      display: 'none',
    },
    '& p': {
       color: '#4D4D4D',
@@ -207,8 +216,8 @@ const MenuIconBox = styled(Box)(({ theme }) => ({
       marginRight: 0,
    },
    '@media only screen and (max-width: 400px)': {
-      width: '2.5rem',
-      height: '2.5rem',
+      width: '2.8rem',
+      height: '2.8rem',
    },
 }));
 
@@ -244,6 +253,8 @@ const MainHeader = () => {
    const matchMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
    const matchSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
+   console.log(role);
+
    const [anchorEl, setAnchorEl] = React.useState(null);
    const openMenu = Boolean(anchorEl);
 
@@ -270,9 +281,9 @@ const MainHeader = () => {
 
    const drawer = (
       <DashboardMenu>
-         {user && (
+         {user && role === 'Vendor' && (
             <DashboardMenuLink
-               to='dashboard'
+               to='/dashboard'
                style={({ isActive }) => (isActive ? activeStyle : undefined)}
             >
                <DashboardIcon />
@@ -280,8 +291,18 @@ const MainHeader = () => {
             </DashboardMenuLink>
          )}
 
+         {user && role === 'Administrator' && (
+            <DashboardMenuLink
+               to='/admin/create/new'
+               style={({ isActive }) => (isActive ? activeStyle : undefined)}
+            >
+               <DashboardIcon />
+               Admin Page
+            </DashboardMenuLink>
+         )}
+
          <DashboardMenuLink
-            to='blogs'
+            to='/blogs'
             style={({ isActive }) => (isActive ? activeStyle : undefined)}
          >
             <ArticleIcon />
@@ -295,16 +316,16 @@ const MainHeader = () => {
 
    const navigate = useNavigate();
 
-   const portfolioRouteHandler = () => {
-      if (!user) {
-         dispatch(openLoginModal());
-         dispatch(setLoginRedirect('/adminPortfolio'));
-      } else {
-         navigate('/adminPortfolio');
-      }
-   };
+   // const portfolioRouteHandler = () => {
+   //    if (!user) {
+   //       dispatch(openLoginModal());
+   //       dispatch(setLoginRedirect('/profile'));
+   //    } else {
+   //       navigate('/profile');
+   //    }
+   // };
 
-   console.log(role); 
+   console.log(role);
 
    return (
       <Wrapper
@@ -325,7 +346,7 @@ const MainHeader = () => {
                         },
                      }}
                   >
-                     <MenuIcon fontSize='1.5rem' />
+                     <MenuIcon fontSize='1.6rem' />
                   </MenuIconBox>
                   <Logo component={Link} to='/'>
                      <img src={matchSm ? logo2 : logo1} alt='' />
@@ -335,7 +356,7 @@ const MainHeader = () => {
                   <SearchBox>
                      <input
                         type='text'
-                        placeholder='Search solar panel, batteries...'
+                        placeholder='ex: solar panel, batteries..'
                      />
                      <SearchIconBox>
                         <SearchIcon />
@@ -351,7 +372,7 @@ const MainHeader = () => {
                   </SearchBox>
                )}
                <Nav sx={{ display: { xs: 'none', md: 'flex' } }}>
-                  {user && (
+                  {user && role === 'Vendor' && (
                      <CustomMenuItem
                         variant='h6'
                         component={Link}
@@ -362,24 +383,34 @@ const MainHeader = () => {
                      </CustomMenuItem>
                   )}
 
-                  <CustomMenuItem
-                     variant='h6'
-                     // component={Link}
-                     onClick={portfolioRouteHandler}
-                     color='textPrimary'
-                  >
-                     Portfolio
-                  </CustomMenuItem>
+                  {user && role === 'Administrator' && (
+                     <CustomMenuItem
+                        variant='h6'
+                        component={Link}
+                        to='/admin/create/new'
+                        color='textPrimary'
+                     >
+                        Admin Page
+                     </CustomMenuItem>
+                  )}
 
                   <CustomMenuItem
                      variant='h6'
                      component={Link}
                      to='/blogs'
                      color='textPrimary'
+                     sx={{}}
                   >
                      Blogs
                   </CustomMenuItem>
-                  <CartBox sx={{ mr: 2, ml: 1 }}>
+                  <CartBox
+                     sx={{
+                        margin: '0 1rem',
+                        cursor: 'pointer',
+                        '&:hover svg': { color: '#000000' },
+                        '&:hover p': { color: '#000000' },
+                     }}
+                  >
                      <Badge badgeContent={0}>
                         <ShoppingCartIcon color='action' />
                      </Badge>
@@ -388,13 +419,19 @@ const MainHeader = () => {
                   {user ? (
                      <>
                         <Avatar
-                           sx={{ bgcolor: 'primary.main' }}
+                           sx={{
+                              bgcolor: 'primary.main',
+                              cursor: 'pointer',
+                              ml: '1rem',
+                              '&:hover svg': { color: '#000' },
+                              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
+                           }}
                            onClick={handleClick}
                            aria-controls={open ? 'basic-menu' : undefined}
                            aria-haspopup='true'
                            aria-expanded={open ? 'true' : undefined}
                         >
-                           <PersonIcon sx={{ color: '#666F73' }} />
+                           <PersonIcon sx={{ color: '#4D4D4D' }} />
                         </Avatar>
                         <div>
                            <Menu
@@ -413,9 +450,7 @@ const MainHeader = () => {
                               >
                                  Profile
                               </MenuItem>
-                              {/* <MenuItem onClick={handleClose}>
-                                 My account
-                              </MenuItem> */}
+
                               <MenuItem onClick={handleLogout}>Logout</MenuItem>
                            </Menu>
                         </div>
@@ -464,9 +499,6 @@ const MainHeader = () => {
          </Container>
 
          <LoginModal>
-            {/* <div className='loginn'>
-               <Login />
-            </div> */}
             <AuthGuard />
          </LoginModal>
 

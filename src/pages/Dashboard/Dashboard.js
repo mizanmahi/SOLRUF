@@ -1,4 +1,3 @@
-import * as React from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -10,13 +9,13 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import GavelIcon from '@mui/icons-material/Gavel';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { styled } from '@mui/material';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import MonetizationOn from '@mui/icons-material/MonetizationOn';
+import { useSelector } from 'react-redux';
 
 const drawerWidth = 240;
 
@@ -67,60 +66,83 @@ const desktopDrawerStyle = {
    },
 };
 
-function ResponsiveDrawer(props) {
+function Dashboard(props) {
    const { window } = props;
-   const [mobileOpen, setMobileOpen] = React.useState(false);
+   const [mobileOpen, setMobileOpen] = useState(false);
 
    const handleDrawerToggle = () => {
       setMobileOpen(!mobileOpen);
    };
    const navigate = useNavigate();
 
+   const { role } = useSelector((state) => state.user);
+
    useEffect(() => {
       navigate('myDashboard');
    }, []);
 
-   const [value, setValue] = React.useState(0);
-   console.log(value);
+   const [value, setValue] = useState(0);
+   console.log(role);
 
    const drawer = (
       <DashboardMenu>
-         <DashboardMenuLink
-            to='myDashboard'
-            style={({ isActive }) => (isActive ? activeStyle : undefined)}
-         >
-            <DashboardIcon />
-            Dashboard
-         </DashboardMenuLink>
-
-         <DashboardMenuLink
-            to='portfolio'
-            style={({ isActive }) => (isActive ? activeStyle : undefined)}
-         >
-            <DesktopMacIcon />
-            Portfolio
-         </DashboardMenuLink>
-         <DashboardMenuLink
-            to='tenders'
-            style={({ isActive }) => (isActive ? activeStyle : undefined)}
-         >
-            <GavelIcon />
-            Tenders
-         </DashboardMenuLink>
-         <DashboardMenuLink
-            to='customerLeads'
-            style={({ isActive }) => (isActive ? activeStyle : undefined)}
-         >
-            <SupportAgentIcon />
-            Customer Leads
-         </DashboardMenuLink>
-         <DashboardMenuLink
-            to='sale'
-            style={({ isActive }) => (isActive ? activeStyle : undefined)}
-         >
-            <MonetizationOnIcon />
-            Sale
-         </DashboardMenuLink>
+         {role === 'Vendor' ? (
+            <>
+               {' '}
+               <DashboardMenuLink
+                  to='myDashboard'
+                  style={({ isActive }) => (isActive ? activeStyle : undefined)}
+               >
+                  <DashboardIcon />
+                  Dashboard
+               </DashboardMenuLink>
+               <DashboardMenuLink
+                  to='portfolio'
+                  style={({ isActive }) => (isActive ? activeStyle : undefined)}
+               >
+                  <DesktopMacIcon />
+                  Portfolio
+               </DashboardMenuLink>
+               <DashboardMenuLink
+                  to='tenders'
+                  style={({ isActive }) => (isActive ? activeStyle : undefined)}
+               >
+                  <GavelIcon />
+                  Tenders
+               </DashboardMenuLink>
+               <DashboardMenuLink
+                  to='customerLeads'
+                  style={({ isActive }) => (isActive ? activeStyle : undefined)}
+               >
+                  <SupportAgentIcon />
+                  Customer Leads
+               </DashboardMenuLink>
+               <DashboardMenuLink
+                  to='sale'
+                  style={({ isActive }) => (isActive ? activeStyle : undefined)}
+               >
+                  <MonetizationOnIcon />
+                  Sale
+               </DashboardMenuLink>
+            </>
+         ) : (
+            <>
+               <DashboardMenuLink
+                  to='sale'
+                  style={({ isActive }) => (isActive ? activeStyle : undefined)}
+               >
+                  <MonetizationOnIcon />
+                  Purchases
+               </DashboardMenuLink>
+               <DashboardMenuLink
+                  to='sale'
+                  style={({ isActive }) => (isActive ? activeStyle : undefined)}
+               >
+                  <MonetizationOnIcon />
+                  Inquiries
+               </DashboardMenuLink>
+            </>
+         )}
       </DashboardMenu>
    );
 
@@ -182,6 +204,8 @@ function ResponsiveDrawer(props) {
                py: 3,
                px: 0,
                width: { sm: `calc(100% - ${drawerWidth}px)` },
+               // background: 'red',
+               maxWidth: '100%',
             }}
          >
             <BottomNavigation
@@ -236,7 +260,7 @@ function ResponsiveDrawer(props) {
    );
 }
 
-ResponsiveDrawer.propTypes = {
+Dashboard.propTypes = {
    /**
     * Injected by the documentation to work in an iframe.
     * You won't need it on your project.
@@ -244,7 +268,7 @@ ResponsiveDrawer.propTypes = {
    window: PropTypes.func,
 };
 
-export default ResponsiveDrawer;
+export default Dashboard;
 
 // ============================================================ confirm dialog
 // const [confirmDialog, setConfirmDialog] = useState({

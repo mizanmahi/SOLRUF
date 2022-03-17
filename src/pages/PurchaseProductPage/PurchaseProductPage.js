@@ -6,7 +6,7 @@ import {
    Radio,
    Button,
 } from '@mui/material';
-import { Box, fontSize } from '@mui/system';
+import { Box } from '@mui/system';
 import React, { useState } from 'react';
 import SliderWithImagePreview from '../../components/SliderWithCustomImagePreview/SliderWithImagePreview';
 import classes from './PurchaseProductPage.module.css';
@@ -22,7 +22,6 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import YellowButton from '../../components/YellowButton/YellowButton';
 import ProductDetailList from '../../components/ProductDetailList/ProductDetailList';
 import { MinusIcon, PlusIcon } from '@heroicons/react/solid';
@@ -138,10 +137,10 @@ const PurchaseProductPage = () => {
    };
 
    return (
-      <div>
+      <Box sx={{my: 4}}>
          <Container maxWidth='xl'>
-            <Grid container spacing={3}>
-               <Grid item xs={12} sm={5} md={5}>
+            <Grid container spacing={5}>
+               <Grid item xs={12} sm={5} md={5} lg={4}>
                   <Box sx={{ mb: 12 }}>
                      <SliderWithImagePreview />
                   </Box>
@@ -182,7 +181,7 @@ const PurchaseProductPage = () => {
                      </Typography>
                   </Box>
                </Grid>
-               <Grid item xs={12} sm={7} md={7}>
+               <Grid item xs={12} sm={7} md={7} lg={8}>
                   <Box>
                      <Typography variant='h4'>
                         24 Inch Solar cables (10x Powerful) Fully Ready To
@@ -493,7 +492,7 @@ const PurchaseProductPage = () => {
                </Grid>
             </Grid>
          </Container>
-      </div>
+      </Box>
    );
 };
 

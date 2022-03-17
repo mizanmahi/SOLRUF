@@ -1,0 +1,43 @@
+:root {
+  --black: #000000;
+  --white: #ffffff;
+  --default-background: #f3f3f3;
+  --secondary-background: #ffffff;
+  --default-yellow: #ffd05b;
+  --default-form-background: #d0d7d9;
+}
+.form-control {
+  border: solid 2px var(--default-yellow) !important;
+  border-radius: 7px !important;
+}
+.form-control:focus {
+  color: #212529;
+  background-color: #fff;
+  border-color: var(--default-yellow) !important;
+  outline: 0;
+  box-shadow: none !important;
+}
+.border-right-none {
+  /* border-right: solid 0px var(--default-yellow) !important; */
+  border-radius: 7px 0px 0px 7px !important;
+}
+
+/* save button */
+.save-button {
+  background-color: var(--default-yellow);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.18);
+  color: #4d4d4d !important;
+  border: none;
+  padding: 0.6rem 2rem;
+  font-weight: 600 !important;
+  border-radius: 7px;
+}
+.save-button:hover {
+  background-color: #ffd05b !important;
+  color: #4d4d4d !important;
+}
+
+.text-area-style {
+  border-radius: 7px !important;
+  border-radius: 7px;
+}

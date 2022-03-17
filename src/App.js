@@ -1,16 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import { Provider } from 'react-redux';
 import { Container } from '@mui/material';
 import { theme } from './theme/theme';
 import { store } from './redux/store';
 
 import './App.css';
 
-import Header from './webui/header/header';
 import Home from './webui/home/home';
 import Dashboard from './pages/Dashboard/Dashboard';
-import ProfileSharingPage from './pages/ProfileSharingPage/ProfileSharingPage';
 import Dragging from './components/Dragging/Dragging';
 import Checkout from './pages/Checkout/Checkout';
 import BookProductInAdvancePage from './pages/BookProductInAdvancePage/BookProductInAdvancePage';
@@ -25,15 +22,11 @@ import ProjectsPage from './pages/ProjectsPage/ProjectsPage';
 import ProjectDetails from './pages/ProjectDetails/ProjectDetails';
 import AddProject from './pages/AddProject/AddProject';
 
-import { useEffect, useState } from 'react';
-import { useLocalStorage } from './hooks/useLocalStorage';
 import Layout from './components/Layout/Layout';
 import AddProjectForMobile from './pages/AddProjectForMobile/AddProjectForMobile';
 import EditProjectForMobile from './pages/EditProjectForMobile/EditProjectForMobile';
-import { useDispatch } from 'react-redux';
-import { saveUser } from './redux/slices/userSlice';
-import LoginModal from './components/LoginModal/LoginModal';
-import Login from './login/login';
+import { useSelector } from 'react-redux';
+import { removeUser } from './redux/slices/userSlice';
 import MyDashboard from './pages/MyDashboard/MyDashboard';
 import DashboardPortfolio from './pages/Dashboard/DashboardPortfolio/DashboardPortfolio';
 import CustomerLeads from './pages/Dashboard/CustomerLeads/CustomerLeads';
@@ -54,37 +47,39 @@ import Karnataka from './pages/Blogs/NetMetering/Karnataka/Karnataka';
 import Punjab from './pages/Blogs/NetMetering/Punjab/Punjab';
 import WestBengal from './pages/Blogs/NetMetering/WestBengal/WestBengal';
 import ProtectedRoute from './routes/ProtectedRoute/ProtectedRoute';
+// import VendorRoute from './routes/ProtectedRoute/VendorRoute';
+import { axiAuth } from './utils/axiosInstance';
+import ProductBooking from './pages/ProductBooking/ProductBooking';
+import AdminRoute from './routes/AdminRoute';
+import AddAttribute from './pages/AdminPages/AddAttribute/AddAttribute';
+import Toast from './components/Toast';
+import { EnquiryForm } from './components/EnquiryForm/EnquiryForm';
+import EnquiryPage from './pages/EnquiryPage/EnquiryPage';
+
+import 'swiper/swiper-bundle.css';
+import 'swiper/swiper.min.css';
+import 'swiper/modules/scrollbar/scrollbar.scss';
+import 'swiper/modules/scrollbar/scrollbar.scss';
 
 function App() {
-   const [showDashboard, setShowDashboard] = useState(false);
-   const [user, setUser] = useLocalStorage('user', null);
-   const dispatch = useDispatch();
+   const { user, role, token } = useSelector((state) => state.user);
 
-   useEffect(() => {
-      console.log(user);
-      if (user) {
-         dispatch(saveUser(user));
-      }
-   }, [user, dispatch]);
+   console.log({ user, role, token });
 
    return (
       <ThemeProvider theme={theme}>
          <Router>
             <div className='App'>
-               {/* <Header /> */}
-
                <Routes>
                   <Route
                      path='/'
                      element={
                         <Layout>
-                           <Home
-                              setShowDashboard={setShowDashboard}
-                              showDashboard={showDashboard}
-                           />
+                           <Home />
                         </Layout>
                      }
                   />
+                  <Route path='/dashboard' element={<Dashboard />} />
                   <Route
                      path='/dashboard/*'
                      element={
@@ -96,21 +91,13 @@ function App() {
                      }
                   >
                      <Route path='myDashboard' element={<MyDashboard />} />
-                     <Route path='profile' element={<ProfileSharingPage />} />
                      <Route
                         path='portfolio'
                         element={<DashboardPortfolio noPadding={true} />}
                      />
                      <Route path='customerLeads' element={<CustomerLeads />} />
                   </Route>
-                  <Route
-                     path='/profileSharing/:profileId'
-                     element={
-                        <Layout>
-                           <ProfileSharingPage />
-                        </Layout>
-                     }
-                  />
+
                   <Route
                      path='/dragging'
                      element={
@@ -146,16 +133,26 @@ function App() {
                   <Route
                      path='/purchaseProduct'
                      element={
+                        <AdminRoute>
+                           <Layout>
+                              <PurchaseProductPage />
+                           </Layout>
+                        </AdminRoute>
+                     }
+                  />
+                  <Route
+                     path='/admin/create/new'
+                     element={
                         <Layout>
-                           <PurchaseProductPage />
+                           <AddProduct />
                         </Layout>
                      }
                   />
                   <Route
-                     path='/addProduct'
+                     path='/addAttribute'
                      element={
                         <Layout>
-                           <AddProduct />
+                           <AddAttribute />
                         </Layout>
                      }
                   />
@@ -201,6 +198,14 @@ function App() {
                         </Layout>
                      }
                   />
+                  <Route
+                     path='/enquiry-jabez'
+                     element={
+                        <Layout>
+                           <EnquiryForm />
+                        </Layout>
+                     }
+                  />
 
                   <Route
                      exact
@@ -242,12 +247,8 @@ function App() {
                      }
                   />
                   <Route
-                     path='/about'
-                     element={
-                        <Layout header={false}>
-                           <UserPortfolioProfile />
-                        </Layout>
-                     }
+                     path='/profile/:name'
+                     element={<UserPortfolioProfile />}
                   />
                   {/*  ========= blogs ========= */}
                   <Route
@@ -383,7 +384,12 @@ function App() {
                         </Layout>
                      }
                   />
+
+                  {/*  product booking  */}
+                  <Route path='/product-booking' element={<ProductBooking />} />
+                  <Route path='/enquiry' element={<EnquiryPage />} />
                </Routes>
+               <Toast />
             </div>
          </Router>
       </ThemeProvider>
@@ -391,3 +397,29 @@ function App() {
 }
 
 export default App;
+
+/** Intercept any unauthorized request.
+ * dispatch logout action accordingly **/
+const UNAUTHORIZED = 401;
+const { dispatch } = store; // direct access to redux store.
+
+axiAuth.interceptors.request.use((config) => {
+   const token = store.getState().user.token;
+   if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+   }
+   return config;
+});
+
+axiAuth.interceptors.response.use(
+   (response) => response,
+   (error) => {
+      if (error.response) {
+         const { status } = error?.response;
+         if (status === UNAUTHORIZED) {
+            dispatch(removeUser());
+         }
+         return Promise.reject(error);
+      }
+   }
+);

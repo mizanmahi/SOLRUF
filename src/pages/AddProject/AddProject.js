@@ -1,7 +1,7 @@
 import { Box } from '@mui/system';
 import React, { useCallback, useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { Grid, MenuItem, Typography } from '@mui/material';
+import { Button, Grid, MenuItem, Typography } from '@mui/material';
 import SolrufTextField from '../../components/TextField/TextField';
 import { useDropzone } from 'react-dropzone';
 import UploadError from '../MyPortfolio/UploadError';
@@ -15,16 +15,18 @@ import { useForm } from 'react-hook-form';
 import CustomSelect from '../../components/CustomSelect/CustomSelect';
 import { axiAuth } from '../../utils/axiosInstance';
 
-import PushPinIcon from '@mui/icons-material/PushPin';
-import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import CloseIcon from '@mui/icons-material/Close';
+import usePinCode from '../../hooks/usePinCode';
+import { useDebounce } from 'use-debounce';
+import CustomErrorText from '../../components/CustomErrorText/CustomErrorText';
 
 const AddProjectBox = styled(Box)(({ theme }) => {
    return {
       background: '#ffffff',
       padding: theme.spacing(5),
-      borderRadius: theme.spacing(3),
+      borderRadius: theme.spacing(2),
       position: 'relative',
       marginTop: theme.spacing(3),
    };
@@ -60,7 +62,7 @@ const DottedBox = styled(Box)(({ theme }) => {
    };
 });
 
-const PowerCapacityBox = styled(Box)(({ theme }) => {
+const PowerCapacityBox = styled(Box)(({ theme, error }) => {
    return {
       background: theme.palette.primary.main,
       display: 'flex',
@@ -70,7 +72,7 @@ const PowerCapacityBox = styled(Box)(({ theme }) => {
       marginTop: '3px',
       boxSizing: 'border-box',
       borderRadius: '5px',
-      border: '2px solid #FFD05B',
+      border: `2px solid ${error ? '#d32f2f' : '#FFD05B'} `,
       overflow: 'hidden',
       '& input': {
          width: '70%',
@@ -97,7 +99,7 @@ const PowerCapacityBox = styled(Box)(({ theme }) => {
    };
 });
 
-const MonthsTakenBox = styled(Box)(({ theme }) => {
+const MonthsTakenBox = styled(Box)(({ theme, error }) => {
    return {
       background: theme.palette.primary.main,
       display: 'flex',
@@ -107,7 +109,7 @@ const MonthsTakenBox = styled(Box)(({ theme }) => {
       marginTop: '3px',
       boxSizing: 'border-box',
       borderRadius: '5px',
-      border: '2px solid #FFD05B',
+      border: `2px solid ${error ? '#d32f2f' : '#FFD05B'} `,
       overflow: 'hidden',
       '& input': {
          width: '70%',
@@ -134,7 +136,7 @@ const MonthsTakenBox = styled(Box)(({ theme }) => {
    };
 });
 
-const ReturnPeriodBox = styled(Box)(({ theme }) => {
+const ReturnPeriodBox = styled(Box)(({ theme, error }) => {
    return {
       background: theme.palette.primary.main,
       display: 'flex',
@@ -144,7 +146,7 @@ const ReturnPeriodBox = styled(Box)(({ theme }) => {
       marginTop: '3px',
       boxSizing: 'border-box',
       borderRadius: '5px',
-      border: '2px solid #FFD05B',
+      border: `2px solid ${error ? '#d32f2f' : '#FFD05B'} `,
       overflow: 'hidden',
       '& input': {
          width: '70%',
@@ -171,10 +173,16 @@ const ReturnPeriodBox = styled(Box)(({ theme }) => {
    };
 });
 
-const AddProject = () => {
+const AddProject = ({ backToProjectHandler }) => {
    const [projectImages, setProjectImages] = useState([]);
 
    const { projectToBeEdited } = useSelector((state) => state.project);
+   const [prevImages, setPrevImages] = useState(projectToBeEdited?.images);
+
+   const [selectedCategory, setSelectedCategory] = useState(
+      projectToBeEdited?.category?.id
+   );
+   const [categoryError, setCategoryError] = useState(false);
 
    console.log(projectToBeEdited);
 
@@ -213,26 +221,38 @@ const AddProject = () => {
       setProjectImages((cur) => cur.filter((fw) => fw.file !== file));
    };
 
-   const [category_id, setCategory_id] = useState('');
-
    const handleTagChange = (e) => {
       console.log(e.target.value);
+      setCategoryError(false);
       e.preventDefault();
-      setCategory_id(e.target.value);
+      // setCategory_id(e.target.value);
+      setSelectedCategory(e.target.value);
    };
+
+   console.log(selectedCategory);
 
    const {
       register,
       handleSubmit,
       reset,
+      watch,
+      setValue,
       formState: { errors },
-   } = useForm();
+   } = useForm({
+      defaultValues: projectToBeEdited,
+   });
 
    const submitHandler = async (formData) => {
       console.log(formData);
       console.log(projectImages);
+
+      if (!selectedCategory) {
+         setCategoryError('Please select a category');
+         return;
+      }
+
       const projectData = {};
-      projectData.category_id = category_id;
+      projectData.category_id = selectedCategory;
       projectData.name = formData.name;
       projectData.description = formData.description;
       projectData.tag = tag;
@@ -252,15 +272,47 @@ const AddProject = () => {
       console.log(projectData);
 
       try {
-         const { data } = await axiAuth.post(
-            'api/vendor/projects',
-            projectData
-         );
-         console.log(data);
-         if (data.message === `Project created successfully`) {
-            reset();
-            setProjectImages([]);
-            alert(data.message);
+         if (projectToBeEdited) {
+            projectData._method = 'PUT';
+
+            const result = await axiAuth.post(
+               `api/vendor/projects/${projectToBeEdited.project_id}`,
+               projectData
+            );
+            console.log(result);
+            if (result.status === 200) {
+               alert('Project Updated Successfully');
+               setProjectImages([]);
+               reset();
+               backToProjectHandler();
+            }
+         } else {
+            const projectResponse = await axiAuth.post(
+               'api/vendor/projects',
+               projectData
+            );
+
+            const reviewResponse = await axiAuth.post(
+               'api/vendor/project-reviews',
+               {
+                  customer_review: formData.customer_review,
+                  project_id: projectResponse.data.project_id,
+                  customer_name: formData.customer_name,
+               }
+            );
+
+            console.log(reviewResponse);
+
+            if (
+               projectResponse.status === 200 &&
+               reviewResponse.status === 200
+            ) {
+               setProjectImages([]);
+               alert('Project Created Successfully');
+
+               reset();
+               backToProjectHandler();
+            }
          }
       } catch (error) {
          console.log(error.message);
@@ -274,7 +326,7 @@ const AddProject = () => {
 
    useEffect(() => {
       try {
-         axiAuth.get('api/categories').then(({ data }) => {
+         axiAuth.get('api/categories?type=project').then(({ data }) => {
             console.log(data);
             setCategories(data.categories);
          });
@@ -282,6 +334,40 @@ const AddProject = () => {
          console.log(error.message);
       }
    }, []);
+
+   const onImageDelete = async (id) => {
+      console.log(id);
+      const { status, data } = await axiAuth.post(
+         'api/vendor/projects/image/delete',
+         {
+            image_id: id,
+            _method: 'DELETE',
+         }
+      );
+
+      console.log(data);
+
+      if (status === 200) {
+         alert('Image Deleted Successfully');
+         setPrevImages(prevImages.filter((img) => img.id !== id));
+      }
+   };
+   const [pincode, state] = watch(['pincode', 'state']);
+   console.log({ pincode, state });
+   const [debouncedPinCode] = useDebounce(pincode, 1000);
+
+   const { indiaState, district } = usePinCode(debouncedPinCode);
+   console.log({ indiaState, district });
+
+   useEffect(() => {
+      if (indiaState && district) {
+         setValue('state', indiaState, {
+            shouldTouch: true,
+         });
+
+         setValue('city', district, { shouldTouch: true });
+      }
+   }, [indiaState, district]);
 
    return (
       <motion.div
@@ -299,35 +385,13 @@ const AddProject = () => {
                      marginBottom: '2rem',
                   }}
                >
-                  {tag === 0 ? (
-                     <PushPinOutlinedIcon
-                        sx={{
-                           fontSize: '40px',
-                           cursor: 'pointer',
-                           color: '#ffd05b',
-                        }}
-                        onClick={() => setTag(1)}
-                     />
-                  ) : (
-                     <PushPinIcon
-                        sx={{
-                           fontSize: '40px',
-                           cursor: 'pointer',
-                           color: '#ffd05b',
-                        }}
-                        onClick={() => setTag(0)}
-                     />
-                  )}
                   <YellowButton style={{ marginLeft: '1rem' }} type='submit'>
                      Submit
                   </YellowButton>
                </Box>
-               <Grid container spacing={3}>
+               <Grid container columnSpacing={3} rowSpacing={1}>
                   <Grid item sm={12} md={6} lg={4}>
                      <SolrufTextField
-                        defaultValue={
-                           projectToBeEdited ? projectToBeEdited.name : ''
-                        }
                         label='Project Name'
                         {...register('name', {
                            required: {
@@ -335,10 +399,12 @@ const AddProject = () => {
                               message: 'Name is required',
                            },
                         })}
+                        error={errors.name}
+                        helperText={errors.name ? errors.name.message : ' '}
                      />
                   </Grid>
                   <Grid item sm={12} md={6} lg={4}>
-                     <MonthsTakenBox>
+                     <MonthsTakenBox error={!!errors.duration}>
                         <input
                            type='number'
                            placeholder='Months Taken'
@@ -348,8 +414,6 @@ const AddProject = () => {
                                  message: 'Duration is Required',
                               },
                            })}
-                           name='duration'
-                           onChange={(event) => +event.target.value}
                         />
 
                         <select
@@ -365,9 +429,11 @@ const AddProject = () => {
                            <option value='year'>Year</option>
                         </select>
                      </MonthsTakenBox>
+
+                     <CustomErrorText errorMessage={errors.duration?.message} />
                   </Grid>
                   <Grid item sm={12} md={6} lg={4}>
-                     <PowerCapacityBox>
+                     <PowerCapacityBox error={!!errors.power_capacity}>
                         <input
                            type='number'
                            placeholder='Capacity'
@@ -377,8 +443,6 @@ const AddProject = () => {
                                  message: 'Capacity is Required',
                               },
                            })}
-                           name='power_capacity'
-                           onChange={(event) => +event.target.value}
                         />
 
                         <select
@@ -394,14 +458,16 @@ const AddProject = () => {
                            <option value='mw'>Mw</option>
                         </select>
                      </PowerCapacityBox>
+                     <CustomErrorText
+                        errorMessage={errors.power_capacity?.message}
+                     />
                   </Grid>
                   <Grid item md={6}>
                      <CustomSelect
                         name='fieldName'
-                        // value={category_id}
-
                         label='Project Category'
                         changeHandler={handleTagChange}
+                        value={selectedCategory}
                      >
                         {categories.map((category) => (
                            <MenuItem value={category?.category_id}>
@@ -409,18 +475,23 @@ const AddProject = () => {
                            </MenuItem>
                         ))}
                      </CustomSelect>
+                     <CustomErrorText errorMessage={categoryError} />
                   </Grid>
                   <Grid item md={12}>
                      <CustomTextArea
                         rows='5'
+                        style={{ marginTop: '0' }}
                         placeholder='Description'
                         {...register('description', {
                            required: {
                               value: true,
-                              message: 'Name is required',
+                              message: 'Description is required',
                            },
                         })}
                      ></CustomTextArea>
+                     <CustomErrorText
+                        errorMessage={errors.description?.message}
+                     />
                   </Grid>
 
                   <Grid item md={12}>
@@ -430,11 +501,6 @@ const AddProject = () => {
                         <Grid container columnSpacing={3}>
                            <Grid item sm={12} md={6} lg={4}>
                               <SolrufTextField
-                                 defaultValue={
-                                    projectToBeEdited
-                                       ? projectToBeEdited.project_cost
-                                       : ''
-                                 }
                                  label='Project Cost'
                                  type='text'
                                  iconText={
@@ -444,13 +510,17 @@ const AddProject = () => {
                                  {...register('cost', {
                                     required: {
                                        value: true,
-                                       message: 'Name is required',
+                                       message: 'Project cost is required',
                                     },
                                  })}
+                                 error={errors.cost}
+                                 helperText={
+                                    errors.cost ? errors.cost.message : ' '
+                                 }
                               />
                            </Grid>
                            <Grid item sm={12} md={6} lg={4}>
-                              <ReturnPeriodBox>
+                              <ReturnPeriodBox error={errors.return_amount}>
                                  <input
                                     type='number'
                                     placeholder='Return Period'
@@ -460,8 +530,6 @@ const AddProject = () => {
                                           message: 'Return Period is Required',
                                        },
                                     })}
-                                    name='return_period'
-                                    onChange={(event) => +event.target.value}
                                  />
 
                                  <select
@@ -477,6 +545,9 @@ const AddProject = () => {
                                     <option value='year'>Year</option>
                                  </select>
                               </ReturnPeriodBox>
+                              <CustomErrorText
+                                 errorMessage={errors?.return_period?.message}
+                              />
                            </Grid>
                            <Grid item sm={12} md={6} lg={4}>
                               <SolrufTextField
@@ -489,9 +560,15 @@ const AddProject = () => {
                                  {...register('return_amount', {
                                     required: {
                                        value: true,
-                                       message: 'Name is required',
+                                       message: 'Return amount is required',
                                     },
                                  })}
+                                 error={errors.return_amount}
+                                 helperText={
+                                    errors.return_amount
+                                       ? errors.return_amount.message
+                                       : ' '
+                                 }
                               />
                            </Grid>
                         </Grid>
@@ -499,6 +576,37 @@ const AddProject = () => {
 
                      <CustomAccordion title='Location'>
                         <Grid container columnSpacing={3}>
+                           <Grid item sm={12} md={6} lg={4}>
+                              <SolrufTextField
+                                 defaultValue={
+                                    projectToBeEdited
+                                       ? projectToBeEdited.pincode
+                                       : ''
+                                 }
+                                 label='Pin Code'
+                                 type='text'
+                                 size='large'
+                                 // value={pinCode}
+                                 // onChange={(e) => setPinCode(e.target.value)}
+                                 {...register('pincode', {
+                                    required: {
+                                       value: true,
+                                       message: 'Pin Code is required',
+                                    },
+                                    minLength: {
+                                       value: 6,
+                                       message: 'Pin Code must be 6 digits',
+                                    },
+                                 })}
+                                 error={errors.pincode}
+                                 helperText={
+                                    errors.pincode
+                                       ? errors.pincode.message
+                                       : ' '
+                                 }
+                              />
+                           </Grid>
+
                            <Grid item sm={12} md={6} lg={4}>
                               <SolrufTextField
                                  label='State'
@@ -509,31 +617,26 @@ const AddProject = () => {
                                        message: 'State is required',
                                     },
                                  })}
+                                 error={errors.state}
+                                 helperText={
+                                    errors.state ? errors.state.message : ' '
+                                 }
                               />
                            </Grid>
                            <Grid item sm={12} md={6} lg={4}>
                               <SolrufTextField
                                  label='City/District'
-                                 type='text'
+                                 // type='text'
                                  {...register('city', {
                                     required: {
                                        value: true,
-                                       message: 'Name is required',
+                                       message: 'District is required',
                                     },
                                  })}
-                              />
-                           </Grid>
-                           <Grid item sm={12} md={6} lg={4}>
-                              <SolrufTextField
-                                 label='Pin Code'
-                                 type='text'
-                                 size='large'
-                                 {...register('pincode', {
-                                    required: {
-                                       value: true,
-                                       message: 'Name is required',
-                                    },
-                                 })}
+                                 error={errors.city}
+                                 helperText={
+                                    errors.city ? errors.city.message : ' '
+                                 }
                               />
                            </Grid>
                         </Grid>
@@ -543,6 +646,13 @@ const AddProject = () => {
                         <Grid container columnSpacing={3}>
                            <Grid item sm={12} md={6} lg={4}>
                               <SolrufTextField
+                                 defaultValue={
+                                    projectToBeEdited?.reviews.length > 0
+                                       ? projectToBeEdited?.reviews[0][
+                                            'customer_name'
+                                         ]
+                                       : ''
+                                 }
                                  label='Customer Name'
                                  type='text'
                                  {...register('customer_name', {
@@ -551,10 +661,23 @@ const AddProject = () => {
                                        message: 'Name is required',
                                     },
                                  })}
+                                 error={errors.customer_name}
+                                 helperText={
+                                    errors.customer_name
+                                       ? errors.customer_name.message
+                                       : ''
+                                 }
                               />
                            </Grid>
                            <Grid item sm={12}>
                               <CustomTextArea
+                                 defaultValue={
+                                    projectToBeEdited?.reviews.length > 0
+                                       ? projectToBeEdited?.reviews[0][
+                                            'customer_review'
+                                         ]
+                                       : ''
+                                 }
                                  rows='5'
                                  placeholder='Customer Review'
                                  style={{ marginTop: '1rem' }}
@@ -565,6 +688,9 @@ const AddProject = () => {
                                     },
                                  })}
                               ></CustomTextArea>
+                              <CustomErrorText
+                                 errorMessage={errors?.customer_review?.message}
+                              />
                            </Grid>
                         </Grid>
                      </CustomAccordion>
@@ -619,6 +745,44 @@ const AddProject = () => {
                                        />
                                     );
                                  })}
+
+                                 {projectToBeEdited &&
+                                    prevImages.map(({ id, url }) => (
+                                       <React.Fragment>
+                                          <Box
+                                             sx={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                             }}
+                                          >
+                                             <img
+                                                src={url}
+                                                alt=''
+                                                style={{
+                                                   maxWidth: '100%',
+                                                   width: '70px',
+                                                   height: 'auto',
+                                                }}
+                                             />
+
+                                             <Button
+                                                color='secondary'
+                                                sx={{
+                                                   fontWeight: 600,
+                                                   fontSize: '1.2rem',
+                                                   borderBottom: '0 !important',
+                                                }}
+                                                onClick={() =>
+                                                   onImageDelete(id)
+                                                }
+                                             >
+                                                <CloseIcon />
+                                             </Button>
+                                          </Box>
+                                          <hr />
+                                       </React.Fragment>
+                                    ))}
                               </Box>
                            </Grid>
                            {/* <DesignLayoutUploadWithProgress /> */}

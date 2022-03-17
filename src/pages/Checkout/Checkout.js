@@ -2,7 +2,6 @@ import {
    Button,
    Container,
    Grid,
-   MenuItem,
    styled,
    Typography,
 } from '@mui/material';
@@ -16,9 +15,7 @@ import StepLabel from '@mui/material/StepLabel';
 import SolrufTextField from '../../components/TextField/TextField';
 import CustomTextArea from '../../components/CustomTextArea/CustomTextArea';
 // select
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+
 import YellowButton from '../../components/YellowButton/YellowButton';
 
 import { useState, useEffect } from 'react';
@@ -63,7 +60,7 @@ const StepperBox = styled('div')(({ theme }) => ({
    background: theme.palette.primary.light,
    borderRadius: '8px',
    padding: theme.spacing(3),
-   boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.23)',
+   boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)',
 }));
 
 const Form = styled(Box)(({ theme }) => ({}));
@@ -244,9 +241,11 @@ const Checkout = () => {
    console.log(errors);
 
    return (
-      <div>
+      <Box sx={{ my: 4 }}>
          <Container maxWidth='xl'>
             <Grid container spacing={2}>
+               {/* ========= left side ========= */}
+
                <Grid item xs={12} md={6}>
                   <ItemContainer>
                      <ItemList />
@@ -271,6 +270,9 @@ const Checkout = () => {
                      </Box>
                   </TotalPriceContainer>
                </Grid>
+
+               {/* ========= right side ========= */}
+
                <Grid item xs={12} md={6}>
                   <StepperBox sx={{ width: '100%' }}>
                      <Stepper activeStep={activeState} alternativeLabel>
@@ -324,7 +326,9 @@ const Checkout = () => {
                                     },
                                  })}
                                  error={errors.userEmail ? true : false}
-                                 helperText={errors.userEmail && errors.userEmail.message}
+                                 helperText={
+                                    errors.userEmail && errors.userEmail.message
+                                 }
                               />
                               <SolrufTextField
                                  type='number'
@@ -363,26 +367,7 @@ const Checkout = () => {
                                  value={district}
                               />
                            </Box>
-                           {/* <FormControl fullWidth>
-                              <InputLabel id='demo-simple-select-label'>
-                                 State
-                              </InputLabel>
-                              <Select
-                                 labelId='demo-simple-select-label'
-                                 id='demo-simple-select'
-                                 value={state}
-                                 label='State'
-                                 onChange={handleStateChange}
-                                 sx={{
-                                    background: '#ffffff',
-                                    borderColor: 'red',
-                                 }}
-                              >
-                                 <MenuItem value={state}>{state}</MenuItem>
-                                 <MenuItem value={20}>Twenty</MenuItem>
-                                 <MenuItem value={30}>Thirty</MenuItem>
-                              </Select>
-                           </FormControl> */}
+
                            <SolrufTextField
                               label='State'
                               value={state}
@@ -536,14 +521,36 @@ const Checkout = () => {
                         </YellowButton>
                      </StepNavigatorBox>
                   </Form>
-                  <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', my: 3}}>
-                     <Button variant='outlined' fullWidth sx={{mr: 1}} color='secondary'startIcon={<ContentCopyIcon />}>Copy</Button>
-                     <Button variant='outlined' fullWidth color='secondary' startIcon={<ShareIcon />}>Share</Button>
+                  <Box
+                     sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        my: 3,
+                     }}
+                  >
+                     <Button
+                        variant='outlined'
+                        fullWidth
+                        sx={{ mr: 1 }}
+                        color='secondary'
+                        startIcon={<ContentCopyIcon />}
+                     >
+                        Copy
+                     </Button>
+                     <Button
+                        variant='outlined'
+                        fullWidth
+                        color='secondary'
+                        startIcon={<ShareIcon />}
+                     >
+                        Share
+                     </Button>
                   </Box>
                </Grid>
             </Grid>
          </Container>
-      </div>
+      </Box>
    );
 };
 

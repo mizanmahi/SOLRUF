@@ -12,13 +12,17 @@ export const userSlice = createSlice({
    initialState,
    reducers: {
       saveUser: (state, action) => {
+         console.log(action.payload);
          state.user = action.payload;
          state.role = action.payload.user.role;
-         localStorage.setItem('user', JSON.stringify(action.payload));
+         state.token = action.payload.token;
+         localStorage.setItem('token', action.payload.token);
       },
       removeUser: (state, action) => {
          state.user = null;
-         localStorage.removeItem('user');
+         state.role = null;
+         state.token = null;
+         localStorage.removeItem('token');
       },
    },
 });
