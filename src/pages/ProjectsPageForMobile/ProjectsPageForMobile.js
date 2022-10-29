@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Grid, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Grid, Button, Dialog, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Box } from '@mui/system';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-import BookProduct from '../../portfolio/BookProducts/BookProduct/BookProduct';
 import AddProject from '../AddProject/AddProject';
-import SearchProduct from '../SearchProduct/SearchProduct';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import SolrufTextField from '../../components/TextField/TextField';
-import SearchIcon from '@mui/icons-material/Search';
+// import useMediaQuery from '@mui/material/useMediaQuery';
 import ProjectListView from '../../components/ProjectListView/ProjectListView';
 import ProjectModal from '../../components/ProjectModal/ProjectModal';
-import { axiAuth } from '../../utils/axiosInstance';
+import AddIcon from '@mui/icons-material/Add';
+import { modalTopBackButtonStyle } from '../../theme/modalTopBackButtonStyle';
+import { useDispatch } from 'react-redux';
+import { removeProjectToBeEdited } from '../../redux/slices/projectSlice';
+import AnimatedSearchBar from '../../components/AnimatedSearchBar/AnimatedSearchBar';
 
 const HeaderBox = styled(Box)(({ theme }) => {
    return {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginTop: '1rem',
+      marginTop: '0',
    };
 });
 
@@ -27,48 +27,68 @@ const ProjectsBox = styled(Box)(({ theme }) => {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginTop: '1.5rem',
+      '@media (max-width: 600px)': {
+         marginLeft: '8px',
+      },
    };
 });
 
 const ProjectsPageBox = styled(Box)(({ theme }) => {
    return {
-      background: '#D0D7D9',
-      padding: theme.spacing(0.5),
-      paddingBottom: '1rem',
       borderRadius: theme.spacing(1),
       marginTop: theme.spacing(1),
       position: 'relative',
    };
 });
 
-const ProjectsPageForMobile = () => {
-   const [projectPage, setProjectPage] = useState(true);
+const ProjectsPageForMobile = ({ setFetchProjects, projects }) => {
+   // const [projectPage, setProjectPage] = useState(true);
+   // const [showProductForm, setShowProductForm] = useState(false);
+   const projectPage = true;
+   const showProductForm = false;
+
+
    const [showForm, setShowForm] = useState(false);
-   const [showProductForm, setShowProductForm] = useState(false);
-   const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-   
+   // const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+   const dispatch = useDispatch();
 
-   const [projects, setProjects] = useState([]);
-
-   useEffect(() => {
-      axiAuth.get('api/vendor/projects?page=1').then(({ data }) => {
-         console.log(data);
-         console.log('fetch projects');
-         setProjects(data.projects);
-         console.log(data.projects[0]);
-      });
-   }, []);
+   const [showAnimatedSearchBar, setShowAnimatedSearchBar] = useState(false);
+   const [searchValue, setSearchValue] = useState('');
 
    return (
       <ProjectsPageBox>
-         <Container maxWidth='xl'>
-
-            <SolrufTextField
-               label='Search Project'
-               iconText={<SearchIcon />}
-               sx={{ background: '#fff', borderRadius: 1, mt: 2 }}
-            />
+         <Box>
+            <Box
+               sx={{
+                  display: {
+                     sm: 'none',
+                     xs: 'flex',
+                  },
+                  width: '100%',
+                  justifyContent: 'space-between',
+                  mb: 3,
+                  ml: 0.5,
+               }}
+            >
+               <AnimatedSearchBar
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  searchTerm={searchValue}
+                  showStatus={(status) => setShowAnimatedSearchBar(status)}
+               />
+               {!showAnimatedSearchBar && (
+                  <IconButton
+                     sx={{
+                        bgcolor: 'primary.main',
+                     }}
+                     onClick={() => {
+                        dispatch(removeProjectToBeEdited());
+                        setShowForm(true);
+                     }}
+                  >
+                     <AddIcon />
+                  </IconButton>
+               )}
+            </Box>
 
             {showForm && (
                <HeaderBox>
@@ -79,47 +99,54 @@ const ProjectsPageForMobile = () => {
                   >
                      Back To Project
                   </Button>
-
                </HeaderBox>
             )}
 
             {!showForm && !showProductForm && (
                <ProjectsBox>
                   <Grid container spacing={3}>
-
                      {projectPage && (
                         <>
-                           {projects.map((project, index) => {
-                              return (
-                                 <Grid item xs={12} md={6} lg={4}>
-                                    <ProjectListView
-                                       project={project}
-                                       key={project.project_id}
-                                    />
-                                 </Grid>
-                              );
-                           })}
-                        </>
-                     )}
-                     {!projectPage && !showForm && !showProductForm && (
-                        <>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
-                           <Grid item xs={12} sm={6} lg={4}>
-                              <BookProduct editDelete={true} />
-                           </Grid>
+                           {projects
+                              ?.filter((el) =>
+                                 el.name.toLowerCase().includes(searchValue)
+                              )
+                              .map((project, index) => {
+                                 return (
+                                    <Grid item xs={12} md={6} lg={4}>
+                                       <ProjectListView
+                                          projects={projects}
+                                          project={project}
+                                          key={project.project_id}
+                                          number={index + 1}
+                                          setFetchProjects={setFetchProjects}
+                                       />
+                                    </Grid>
+                                 );
+                              })}
                         </>
                      )}
                   </Grid>
                </ProjectsBox>
             )}
-            {showForm && <AddProject />}
-            {showProductForm && <SearchProduct />}
-         </Container>
+            <Dialog
+               fullScreen
+               open={showForm}
+               onClose={() => setShowForm(false)}
+            >
+               <Box
+                  sx={modalTopBackButtonStyle}
+                  onClick={() => setShowForm(false)}
+               >
+                  <KeyboardBackspaceIcon />
+                  <Box>Back</Box>
+               </Box>
+               <AddProject
+                  closeForm={() => setShowForm(false)}
+                  setFetchProjects={setFetchProjects}
+               />
+            </Dialog>
+         </Box>
 
          <ProjectModal />
       </ProjectsPageBox>

@@ -1,4 +1,4 @@
-import { styled, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -9,117 +9,77 @@ import {
    setVerificationMode,
    setVerificationMode2,
 } from '../../redux/slices/loginStepSlice';
-import { axiosInstance } from '../../utils/axiosInstance';
+import { axiAuth, axiosInstance } from '../../utils/axiosInstance';
 import SolrufTextField from '../TextField/TextField';
 import YellowButton from '../YellowButton/YellowButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useState } from 'react';
 import Loader from '../Loader/Loader';
 import { saveUser } from '../../redux/slices/userSlice';
-import { closeLoginModal, removeLoginRedirect } from '../../redux/slices/loginModalSlice';
-import { Navigate, useNavigate } from 'react-router';
-
-const Wrapper = styled(Box)(({ theme }) => ({}));
-const Form = styled(Box)(({ theme }) => ({}));
-const FormTitle = styled(Typography)(({ theme }) => ({
-   fontSize: '1.5rem',
-   fontWeight: 'bold',
-   marginBottom: '1rem',
-}));
-const Nav = styled(Box)(({ theme }) => ({
-   display: 'flex',
-   justifyContent: 'space-between',
-   alignItems: 'center',
-   marginBottom: '1rem',
-   '& p': {
-      textTransform: 'uppercase ',
-      fontSize: '11px',
-      fontWeight: 'bold',
-   },
-   '& svg': {
-      cursor: 'pointer',
-      color: 'gray',
-   },
-}));
-
-const UserNameBox = styled(Box)(({ theme }) => ({
-   display: 'flex',
-   alignItems: 'center',
-   marginBottom: '1rem',
-}));
-
-const RoleBox = styled(Box)(({ theme }) => ({
-   margin: '1rem 0',
-   display: 'flex',
-   justifyContent: 'space-between',
-   flexDirection: 'column',
-   alignItems: 'center',
-}));
-
-const UserTypeBox = styled(Box)(({ theme }) => ({
-   display: 'block',
-   padding: '1rem 0',
-}));
-
-const UserBox = styled(Box)(({ theme }) => ({
-   display: 'flex',
-   justifyContent: 'space-between',
-   background: '#D0D7D9',
-   padding: '.5rem',
-   borderRadius: '6px',
-   border: '2px solid #000000',
-
-   cursor: 'pointer',
-   flex: 1,
-   '&:hover': {
-      opacity: '0.9',
-   },
-}));
-const VendorBox = styled(Box)(({ theme }) => ({
-   display: 'flex',
-   justifyContent: 'space-between',
-   background: '#D0D7D9',
-   padding: '.5rem',
-   borderRadius: '6px',
-   border: '2px solid #000000',
-   cursor: 'pointer',
-   marginBottom: '1rem',
-   flex: 1,
-   '&:hover': {
-      opacity: '0.9',
-   },
-}));
-
-const Text = styled(Box)(({ theme }) => ({
-   textAlign: 'right',
-   flex: '1',
-}));
-
-const Circle = styled(Box)(({ theme }) => ({
-   width: '1.5rem',
-   height: '1.5rem',
-   borderRadius: '50%',
-   border: '2px solid #000000',
-   marginRight: '1rem',
-}));
+import {
+   closeLoginModal,
+   removeLoginRedirect,
+} from '../../redux/slices/loginModalSlice';
+import { useNavigate } from 'react-router';
+import {
+   Circle,
+   FormTitle,
+   Nav,
+   RoleBox,
+   Text,
+   UserBox,
+   UserNameBox,
+   UserTypeBox,
+   VendorBox,
+} from './authGuard.style';
+import { setProfileData } from '../../redux/slices/ProfileSlice';
+import { migrateCart } from '../../redux/slices/cart/cartSlice';
+import ConfirmDialog from '../ConfirmDialog/ConfirmDialog';
+import { toast } from 'react-toastify';
 
 const AuthGuard = () => {
    const {
       register,
       handleSubmit,
-      reset,
+      setValue,
       formState: { errors },
    } = useForm();
-   console.log(errors);
 
    const { loginMode, registerMode, verificationMode, verificationMode2 } =
       useSelector((state) => state.loginStep); // mode switching state
    const { from } = useSelector((state) => state.loginModal); // modal state
+   const { cart } = useSelector((state) => state.cart);
 
-   console.log(from)
+   const [differentVendorCartAlert, setDifferentVendorCartAlert] = useState({
+      role: 'Cart From Different Vendor',
+      isOpen: false,
+      title: 'Delete The previous Cart?',
+      message: 'Current cart will be stored in the new cart',
+      cacheRole: 'Cart',
+   });
+
+   const onConfirmMigrateCart = async () => {
+      const { status } = await axiAuth.get('api/carts/clear');
+      if (status === 200) {
+         console.log('cart cleared');
+         axiAuth
+            .post('api/carts', {
+               carts: cart,
+            })
+            .then(({ status, data }) => {
+               if (status === 200) {
+                  console.log(data);
+               }
+            })
+            .catch((err) => {
+               console.log(err.message);
+            });
+         dispatch(migrateCart(cart));
+         dispatch(closeLoginModal());
+      }
+   };
 
    const dispatch = useDispatch();
-
    const navigate = useNavigate();
 
    const [phone, setPhone] = useState('');
@@ -129,7 +89,6 @@ const AuthGuard = () => {
    const [role, setRole] = useState('Vendor');
    const [otpError, setOtpError] = useState('');
    const [registerError, setRegisterError] = useState('');
-   console.log(role);
 
    const handleUserClick = (event) => {
       setRole('User');
@@ -179,14 +138,171 @@ const AuthGuard = () => {
                dispatch(setLoginMode(true));
                setVerifying(false);
                dispatch(saveUser(data));
-               dispatch(closeLoginModal());
-               if(from){
+
+               console.log(data);
+
+               //* setting profile data to state
+               axiAuth
+                  .get('/api/profile')
+                  .then(async (res) => {
+                     let profileData = res.data.data;
+                     profileData['role'] = data.user.role;
+                     dispatch(setProfileData(profileData));
+
+                     // * Handling cart migration start
+                     try {
+                        const { status, data: prevCart } = await axiAuth.get(
+                           'api/carts'
+                        );
+                        if (status === 200) {
+                           // if the product exist update the quantity else add product to cart
+                           console.log(prevCart);
+                           console.log(cart);
+
+                           if (
+                              prevCart.carts.length === 0 &&
+                              cart.length === 0
+                           ) {
+                              dispatch(closeLoginModal());
+                              return; // * if no previous cart and no new cart then return
+                           }
+
+                           if (prevCart.carts.length === 0) {
+                              toast.warn('Previous Cart is empty');
+
+                              axiAuth
+                                 .post('api/carts', {
+                                    carts: cart,
+                                 })
+                                 .then(({ status, data }) => {
+                                    if (status === 200) {
+                                       console.log(data);
+                                       dispatch(migrateCart(data.carts));
+                                       dispatch(closeLoginModal());
+                                       toast.success(
+                                          'Only local cart migrated and saved to store'
+                                       );
+                                    }
+                                 })
+                                 .catch((err) => {
+                                    console.log(err.message);
+                                 });
+                           } else if (cart.length === 0) {
+                              console.log('no local cart', prevCart);
+                              toast.warn('No local cart');
+                              dispatch(migrateCart(prevCart.carts));
+                              dispatch(closeLoginModal());
+                           } else {
+                              const isDiffer = prevCart.carts.some(
+                                 (item) =>
+                                    item.product_meta.vendor_slug !==
+                                    cart[0].product_meta.vendor_slug
+                              );
+
+                              console.log('in else block of differ', isDiffer);
+
+                              if (isDiffer) {
+                                 const confirm = window.confirm(
+                                    'You have item in the cart from another vendor. Do you want to replace it?'
+                                 );
+
+                                 if (confirm) {
+                                    // clear the cart
+                                    const { status } = await axiAuth.get(
+                                       'api/carts/clear'
+                                    );
+                                    if (status === 200) {
+                                       console.log('cart cleared');
+                                       toast.success('Cart cleared');
+                                       axiAuth
+                                          .post('api/carts', {
+                                             carts: cart,
+                                          })
+                                          .then(({ status, data }) => {
+                                             if (status === 200) {
+                                                console.log(data);
+                                                dispatch(
+                                                   migrateCart(data.carts)
+                                                );
+                                                dispatch(closeLoginModal());
+                                             }
+                                          })
+                                          .catch((err) => {
+                                             console.log(err.message);
+                                          });
+                                    }
+                                 } else {
+                                    // * if not confirm then keep only the prevCart
+                                    dispatch(migrateCart(prevCart.carts));
+                                    dispatch(closeLoginModal());
+                                 }
+                              } else {
+                                 const combined = [...prevCart.carts, ...cart];
+
+                                 console.log(
+                                    'in else block out of differ',
+                                    isDiffer
+                                 );
+
+                                 let tracker = [],
+                                    merged = [],
+                                    length = combined.length;
+
+                                 for (let i = 0; i < length; i++) {
+                                    if (
+                                       tracker[
+                                          combined[i]?.product_meta
+                                             ?.product_name
+                                       ]
+                                    ) {
+                                       merged.find(
+                                          (item) =>
+                                             item?.product_meta
+                                                ?.product_name ===
+                                             combined[i]?.product_meta
+                                                ?.product_name
+                                       ).quantity += combined[i]?.quantity;
+                                       continue;
+                                    }
+                                    tracker[
+                                       combined[i].product_meta.product_name
+                                    ] = true;
+                                    merged.push(combined[i]);
+                                 }
+
+                                 axiAuth
+                                    .post('api/carts', {
+                                       carts: merged,
+                                    })
+                                    .then(({ status, data }) => {
+                                       if (status === 200) {
+                                          console.log(data);
+                                          dispatch(migrateCart(data.carts));
+                                          dispatch(closeLoginModal());
+                                       }
+                                    })
+                                    .catch((err) => {
+                                       console.log(err.message);
+                                    });
+                              }
+                           }
+                        }
+                     } catch (error) {
+                        console.log(error);
+                     }
+                     // * Handling cart migration end
+                  })
+                  .catch((err) => {
+                     console.log(err);
+                  });
+
+               if (from) {
                   navigate(from);
                   dispatch(removeLoginRedirect());
                }
             }
          } catch (error) {
-            setOtpError('Invalid OTP');
+            setOtpError(error.response.data.message);
             setVerifying(false);
          }
       }
@@ -194,13 +310,22 @@ const AuthGuard = () => {
       if (registerMode) {
          try {
             setRegistering(true);
-            const { data } = await axiosInstance.post('api/register', {
+            const registerData = {
                first_name,
                last_name,
                mobile: phone,
-               email: email ? email : '',
                role,
-            });
+            };
+
+            if (email) {
+               registerData.email = email;
+            }
+
+            const { data } = await axiosInstance.post(
+               // register  user
+               'api/register',
+               registerData
+            );
             console.log(data);
             if (data.message === 'Success') {
                console.log('OTP Sent');
@@ -241,20 +366,22 @@ const AuthGuard = () => {
             mobile: phone,
          });
          if (data.message === 'OTP Sent') {
-            console.log('OTP Resend');
+            toast.success('OTP Resent');
+            setValue('otp', '');
          }
       } catch (error) {
-         console.log(error);
+         toast.error(error.response.data.message);
       }
    };
 
    return (
-      <Wrapper>
-         <Form component={'form'} onSubmit={handleSubmit(handleRegister)}>
+      <Box>
+         <Box component='form' onSubmit={handleSubmit(handleRegister)}>
             {loginMode && (
                <>
                   <FormTitle>Sign Up / Log In</FormTitle>
                   <SolrufTextField
+                     size='small'
                      type='number'
                      label='Enter Your Number'
                      {...register('phone', {
@@ -301,6 +428,7 @@ const AuthGuard = () => {
                      <Typography>Enter OTP sent to {phone}</Typography>
                   </Nav>
                   <SolrufTextField
+                     size='small'
                      sx={{ appearance: 'none' }}
                      onChange={() => setOtpError('')}
                      type='number'
@@ -374,6 +502,7 @@ const AuthGuard = () => {
                      <Typography>Enter OTP sent to {phone}</Typography>
                   </Nav>
                   <SolrufTextField
+                     size='small'
                      sx={{ appearance: 'none' }}
                      onChange={() => setOtpError('')}
                      type='number'
@@ -447,6 +576,7 @@ const AuthGuard = () => {
                   </Nav>
                   <UserNameBox>
                      <SolrufTextField
+                        size='small'
                         sx={{ mr: 2 }}
                         type='text'
                         label='First Name'
@@ -462,6 +592,7 @@ const AuthGuard = () => {
                         }
                      />
                      <SolrufTextField
+                        size='small'
                         type='text'
                         label='Last Name'
                         {...register('last_name', {
@@ -478,6 +609,7 @@ const AuthGuard = () => {
                   </UserNameBox>
 
                   <SolrufTextField
+                     size='small'
                      sx={{ mb: 2 }}
                      type='email'
                      label='Email (Optional)'
@@ -492,8 +624,10 @@ const AuthGuard = () => {
                   />
 
                   <SolrufTextField
+                     size='small'
                      type='number'
                      value={phone}
+                     disabled
                      label='Mobile Number'
                      {...register('phone', {
                         required: {
@@ -588,8 +722,17 @@ const AuthGuard = () => {
                   )}
                </>
             )}
-         </Form>
-      </Wrapper>
+         </Box>
+
+         <ConfirmDialog
+            confirmDialog={{
+               ...differentVendorCartAlert,
+               onConfirm: onConfirmMigrateCart,
+            }}
+            setConfirmDialog={setDifferentVendorCartAlert}
+            variant='warning'
+         />
+      </Box>
    );
 };
 

@@ -12,7 +12,7 @@ const useCategories = (type, parentId) => {
             .get(`api/categories?type=${type}`)
             .then((res) => {
                if (res.status === 200) {
-                  console.log(res.data?.categories);
+                  // console.log(res.data?.categories);
                   setCategories(res.data.categories);
                }
             })
@@ -24,7 +24,7 @@ const useCategories = (type, parentId) => {
             .get(`api/categories?parent=${parentId}`)
             .then((res) => {
                if (res.status === 200) {
-                    console.log(res.data?.categories);
+                  console.log(res.data?.categories);
                   setSubCategories(res.data?.categories);
                }
             })

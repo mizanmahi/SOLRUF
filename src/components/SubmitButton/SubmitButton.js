@@ -1,7 +1,7 @@
 import { Button } from '@mui/material';
 import { styled } from '@mui/system';
 import React from 'react';
-// import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 
 const StyledSubmitToButton = styled(Button)(({ theme }) => ({
    background: theme.palette.primary.main,
@@ -14,14 +14,18 @@ const StyledSubmitToButton = styled(Button)(({ theme }) => ({
       color: '#000000',
       fontSize: '30px',
       fontWeight: 'bold',
+      transform: 'rotate(180deg)',
    },
 }));
 
-const SubmitButton = ({ children, onClick }) => {
+const SubmitButton = ({ children, onClick, sx, ...rest }) => {
    return (
       <StyledSubmitToButton
+         sx={{ ...sx, fontWeight:'bold' }}
+         {...rest}
+         type='submit'
          onClick={onClick}
-         //  startIcon={<KeyboardBackspaceIcon />}
+         endIcon={<KeyboardBackspaceIcon />}
       >
          {children}
       </StyledSubmitToButton>

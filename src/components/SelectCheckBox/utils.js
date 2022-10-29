@@ -38,6 +38,6 @@ const MenuProps = {
   variant: 'menu',
 };
 
-const options = ['List View', 'Grid View', 'Product Main Page'];
+const options = ['List View', 'Grid View','Booking price view','Price View','Product Main Page'];
 
 export { useStyles, MenuProps, options };

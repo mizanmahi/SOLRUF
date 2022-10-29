@@ -50,11 +50,11 @@ const ResponsiveSliderWithBottomScroll = ({ images }) => {
                </SwiperSlide>
             ))}
 
-            <div class='swiper-button-prev'>
-               <i class='fas fa-chevron-left'></i>
+            <div className='swiper-button-prev'>
+               <i className='fas fa-chevron-left'></i>
             </div>
-            <div class='swiper-button-next'>
-               <i class='fas fa-chevron-right'></i>
+            <div className='swiper-button-next'>
+               <i className='fas fa-chevron-right'></i>
             </div>
             {/* <div className='swiper-scrollbar'>
                 <div className='swiper-scrollbar-drag'></div>

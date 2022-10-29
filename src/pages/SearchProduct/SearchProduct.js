@@ -1,16 +1,12 @@
 import {
-   Accordion,
-   AccordionDetails,
-   AccordionSummary,
    Button,
    Container,
    Grid,
+   List,
    Pagination,
-   styled,
-   TextField,
    Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import InputLabel from '@mui/material/InputLabel';
@@ -18,475 +14,741 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { Box } from '@mui/system';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SingleProduct from '../../components/SingleProduct/SingleProduct';
 import CustomizeProduct from '../CustomizeProduct/CustomizeProduct';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import FinalizeProduct from '../FinalizeProduct/FinalizeProduct';
 import useCategories from '../../hooks/useCategories';
 import { useForm } from 'react-hook-form';
-import { Radio } from '@mui/material';
-import SolrufRadio from '../../components/Radio/Radio';
+import { axiAuth } from '../../utils/axiosInstance';
+import Loader from '../../components/Loader/Loader';
+import SingleProductForAdminPage from '../../components/SingleProductForAdminPage/SingleProductForAdminPage';
+import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import DynamicRangeFilter from '../../components/Custom/RangeFilter/DynamicRangeFilter';
+import DynamicGardenSelect from '../../components/Custom/GardenSelectWithChip/DynamicGardenSelect';
+import HorizontalProductCard from '../../components/HorizontalProductCard/HorizontalProductCard';
+import PrimaryButton from '../../components/Custom/PrimaryButton/PrimaryButton';
+import {
+   FilterArea,
+   Nav,
+   NoResultBox,
+   ProductArea,
+   SearchArea,
+   SearchProductWrapper,
+} from './searchProduct.style';
+import SecondarySearchBar from '../../components/SecondarySearch/SecondarySearchBar';
+import { useDebounce } from 'use-debounce';
+import FullScreenDialog from '../../components/Custom/BottomDialog/BottomDialog';
+import BottomSheet from '../../components/Custom/BottomDialog/PortfolioBottomSheet';
+import ProductSlider from '../../components/ProductSlider/ProductSlider';
+import styled from 'styled-components';
+import ProductDetailList from '../../components/ProductDetailList/ProductDetailList';
+import RoundedDarkButton from '../../components/RoundedDarkButton/RoundedDarkButton';
 
-const SearchProductWrapper = styled('div')(({ theme }) => ({
-   background: theme.palette.primary.light,
-   padding: theme.spacing(2),
-   borderRadius: theme.shape.borderRadius,
-   marginTop: theme.spacing(6),
-}));
+const ImageBox = styled(Box)(({ theme }) => {
+   return {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: '1.5rem',
+      marginBottom: '1.5rem',
+   };
+});
 
-const Nav = styled('div')(({ theme }) => ({
-   display: 'flex',
-   justifyContent: 'space-between',
-   alignItems: 'center',
-   padding: theme.spacing(1),
-}));
+const SearchProduct = ({
+   showProductPageHandler,
+   nextHandler,
+   searchProductPage,
+   customizeProductPage,
+   setFetchProducts,
+   mobileNextHandle,
+}) => {
+   const { register, watch } = useForm();
 
-const ButtonNext = styled(Button)(({ theme }) => ({
-   background: theme.palette.primary.main,
-   padding: '0.5rem 1rem',
-}));
-
-const SearchArea = styled('div')(({ theme }) => ({
-   marginTop: theme.spacing(2),
-}));
-
-const FilterArea = styled('div')(({ theme }) => ({
-   background: '#ffffff',
-   padding: theme.spacing(3),
-   borderRadius: theme.shape.borderRadius,
-   overflowY: 'auto',
-   height: 'calc(100vh - 400px)',
-}));
-
-const ProductArea = styled('div')(({ theme }) => ({
-   borderRadius: theme.shape.borderRadius,
-   overflowY: 'auto',
-   maxHeight: 'calc(100vh - 400px)',
-}));
-
-const CustomAccordion = styled(Accordion)(({ theme }) => ({
-   '& .MuiButtonBase-root': {
-      borderBottom: '1px solid gray',
-   },
-   '& .MuiRadio-root': {
-      border: 0,
-   },
-}));
-
-const inverterTypes = [
-   {
-      value: 'on-grid',
-      label: 'On Grid (502)',
-   },
-   {
-      value: 'off-grid',
-      label: 'Off Grid (502)',
-   },
-];
-const currentTypes = [
-   {
-      value: 'ac',
-      label: 'Ac (202)',
-   },
-   {
-      value: 'dc',
-      label: 'Dc (80',
-   },
-];
-
-const SearchProduct = ({ showProductPageHandler }) => {
-   const [searchProductPage, setSearchProductPage] = useState(true);
-   const [customizeProductPage, setCustomizeProductPage] = useState(false);
-   const [finalizingProductPage, setFinalizingProductPage] = useState(false);
-   const nextHandler = (pageNumber) => {
-      if (pageNumber === 1) {
-         setSearchProductPage(false);
-         setCustomizeProductPage(true);
-         setFinalizingProductPage(false);
-      }else if(pageNumber === 2){
-         setSearchProductPage(false);
-         setCustomizeProductPage(false);
-         setFinalizingProductPage(true);
-      }else if(pageNumber === 3){
-         setSearchProductPage(true);
-         setCustomizeProductPage(false);
-         setFinalizingProductPage(false);
-         
-      }
-      
-   }
-
-   const [invertFilterOpen, setInvertFilerOpen] = useState(true);
-   const [currentFilterOpen, setCurrentFilterOpen] = useState(false);
-   const [currentMin, setCurrentMin] = useState();
-   const [currentMax, setCurrentMax] = useState();
-
-   const {
-      register,
-      reset,
-      setValue,
-      watch,
-      formState: { errors },
-   } = useForm();
+   console.log('search product rendered');
 
    const { categories } = useCategories('product');
-   const [watchCategoryId] = watch(['category']);
+   const [watchCategoryId, watchSubCategoryId] = watch([
+      'category',
+      'subCategory',
+   ]);
 
    const { subCategories } = useCategories('product', watchCategoryId);
 
-   const [inverterType, setInverterType] = useState('on-grid');
+   const [searchTerm, setSearchTerm] = useState('');
+   const [debouncedSearchTerm] = useDebounce(searchTerm, 1000);
+   const [productList, setProductList] = useState([]);
+   const [productListLoading, setProductListLoading] = useState(false);
+   const [productListError, setProductListError] = useState(false);
+   const [selectedProduct, setSelectedProduct] = useState(null);
+   const [selectedProductLoading, setSelectedProductLoading] = useState(false);
 
-   const handleInverterChange = (event) => {
-      setInverterType(event.target.value);
+   const [page, setPage] = useState(1);
+   const [paginationInfo, setPaginationInfo] = useState({});
+   const [showMobileEdit, setShowMobileEdit] = useState(false);
+   const [showMobileFilter, setShowMobileFilter] = useState(false);
+
+   console.log({ paginationInfo });
+
+   const searchHandler = () => {
+      console.log('searching...');
+      console.log(searchTerm);
+
+      if (!watchCategoryId || !watchSubCategoryId) {
+         toast.warn('Please select a category and sub category');
+         return;
+      }
+
+      if (!searchTerm) {
+         toast.warn('Please enter a search term on the search box');
+         return;
+      }
+
+      setProductListLoading(true);
+      setProductListError(false);
+      axiAuth
+         .post(`api/products?length=15&page=1`, {
+            search: searchTerm.replace(/  +/g, ' ').trim(),
+            category_id: watchSubCategoryId || '',
+            attributes: [
+               ...selectFilters
+                  .filter((filter) => filter.selectedItems.length > 0)
+                  .map((filter) => ({
+                     id: filter.id,
+                     type: 'select',
+                     value: [...filter.selectedItems],
+                  })),
+               ...rangeFilters
+                  .filter((filter) => filter.isValid)
+                  .map((filter) => ({
+                     id: filter.id,
+                     type: 'range',
+                     min: filter.from,
+                     max: filter.to,
+                  })),
+            ],
+         })
+         .then((res) => {
+            setProductList(res.data.products);
+            setPaginationInfo(res.data.pagination);
+            setProductListLoading(false);
+            setProductListError('');
+         })
+         .catch((error) => {
+            setProductListError('Error Fetching Product, Try again!');
+            setProductListLoading(false);
+         });
    };
 
-   const [currentType, setCurrentType] = useState('ac');
+   const { selectedProductByVendor } = useSelector(
+      (state) => state.vendorProductList
+   );
 
-   const handleCurrentChange = (event) => {
-      setCurrentType(event.target.value);
+   const nextClickHandler = () => {
+      if (!selectedProductByVendor) {
+         toast.warn('Please select a product');
+         return;
+      }
+      nextHandler(1);
    };
 
-   const handleCurrentMinChange = (event) => {
-      setCurrentMin(event.target.value);
-   };
-   const handleCurrentMaxChange = (event) => {
-      setCurrentMin(event.target.value);
-   };
+   const [selectFilters, setSelectFilters] = useState([
+      {
+         id: 0,
+         selectedItems: [],
+         items: [],
+         name: '',
+      },
+   ]);
 
-   
+   const [rangeFilters, setSetRangeFilters] = useState([
+      {
+         from: 0,
+         to: 0,
+         min: 0,
+         max: 0,
+         isValid: false,
+         id: 0,
+      },
+   ]);
+
+   // for setting the dynamic filters in the state
+   useEffect(() => {
+      setSelectFilters([]);
+      setSetRangeFilters([]);
+      setPage(1);
+      if (watchSubCategoryId) {
+         axiAuth
+            .get('api/filters?sub_category_id=' + watchSubCategoryId)
+            .then((res) => {
+               setSelectFilters(
+                  res.data.filters
+                     .filter((filter) => filter.filter_type === 'select')
+                     .map((filter) => {
+                        return {
+                           id: filter.id,
+                           selectedItems: [],
+                           items: filter.filter_select,
+                           name: filter.name,
+                        };
+                     })
+               );
+               setSetRangeFilters(
+                  res.data.filters
+                     .filter((filter) => filter.filter_type === 'range')
+                     .map((filter) => {
+                        return {
+                           from: 0,
+                           to: 0,
+                           min: filter.filter_range.min,
+                           max: filter.filter_range.max,
+                           isValid: false,
+                           name: filter.name,
+                           id: filter.id,
+                        };
+                     })
+               );
+            })
+
+            .catch((err) => {
+               console.log(err);
+            });
+      }
+   }, [watchSubCategoryId]);
+
+   useEffect(() => {
+      setProductListError('');
+
+      if (!watchCategoryId || !watchSubCategoryId) return;
+
+      if (selectFilters.length === 0 && rangeFilters.length === 0) return;
+
+      setProductListLoading(true);
+
+      axiAuth
+         .post(`api/products?length=3&page=${page}`, {
+            search: debouncedSearchTerm.replace(/  +/g, ' ').trim() || '',
+            category_id: watchSubCategoryId || '',
+            attributes: [
+               ...selectFilters
+                  .filter((filter) => filter.selectedItems.length > 0)
+                  .map((filter) => ({
+                     id: filter.id,
+                     type: 'select',
+                     value: [...filter.selectedItems],
+                  })),
+               ...rangeFilters
+                  .filter((filter) => filter.isValid)
+                  .map((filter) => ({
+                     id: filter.id,
+                     type: 'range',
+                     min: filter.from,
+                     max: filter.to,
+                  })),
+            ],
+         })
+         .then((res) => {
+            console.log('comes here');
+            setProductList(res.data.products);
+            setPaginationInfo(res.data.pagination);
+            setProductListError('');
+         })
+         .catch((err) => {
+            setProductListError('Error Fetching Product, Try again!');
+            console.log(err);
+         })
+         .finally(() => {
+            setProductListLoading(false);
+         });
+   }, [
+      watchSubCategoryId,
+      selectFilters,
+      rangeFilters,
+      debouncedSearchTerm,
+      watchCategoryId,
+      page,
+   ]);
+
+   console.log(productListLoading);
+
+   if (productListError) {
+      return <Typography>{productListError}</Typography>;
+   }
 
    return (
-      <motion.div
-         initial={{ x: '10vw', opacity: 0 }}
-         animate={{ x: 0, opacity: 1 }}
-         transition={{ duration: 0.5, delay: 0.1 }}
-      >
-         {searchProductPage && (
-            <SearchProductWrapper>
-               <Container maxWidth='xl'>
-                  <Nav>
-                     <Button
-                        startIcon={<ArrowBackIcon />}
-                        sx={{ color: '#4D4D4D' }}
-                        onClick={showProductPageHandler}
-                     >
-                        Back To Products
-                     </Button>
-                     <ButtonNext
-                        endIcon={<ArrowForwardIcon />}
+      <Fragment>
+         <motion.div
+            initial={{ x: '10vw', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+         >
+            {searchProductPage && (
+               <SearchProductWrapper>
+                  <Container maxWidth='xl'>
+                     <Nav>
+                        <Button
+                           startIcon={<ArrowBackIcon />}
+                           sx={{ color: '#4D4D4D' }}
+                           onClick={showProductPageHandler}
+                        >
+                           Back To Products
+                        </Button>
+                     </Nav>
+                     <Typography>
+                        Note: Already added product to your portfolio will be
+                        overridden!
+                     </Typography>
+                     <SearchArea>
+                        <Grid container spacing={3}>
+                           <Grid item xs={12} md={6}>
+                              <Box sx={{ minWidth: 120 }}>
+                                 <FormControl fullWidth>
+                                    <InputLabel id='demo-simple-select-label'>
+                                       Select category
+                                    </InputLabel>
+                                    <Select
+                                       // size='small'
+                                       labelId='demo-simple-select-label'
+                                       label='Select category'
+                                       sx={{ background: '#fff' }}
+                                       {...register('category', {
+                                          required: {
+                                             value: true,
+                                             message: 'Select Category',
+                                          },
+                                       })}
+                                       defaultValue=''
+                                    >
+                                       {categories.length > 0 &&
+                                          categories.map(
+                                             ({ category_id, name }) => (
+                                                <MenuItem
+                                                   value={category_id}
+                                                   key={category_id}
+                                                >
+                                                   {name}
+                                                </MenuItem>
+                                             )
+                                          )}
+                                    </Select>
+                                 </FormControl>
+                              </Box>
+                           </Grid>
+                           <Grid item xs={12} md={6}>
+                              <Box sx={{ minWidth: 120 }}>
+                                 <FormControl fullWidth>
+                                    <InputLabel id='demo-simple-select-label'>
+                                       Select Subcategory
+                                    </InputLabel>
+                                    <Select
+                                       // size='small'
+                                       labelId='demo-simple-select-label'
+                                       // value={category}
+                                       // onChange={handleChange}
+                                       disabled={!watchCategoryId}
+                                       label='Select Subcategory'
+                                       sx={{ background: '#fff' }}
+                                       {...register('subCategory', {
+                                          required: {
+                                             value: true,
+                                             message: 'Select Sub Category',
+                                          },
+                                       })}
+                                       defaultValue={''}
+                                    >
+                                       {subCategories.length > 0 &&
+                                          subCategories.map(
+                                             ({ category_id, name }) => (
+                                                <MenuItem
+                                                   value={category_id}
+                                                   key={category_id}
+                                                >
+                                                   {name}
+                                                </MenuItem>
+                                             )
+                                          )}
+                                    </Select>
+                                 </FormControl>
+                              </Box>
+                           </Grid>
+                           <Grid item xs={12}>
+                              {watchCategoryId && watchSubCategoryId && (
+                                 <SecondarySearchBar
+                                    sx={{
+                                       mr: 0,
+                                       '& input': { fontWeight: 400 },
+                                    }}
+                                    placeHolder='Search Products'
+                                    searchTerm={searchTerm}
+                                    onChangeVal={(e) =>
+                                       setSearchTerm(e.target.value)
+                                    }
+                                    onSearch={searchHandler}
+                                 />
+                              )}
+                           </Grid>
+                        </Grid>
+                     </SearchArea>
+
+                     {/* ================== content area ================== */}
+
+                     {watchCategoryId === 73 && (
+                        <Box
+                           sx={{
+                              width: '100%',
+                              height: '100%',
+                              minHeight: '40vh',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                           }}
+                        >
+                           <Typography
+                              sx={{
+                                 fontSize: '2rem',
+                                 color: 'rgba(0,0,0,0.3)',
+                              }}
+                           >
+                              No Product Found
+                           </Typography>
+                        </Box>
+                     )}
+
+                     {watchCategoryId !== 73 && (
+                        <Grid container spacing={2} sx={{ mt: 1 }}>
+                           {watchCategoryId && watchSubCategoryId && (
+                              <>
+                                 <Grid
+                                    item
+                                    xs={12}
+                                    md={12}
+                                    lg={4}
+                                    sx={{
+                                       display: { xs: 'none', sm: 'block' },
+                                    }}
+                                 >
+                                    {productList.length > 0 && (
+                                       <FilterArea>
+                                          <Typography
+                                             variant='body2'
+                                             color='gray'
+                                          >
+                                             Filter Items
+                                          </Typography>
+
+                                          {selectFilters.length > 0 &&
+                                             selectFilters.map((filter, i) => (
+                                                <Box sx={{ my: 3 }} key={i}>
+                                                   <DynamicGardenSelect
+                                                      selectFilters={
+                                                         selectFilters
+                                                      }
+                                                      setSelectFilters={
+                                                         setSelectFilters
+                                                      }
+                                                      id={selectFilters[i].id}
+                                                      name={
+                                                         selectFilters[i].name
+                                                      }
+                                                   />
+                                                </Box>
+                                             ))}
+
+                                          {/* ====== filter by type ====== */}
+                                          {rangeFilters.length > 0 &&
+                                             rangeFilters.map((filter, i) => (
+                                                <DynamicRangeFilter
+                                                   key={i}
+                                                   id={rangeFilters[i].id}
+                                                   sx={{ my: 3 }}
+                                                   rangeFilters={rangeFilters}
+                                                   setSetRangeFilters={
+                                                      setSetRangeFilters
+                                                   }
+                                                   name={rangeFilters[i].name}
+                                                />
+                                             ))}
+                                       </FilterArea>
+                                    )}
+                                 </Grid>
+
+                                 {productList.length === 0 &&
+                                 !productListLoading ? (
+                                    <NoResultBox>
+                                       <Typography>
+                                          {watchCategoryId === 73
+                                             ? 'No Products Found'
+                                             : 'No Search Result'}
+                                       </Typography>
+                                    </NoResultBox>
+                                 ) : (
+                                    <Grid item xs={12} md={12} lg={8}>
+                                       <ProductArea
+                                          sx={{ height: ['auto', 580], pr: 2 }}
+                                       >
+                                          {productList?.length > 0 && (
+                                             <Typography
+                                                variant='body1'
+                                                sx={{
+                                                   mb: 1,
+                                                   fontWeight: 'bold',
+                                                }}
+                                             >
+                                                Total ({productList?.length}{' '}
+                                                Results)
+                                             </Typography>
+                                          )}
+
+                                          {/* ============================== product list ============================== */}
+
+                                          {productListLoading && <Loader />}
+
+                                          <List
+                                             sx={{
+                                                width: '100%',
+                                             }}
+                                          >
+                                             {productList.length > 0 &&
+                                             !productListLoading
+                                                ? productList.map((product) => (
+                                                     <SingleProductForAdminPage
+                                                        isVendor={true}
+                                                        editable={false}
+                                                        key={product.product_id}
+                                                        product={product}
+                                                        setSelectedProduct={
+                                                           setSelectedProduct
+                                                        }
+                                                        selectedProduct={
+                                                           selectedProduct
+                                                        }
+                                                        setSelectedProductLoading={
+                                                           setSelectedProductLoading
+                                                        }
+                                                     />
+                                                  ))
+                                                : null}
+                                          </List>
+                                       </ProductArea>
+                                       {productList.length > 0 && (
+                                          <Pagination
+                                             count={paginationInfo.last_page}
+                                             page={page}
+                                             onChange={(e, page) =>
+                                                setPage(page)
+                                             }
+                                             color='primary'
+                                             shape='circle'
+                                             sx={{
+                                                '& ul': {
+                                                   justifyContent: 'center',
+                                                },
+                                                mt: 2,
+                                             }}
+                                          />
+                                       )}
+                                    </Grid>
+                                 )}
+                              </>
+                           )}
+
+                           <BottomSheet
+                              open={
+                                 watchCategoryId &&
+                                 watchSubCategoryId &&
+                                 window.innerWidth < 600 &&
+                                 showMobileFilter
+                              }
+                              handleClose={() => {
+                                 setShowMobileFilter(false);
+                              }}
+                              height='100%'
+                              backText='Filters'
+                           >
+                              <FilterArea>
+                                 <Typography variant='body2' color='gray'>
+                                    Items
+                                 </Typography>
+
+                                 {selectFilters.length > 0 &&
+                                    selectFilters.map((filter, i) => (
+                                       <Box sx={{ my: 3 }} key={i}>
+                                          <DynamicGardenSelect
+                                             selectFilters={selectFilters}
+                                             setSelectFilters={setSelectFilters}
+                                             id={selectFilters[i].id}
+                                             name={selectFilters[i].name}
+                                          />
+                                       </Box>
+                                    ))}
+
+                                 {/* ====== filter by type ====== */}
+                                 {rangeFilters.length > 0 &&
+                                    rangeFilters.map((filter, i) => (
+                                       <DynamicRangeFilter
+                                          key={i}
+                                          id={rangeFilters[i].id}
+                                          sx={{ my: 3 }}
+                                          rangeFilters={rangeFilters}
+                                          setSetRangeFilters={
+                                             setSetRangeFilters
+                                          }
+                                          name={rangeFilters[i].name}
+                                       />
+                                    ))}
+                              </FilterArea>
+                           </BottomSheet>
+                        </Grid>
+                     )}
+
+                     {selectedProduct && (
+                        <Fragment>
+                           <Box
+                              sx={{
+                                 margin: '4rem auto',
+                                 display: { xs: 'none', sm: 'flex' },
+                                 justifyContent: 'center',
+                              }}
+                           >
+                              {selectedProductLoading ? (
+                                 <Loader />
+                              ) : (
+                                 <HorizontalProductCard
+                                    product={selectedProduct}
+                                    type='procurement'
+                                 />
+                              )}
+                           </Box>
+                           <Box
+                              sx={{
+                                 display: { xs: 'block', sm: 'none' },
+                              }}
+                           >
+                              <FullScreenDialog
+                                 sx={{
+                                    display: { xs: 'block', sm: 'none' },
+                                 }}
+                                 height='70%'
+                                 bar={true}
+                                 handleClose={() => {
+                                    setSelectedProduct(null);
+                                 }}
+                                 open={
+                                    selectedProduct && window.innerWidth < 600
+                                 }
+                              >
+                                 <Box sx={{ pb: 5 }}>
+                                    <Typography
+                                       sx={{ fontWeight: 'bold', mb: 1.5 }}
+                                    >
+                                       {' '}
+                                       {selectedProduct.product_name}{' '}
+                                    </Typography>
+                                    <ImageBox>
+                                       <ProductSlider
+                                          images={selectedProduct.images.map(
+                                             (item) => {
+                                                return item.image_url;
+                                             }
+                                          )}
+                                          view='mobile'
+                                       />
+                                    </ImageBox>
+
+                                    {selectedProduct.attributes?.map(
+                                       (attribute) => (
+                                          <ProductDetailList
+                                             list={`${attribute.name}`}
+                                             description='Rs 256/sq.ft.'
+                                          />
+                                       )
+                                    )}
+
+                                    <RoundedDarkButton
+                                       title=' See Detailed Product Description'
+                                       style={{
+                                          width: '100%',
+                                          marginTop: '1rem',
+                                       }}
+                                    />
+                                 </Box>
+                                 <PrimaryButton
+                                    IconEnd={ArrowForwardIcon}
+                                    onClick={() => setShowMobileEdit(true)}
+                                    sx={{
+                                       position: 'fixed',
+                                       bottom: '0',
+                                       width: '100%',
+                                       left: '0',
+                                       py: 1,
+                                    }}
+                                 >
+                                    Next
+                                 </PrimaryButton>
+                              </FullScreenDialog>
+                           </Box>
+                        </Fragment>
+                     )}
+                     <Box
                         sx={{
-                           color: '#4D4D4D',
-                           '&:hover': {
-                              background: '#fff',
-                           },
+                           display: { xs: 'none', sm: 'flex' },
+                           justifyContent: 'center',
+                           pt: 3,
                         }}
                      >
-                        Next
-                     </ButtonNext>
-                  </Nav>
-                  <SearchArea>
-                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
-                           <Box sx={{ minWidth: 120 }}>
-                              <FormControl fullWidth>
-                                 <InputLabel id='demo-simple-select-label'>
-                                    Select category
-                                 </InputLabel>
-                                 <Select
-                                    labelId='demo-simple-select-label'
-                                    // value={category}
-                                    // onChange={handleChange}
-                                    label='Select category'
-                                    sx={{ background: '#fff' }}
-                                    {...register('category', {
-                                       required: {
-                                          value: true,
-                                          message: 'Select Category',
-                                       },
-                                    })}
-                                 >
-                                    {categories.length > 0 &&
-                                       categories.map(
-                                          ({ category_id, name }) => (
-                                             <MenuItem
-                                                value={category_id}
-                                                key={category_id}
-                                             >
-                                                {name}
-                                             </MenuItem>
-                                          )
-                                       )}
-                                 </Select>
-                              </FormControl>
-                           </Box>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                           <Box sx={{ minWidth: 120 }}>
-                              <FormControl fullWidth>
-                                 <InputLabel id='demo-simple-select-label'>
-                                    Select Subcategory
-                                 </InputLabel>
-                                 <Select
-                                    labelId='demo-simple-select-label'
-                                    // value={category}
-                                    // onChange={handleChange}
-                                    label='Select Subcategory'
-                                    sx={{ background: '#fff' }}
-                                    {...register('subCategory', {
-                                       required: {
-                                          value: true,
-                                          message: 'Select Sub Category',
-                                       },
-                                    })}
-                                 >
-                                    {subCategories.length > 0 &&
-                                       subCategories.map(
-                                          ({ category_id, name }) => (
-                                             <MenuItem
-                                                value={category_id}
-                                                key={category_id}
-                                             >
-                                                {name}
-                                             </MenuItem>
-                                          )
-                                       )}
-                                 </Select>
-                              </FormControl>
-                           </Box>
-                        </Grid>
-                        <Grid item xs={12}>
-                           <TextField
-                              label='Search Products Example:- 550W Solar Panel, Solar Cooker...'
-                              fullWidth
-                              sx={{ background: '#fff' }}
-                           ></TextField>
-                        </Grid>
-                     </Grid>
-                  </SearchArea>
+                        <PrimaryButton
+                           IconEnd={ArrowForwardIcon}
+                           sx={{ px: 8, py: 1, mb: 2 }}
+                           onClick={nextClickHandler}
+                        >
+                           Next
+                        </PrimaryButton>
+                     </Box>
+                  </Container>
+               </SearchProductWrapper>
+            )}
 
-                  {/* ================== content area ================== */}
+            {/* ======= customize product ====== */}
+            {customizeProductPage && (
+               <CustomizeProduct
+                  setFetchProducts={setFetchProducts}
+                  nextHandler={nextHandler}
+                  showProductPageHandler={showProductPageHandler}
+               />
+            )}
 
-                  <Grid container spacing={2} sx={{ mt: 1 }}>
-                     <Grid item xs={12} md={4} lg={3}>
-                        <FilterArea>
-                           <Typography variant='body2' color='gray'>
-                              Items
-                           </Typography>
-                           <CustomAccordion
-                              disableGutters
-                              elevation={0}
-                              expanded={invertFilterOpen}
-                              onClick={() =>
-                                 setInvertFilerOpen(!invertFilterOpen)
-                              }
-                           >
-                              <AccordionSummary
-                                 expandIcon={<ExpandMoreIcon />}
-                                 aria-controls='panel2a-content'
-                                 id='panel2a-header'
-                              >
-                                 <Typography>Inverter Type</Typography>
-                              </AccordionSummary>
-                              <AccordionDetails sx={{ pt: 3 }}>
-                                 <SolrufRadio
-                                    handleChange={handleInverterChange}
-                                    values={inverterTypes}
-                                    value={inverterType}
-                                 />
-                              </AccordionDetails>
-                           </CustomAccordion>
-                           <CustomAccordion
-                              disableGutters
-                              elevation={0}
-                              expanded={currentFilterOpen}
-                              onClick={() =>
-                                 setCurrentFilterOpen(!currentFilterOpen)
-                              }
-                           >
-                              <AccordionSummary
-                                 expandIcon={<ExpandMoreIcon />}
-                                 aria-controls='panel2a-content'
-                                 id='panel2a-header'
-                              >
-                                 <Typography>Current Type</Typography>
-                              </AccordionSummary>
-                              <AccordionDetails sx={{ pt: 3 }}>
-                                 <SolrufRadio
-                                    handleChange={handleCurrentChange}
-                                    values={currentTypes}
-                                    value={currentType}
-                                 />
-                              </AccordionDetails>
-                           </CustomAccordion>
-
-                           {/* ======= current type radio buttons ====== */}
-                           <CustomAccordion disableGutters elevation={0}>
-                              <AccordionSummary
-                                 expandIcon={<ExpandMoreIcon />}
-                                 aria-controls='panel2a-content'
-                                 id='panel2a-header'
-                              >
-                                 <Typography>Power Capacity</Typography>
-                              </AccordionSummary>
-                              <AccordionDetails sx={{ pt: 3 }}>
-                                 <Box
-                                    sx={{
-                                       width: '100%',
-                                       display: 'flex',
-                                       justifyContent: 'space-between',
-                                       alignItems: 'center',
-                                    }}
-                                 >
-                                    <TextField
-                                       id='filled-basic'
-                                       label='Min'
-                                       variant='filled'
-                                       sx={{ width: '80px' }}
-                                       defaultValue='150'
-                                       type='number'
-                                    />
-                                    {/* <FancyLine>------------</FancyLine> */}
-                                    <img
-                                       src='https://i.ibb.co/30b6gXk/Vector-3.png'
-                                       alt='line'
-                                       style={{ flexGrow: 1 }}
-                                    />
-                                    <TextField
-                                       id='filled-basic'
-                                       label='Max'
-                                       variant='filled'
-                                       sx={{ width: '80px' }}
-                                       defaultValue='250'
-                                       type='number'
-                                    />
-                                 </Box>
-                              </AccordionDetails>
-                           </CustomAccordion>
-                           <CustomAccordion disableGutters elevation={0}>
-                              <AccordionSummary
-                                 expandIcon={<ExpandMoreIcon />}
-                                 aria-controls='panel2a-content'
-                                 id='panel2a-header'
-                              >
-                                 <Typography>Current Capacity</Typography>
-                              </AccordionSummary>
-                              <AccordionDetails sx={{ pt: 3 }}>
-                                 <Box
-                                    sx={{
-                                       width: '100%',
-                                       display: 'flex',
-                                       justifyContent: 'space-between',
-                                       alignItems: 'center',
-                                    }}
-                                 >
-                                    <FormControl sx={{ width: '80px' }}>
-                                       <InputLabel id='demo-simple-select-label'>
-                                          Min
-                                       </InputLabel>
-                                       <Select
-                                          labelId='demo-simple-select-label'
-                                          id='demo-simple-select'
-                                          value={currentMin}
-                                          label='Age'
-                                          onChange={handleCurrentMinChange}
-                                       >
-                                          <MenuItem value={100}>100</MenuItem>
-                                          <MenuItem value={200}>200</MenuItem>
-                                          <MenuItem value={300}>300</MenuItem>
-                                       </Select>
-                                    </FormControl>
-                                    {/* <FancyLine>------------</FancyLine> */}
-                                    <img
-                                       src='https://i.ibb.co/30b6gXk/Vector-3.png'
-                                       alt='line'
-                                       style={{ flexGrow: 1 }}
-                                    />
-                                    <FormControl sx={{ width: '80px' }}>
-                                       <InputLabel id='demo-simple-select-label'>
-                                          Max
-                                       </InputLabel>
-                                       <Select
-                                          labelId='demo-simple-select-label'
-                                          id='demo-simple-select'
-                                          value={currentMax}
-                                          label='Age'
-                                          onChange={handleCurrentMaxChange}
-                                       >
-                                          <MenuItem value={200}>200</MenuItem>
-                                          <MenuItem value={350}>350</MenuItem>
-                                          <MenuItem value={600}>600</MenuItem>
-                                       </Select>
-                                    </FormControl>
-                                 </Box>
-                              </AccordionDetails>
-                           </CustomAccordion>
-                        </FilterArea>
-                     </Grid>
-                     <Grid item xs={12} md={8} lg={9}>
-                        <ProductArea>
-                           <Typography variant='body2' sx={{ mb: 1 }}>
-                              Total (150 Results)
-                           </Typography>
-                           {/* ======= product list ====== */}
-                           {[...Array(10)].map((item, index) => (
-                              <Typography
-                                 key={index}
-                                 sx={{ p: 2, background: '#fff', mb: 0.5 }}
-                              >
-                                 Product #{index}
-                              </Typography>
-                           ))}
-                        </ProductArea>
-                        <Pagination
-                           count={10}
-                           color='primary'
-                           shape='rounded'
-                           sx={{ '& ul': { justifyContent: 'center' }, mt: 2 }}
-                        />
-                     </Grid>
-                  </Grid>
-
-                  <Box
-                     sx={{
-                        maxWidth: '1000px',
-                        width: '100%',
-                        margin: '5rem auto',
-                     }}
-                  >
-                     <SingleProduct />
-                  </Box>
-                  <ButtonNext
-                     // component={Link}
-                     // to='/customizeProduct'
-                     endIcon={<ArrowForwardIcon />}
-                     sx={{
-                        color: '#4D4D4D',
-                        mx: 'auto',
-                        display: 'flex',
-                        minWidth: 250,
-                        maxWidth: 250,
-                        my: 2,
-                        '&:hover': {
-                           background: '#fff',
-                        },
-                     }}
-                     onClick={() => nextHandler(1)}
-                  >
-                     Next
-                  </ButtonNext>
-               </Container>
-            </SearchProductWrapper>
+            <BottomSheet
+               open={showMobileEdit}
+               handleClose={() => setShowMobileEdit(false)}
+               height='100%'
+               backText='Back to Product Search'
+            >
+               <CustomizeProduct
+                  setFetchProducts={setFetchProducts}
+                  nextHandler={nextHandler}
+                  showProductPageHandler={() => setShowMobileEdit(false)}
+               />
+            </BottomSheet>
+         </motion.div>
+         {watchCategoryId && (
+            <PrimaryButton
+               onClick={() => setShowMobileFilter(true)}
+               sx={{
+                  position: 'fixed',
+                  bottom: '0',
+                  width: '100%',
+                  left: '0',
+                  display: {
+                     xs: 'flex',
+                     sm: 'none',
+                  },
+                  py: 1.5,
+               }}
+            >
+               Filters
+            </PrimaryButton>
          )}
-
-         {/* ======= customize product ====== */}
-         {customizeProductPage && <CustomizeProduct nextHandler={nextHandler} />}
-         {finalizingProductPage && <FinalizeProduct nextHandler={nextHandler} />}
-      </motion.div>
+      </Fragment>
    );
 };
 
-export default SearchProduct;
+export default React.memo(SearchProduct);

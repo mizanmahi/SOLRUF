@@ -4,7 +4,7 @@ import React from 'react';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const CreatePortfolioWrapper = styled(Box)(({ theme }) => ({
-   height: '337px',
+   minHeight: '337px',
    borderRadius: '10px',
    background: '#ffffff',
    boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.1)',
@@ -12,12 +12,18 @@ const CreatePortfolioWrapper = styled(Box)(({ theme }) => ({
    flexDirection: 'column',
    justifyContent: 'center',
    position: 'relative',
+   paddingTop:'2rem',
+   paddingBottom:'2rem',
 }));
 
 const ContentsBox = styled(Box)(({ theme }) => ({
    display: 'flex',
    justifyContent: 'space-around',
    alignItems: 'center',
+   "@media (max-width: 600px)": {
+      flexDirection:'column',
+      rowGap:'1rem'
+   }
 }));
 
 const Content = styled(Box)(({ theme }) => ({

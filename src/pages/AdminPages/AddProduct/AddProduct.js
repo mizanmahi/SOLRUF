@@ -10,8 +10,7 @@ import {
 } from '@mui/material';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import YellowButton from '../../../components/YellowButton/YellowButton';
-// import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-// import { nanoid } from 'nanoid';
+
 import AutoCompleteSelect from '../../../components/AutoCompleteSelect/AutoCompleteSelect';
 import TabPanel from '../../../components/SolrufTabPanel/SolrufTabPanel';
 import { AppTextInputButton } from '../../../components/AppTextInputButton';
@@ -25,6 +24,7 @@ import {
    getBrands,
    getCategories,
    getSubCategories,
+   updateProduct,
 } from '../helper';
 import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
@@ -32,20 +32,35 @@ import { useDispatch, useSelector } from 'react-redux';
 import AddAttribute from '../AddAttribute/AddAttribute';
 import { nanoid } from 'nanoid';
 import { useDropzone } from 'react-dropzone';
-import { PlusIcon, MinusIcon } from '@heroicons/react/solid';
+import { PlusIcon } from '@heroicons/react/solid';
 import UploadError from '../../MyPortfolio/UploadError';
 import SingleFIleUploadWithProgress from '../../MyPortfolio/SingleFIleUploadWithProgress';
-import { generateUrl } from '../../../utils/urlGeneratorForProductAndWarrantyDoc';
+import {
+   generateUrl,
+   generatePrevUrl,
+} from '../../../utils/urlGeneratorForProductAndWarrantyDoc';
 import SolrufTextField from '../../../components/TextField/TextField';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { axiAuth } from '../../../utils/axiosInstance';
+import CloseIcon from '@mui/icons-material/Close';
+import FilterModal from './FilterModal';
+import SolrufSwitch from '../../../components/Custom/SolrufSwitch/SolrufSwitch';
 
-const ViewPointOptions = [
-   'List View',
-   'Grid View',
-   'Product Main Page',
-   'Booking',
-   'Vendor Editable',
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>>>>>>>> CHANGES APPLIED >>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+// 'List View' >> Portfolio card
+// 'Grid View' >> Procurement card
+// 'Product Main Page' >> Product feature list
+// 'Booking price view' >> Vendor editable purchase
+// 'Price View' >> Vendor editable booking
+
+export const ViewPointOptions = [
+   'Portfolio card',
+   'Procurement card',
+   'Vendor editable purchase',
+   'Vendor editable booking',
+   'Product feature list',
 ];
 
 const DocumentUploadBox = styled('div')(({ theme }) => {
@@ -85,7 +100,7 @@ const CertificateNameBox = styled('div')(({ theme }) => {
 
 const SolrufTextFieldGray = styled(SolrufTextField)(({ theme }) => ({
    '& .MuiOutlinedInput-root': {
-      // background: '#f3f3f3',
+      //// background: '#f3f3f3',
    },
 }));
 
@@ -102,7 +117,7 @@ const FieldUnitBox = styled('div')(({ theme }) => {
       overflow: 'hidden',
       '& input': {
          border: 'none',
-         width: '40%',
+         width: '80%',
          height: '100%',
          padding: '1rem',
          background: '#FFFFFF',
@@ -113,7 +128,7 @@ const FieldUnitBox = styled('div')(({ theme }) => {
       '& select': {
          border: 'none',
          outline: 'outline',
-         width: '60%',
+         width: '20%',
          borderRight: '5px solid #FFD05B',
          height: '100%',
          textAlign: 'center',
@@ -123,7 +138,6 @@ const FieldUnitBox = styled('div')(({ theme }) => {
          },
          '& option': {
             background: '#ffd05b',
-          
          },
       },
    };
@@ -135,22 +149,20 @@ const AddProduct = () => {
 
    const [units, setUnits] = useState([]);
    const [selectedUnit, setSelectedUnit] = useState('');
-   const [fieldUnit, setFieldUnit] = useState('');
+
+   // console.log('selectedUnit>>>>>>',selectedUnit)
 
    useEffect(() => {
       axiAuth
          .get('api/admin/units')
          .then((res) => {
-            console.log(res.data);
             setUnits(res.data.units);
+            setSelectedUnit(res.data.units[0]);
          })
          .catch((err) => {
             console.log(err);
          });
    }, []);
-
-   console.log(selectedUnit);
-   console.log(units);
 
    //selected values
    const [selectedCategory, setSelectedCategory] = useState(null);
@@ -159,6 +171,11 @@ const AddProduct = () => {
    const [selectedBrand, setSelectedBrand] = useState('');
    const [productImages, setProductImages] = useState([]);
    const [selectedViews, setSelectedViews] = useState([]);
+   const [fieldUnit, setFieldUnit] = useState('');
+   const [openModal, setOpenModal] = useState(false);
+
+   // edit products states
+   // const [editProduct, setEditProduct] = useState(null);
 
    //entered values
    const [productName, setProductName] = useState('');
@@ -167,13 +184,17 @@ const AddProduct = () => {
    const [productFields, setProductFields] = useState([]);
    const [editId, setEditId] = useState(null);
 
+   console.log(productFields);
+
    const onClickEdit = (id) => {
+      console.log(id);
+      console.log(productFields);
+      setOpenModal(false);
       let editField = productFields.find((field) => field.nanoid === id);
       setEditId(id);
-      console.log(editField);
       setSelectedAttribute({
          id: editField.attribute_id,
-         name: editField.value,
+         name: editField.attribute_name,
          category_id: selectedCategory,
       });
       setFieldUnit(editField.value_unit);
@@ -181,9 +202,6 @@ const AddProduct = () => {
       setSelectedUnit(editField.value_unit_type);
    };
 
-   console.log(productFields);
-   console.log(selectedAttribute);
-   console.log(selectedCategory);
    //Store get data from api
    const [categories, setCategories] = useState([]);
    const [subCategories, setSubCategories] = useState([]);
@@ -205,6 +223,8 @@ const AddProduct = () => {
       setFieldUnit('');
       setSelectedCategory(null);
       setSelectedSubCategory(null);
+      setProductDocuments([]);
+      setWarrantyDocuments([]);
    };
 
    const emptyAttributes = () => {
@@ -214,14 +234,8 @@ const AddProduct = () => {
    };
 
    //State for tab
-   const [tab, setTab] = useState(0);
    const [mainTab, setMainTab] = useState(0);
 
-   console.log(attributeList);
-
-   const handleTabChange = (event, newValue) => {
-      setTab(newValue);
-   };
    const handleMainTabChange = (event, newValue) => {
       setMainTab(newValue);
    };
@@ -274,13 +288,26 @@ const AddProduct = () => {
             setAttributeList(response);
          });
       }
-   }, [selectedSubCategory]);
+   }, [selectedSubCategory, selectedUnit]);
 
-   const onSubmit = async (e) => {
+   const [taxFields, setTaxFields] = useState({
+      hsn_sac_code: '',
+      tax_igst: '',
+      tax_cgst: '',
+      tax_sgst: '',
+   });
+
+   const [isActive, setIsActive] = useState(true);
+
+   const handleIsActiveChange = () => {
+      setIsActive(!isActive);
+   };
+
+   const onSubmitCreate = async (e) => {
       e.preventDefault();
       const warrantyDocs = generateUrl(warrantyDocuments);
       const productDocs = generateUrl(productDocuments);
-      console.log(productDocs);
+      // console.log(productDocs);
       if (
          selectedCategory === null ||
          selectedSubCategory === null ||
@@ -309,21 +336,41 @@ const AddProduct = () => {
                return image.url;
             });
 
+            const filterProductAttributes = [];
+
+            productFields.forEach((item) => {
+               let newData = {
+                  ...item,
+                  views: {
+                     portfolio_card: item.views.portfolioCard,
+                     procurement_card: item.views.procurementCard,
+                     vendor_editable_purchase:
+                        item.views.vendorEditablePurchase,
+                     vendor_editable_booking: item.views.vendorEditableBooking,
+                     product_feature_list: item.views.productFeatureList,
+                     field_view_points: item.fieldViewPoints,
+                  },
+               };
+               delete newData['fieldViewPoints'];
+               delete newData['value'];
+               delete newData['nanoid'];
+               filterProductAttributes.push(newData);
+            });
+
             let data = {
                name: productName,
-               category_id: selectedCategory,
+               category_id: selectedSubCategory,
                description: productDescription,
-               attributes: productFields,
+               attributes: filterProductAttributes,
                product_description: productDescription,
                warranty_description: warrantyDescription,
                documents: [...warrantyDocs, ...productDocs],
-               images: images,
-               //TODO : NEED TO CHANGE THE BRAND NAME
+               images: images.filter(Boolean),
                brand_id: selectedBrand,
+               ...taxFields,
+               active: isActive,
             };
-
             console.log(data);
-
             createProduct(data, dispatch).then((response) => {
                if (response && (response.message = 'Product created')) {
                   toast.success('Product created successfully');
@@ -336,11 +383,91 @@ const AddProduct = () => {
       }
    };
 
+   const onSubmitUpdate = async (e) => {
+      e.preventDefault();
+
+      if (
+         selectedCategory === null ||
+         selectedSubCategory === null ||
+         productName === '' ||
+         productDescription === '' ||
+         warrantyDescription === '' ||
+         productFields.length === 0
+      ) {
+         toast.error('Please fill all the fields');
+      } else {
+         const warrantyDocs = generateUrl(warrantyDocuments).concat(
+            generatePrevUrl(prevWarrantyDocuments)
+         );
+         const productDocs = generateUrl(productDocuments).concat(
+            generatePrevUrl(prevProductDocuments)
+         );
+         let images = productImages.map((image) => {
+            return image.url;
+         });
+         prevProductImages.forEach((ele) => {
+            images.push(ele.image_url);
+         });
+
+         if (productDocs.length === 0) {
+            toast.error('Please upload product documents');
+         }
+         if (warrantyDocs.length === 0) {
+            toast.error('Please upload warranty documents');
+         }
+         if (images.length < 3 || images.length > 5) {
+            toast.error('Please upload 3 to 5 images');
+            return;
+         }
+
+         const filterProductAttributes = [];
+         productFields.forEach((item) => {
+            let newData = {
+               ...item,
+               views: {
+                  portfolio_card: item.views.portfolioCard,
+                  procurement_card: item.views.procurementCard,
+                  vendor_editable_purchase: item.views.vendorEditablePurchase,
+                  vendor_editable_booking: item.views.vendorEditableBooking,
+                  product_feature_list: item.views.productFeatureList,
+                  field_view_points: item.fieldViewPoints,
+               },
+            };
+            delete newData['fieldViewPoints'];
+            delete newData['attribute_name'];
+            delete newData['nanoid'];
+            filterProductAttributes.push(newData);
+         });
+
+         let data = {
+            name: productName,
+            category_id: selectedSubCategory,
+            description: productDescription,
+            attributes: filterProductAttributes,
+            product_description: productDescription,
+            warranty_description: warrantyDescription,
+            documents: [...warrantyDocs, ...productDocs],
+            images: images,
+            brand_id: selectedBrand,
+            active: isActive,
+            ...taxFields,
+         };
+
+         console.log(data);
+
+         updateProduct(data, editProductId, dispatch).then((response) => {
+            if (response && (response.message = 'Product created')) {
+               toast.success('Product updated successfully');
+            } else {
+               toast.error('Product update failed');
+            }
+         });
+      }
+   };
+
    const [productDocuments, setProductDocuments] = useState([]);
    const [documentNameError, setDocumentNameError] = useState('');
    const productNameRef = useRef(null);
-
-   console.log(productDocuments);
 
    const onDropProductDocument = useCallback((acceptedFiles, rejectedFiles) => {
       if (productNameRef.current.value.trim().length === 0) {
@@ -350,7 +477,6 @@ const AddProduct = () => {
       }
       const mappedAcceptedFiles = acceptedFiles.map((file) => {
          setDocumentNameError('');
-         console.log(file);
          file.givenName = productNameRef.current.value;
          return {
             file,
@@ -422,7 +548,6 @@ const AddProduct = () => {
    });
 
    const onWarrantyDocumentUpload = (url, file) => {
-      console.log(url);
       setWarrantyDocuments((cur) =>
          cur.map((fw) => {
             if (fw.file === file) {
@@ -437,21 +562,133 @@ const AddProduct = () => {
       setWarrantyDocuments((cur) => cur.filter((fw) => fw.file !== file));
    };
 
-   console.log(warrantyDocuments);
+   const editProductId = useSelector(
+      (state) => state.editProductAdmin?.productToBeEdited?.product_id
+   );
+   // console.log(editProductId);
 
-   const handleDragEnd = (result) => {
-      const { destination, source } = result;
-      if (!destination) return;
-      if (
-         destination.droppableId === source.droppableId &&
-         destination.index === source.index
-      )
-         return;
-      const newItemList = [...productFields];
-      const draggedItem = newItemList.splice(source.index, 1)[0];
-      newItemList.splice(destination.index, 0, draggedItem);
-      setProductFields(newItemList);
+   const [prevProductImages, setPrevProductImages] = useState([]);
+   const [prevProductDocuments, setPrevProductDocuments] = useState([]);
+   const [prevWarrantyDocuments, setPrevWarrantyDocuments] = useState([]);
+
+   // console.log("images>>>>>>>>>>",prevProductDocuments,prevWarrantyDocuments,prevProductImages);
+
+   const prevDocDeleteHandler = (fileId, reqType) => {
+      if (fileId) {
+         axiAuth
+            .delete(`/api/document/${fileId}`)
+            .then((res) => {
+               if (reqType === 'prevProductDocuments') {
+                  let upId = prevProductDocuments.filter((ele) => {
+                     return fileId !== ele.doc_id;
+                  });
+                  setPrevProductDocuments(upId);
+               } else if (reqType === 'prevWarrantyDocuments') {
+                  let upId = prevWarrantyDocuments.filter((ele) => {
+                     return fileId !== ele.doc_id;
+                  });
+                  setPrevWarrantyDocuments(upId);
+               }
+            })
+            .catch((err) => {
+               console.log(err);
+            });
+      }
    };
+
+   useEffect(() => {
+      if (editProductId) {
+         setTimeout(() => {
+            axiAuth
+               .get(`api/admin/products/${editProductId}`)
+               .then((res) => {
+                  console.log(
+                     'product data by id >>>>>>>>>>>>>>>>>>>>>>',
+                     res.data
+                  );
+                  // setEditProduct(res.data?.product);
+                  console.log(res.data?.product?.category?.sub_category_id);
+                  setSelectedCategory(
+                     res.data?.product?.category?.sub_category_id
+                  );
+                  setProductName(res.data?.product.product_name);
+                  setSelectedBrand(res.data?.product.product_brand);
+                  setProductDescription(res.data?.product.product_description);
+                  setWarrantyDescription(
+                     res.data.product.product_warranty_description
+                  );
+                  setPrevProductImages(res.data.product.images);
+                  setPrevWarrantyDocuments(
+                     res.data.product.documents.filter(
+                        (doc) => doc.doc_type === 'warranty'
+                     )
+                  );
+                  setPrevProductDocuments(
+                     res.data.product.documents.filter(
+                        (doc) => doc.doc_type === 'product'
+                     )
+                  );
+
+                  setSelectedCategory(res.data.product.main_category.id);
+                  setSelectedSubCategory(
+                     res.data.product.sub_category.sub_category_id
+                  );
+
+                  console.log(
+                     'attributes >>>>>>>>>>>>>>>>>>>>>>>>>>>',
+                     res.data.product
+                  );
+
+                  setIsActive(res.data?.product?.active);
+                  setTaxFields({
+                     tax_cgst: res.data?.product?.tax_cgst,
+                     tax_sgst: res.data?.product?.tax_sgst,
+                     tax_igst: res.data?.product?.tax_igst,
+                     hsn_sac_code: res.data?.product?.hsn_sac_code,
+                  })
+
+                  const finalAttribute = [];
+                  let duplicate = [];
+                  res.data?.product?.attributes?.forEach((item) => {
+                     console.log(item);
+                     if (!duplicate.includes(item.name)) {
+                        item.attribute_values.forEach((ele) => {
+                           let tempVar = {
+                              attribute_id: item.id,
+                              attribute_name: item.name,
+                              nanoid: ele.id.toString(),
+                              fieldViewPoints: ele.views.field_view_points,
+                              value_unit: ele.value,
+                              value_unit_type: ele.value_unit,
+                              attribute_filterable: item.filterable,
+                              attribute_filter_type: item.filter_type,
+                              editable: ele.editable === 1 ? true : false,
+                              views: {
+                                 portfolioCard: ele.views.portfolio_card,
+                                 procurementCard: ele.views.procurement_card,
+                                 vendorEditablePurchase:
+                                    ele.views.vendor_editable_purchase,
+                                 vendorEditableBooking:
+                                    ele.views.vendor_editable_booking,
+                                 productFeatureList:
+                                    ele.views.product_feature_list,
+                              },
+                           };
+                           finalAttribute.push(tempVar);
+                        });
+                        duplicate.push(item.attribute_name);
+                     }
+                  });
+
+                  console.log(finalAttribute);
+                  setProductFields(finalAttribute);
+               })
+               .catch((err) => {
+                  console.log(err);
+               });
+         }, 1000);
+      }
+   }, [editProductId]);
 
    return (
       <Container maxWidth='xl'>
@@ -459,10 +696,22 @@ const AddProduct = () => {
             handleTabChange={handleMainTabChange}
             activeTab={mainTab}
             tabs={['Add Product', 'Add Attribute']}
+            sx={{
+               '& .MuiButtonBase-root': {
+                  fontSize: ['1rem', '1.5rem', '1.6rem'],
+               },
+            }}
          />
          {mainTab === 0 && (
             <div>
-               <div className='d-flex my-4 justify-content-between align-items-center'>
+               <Box
+                  sx={{
+                     display: 'flex',
+                     justifyContent: 'space-between',
+                     alignItems: 'center',
+                     my: 4,
+                  }}
+               >
                   <Typography
                      variant='h5'
                      gutterBottom
@@ -474,63 +723,66 @@ const AddProduct = () => {
                   >
                      Add Product
                   </Typography>
-                  <YellowButton
-                     variant='contained'
-                     color='primary'
-                     style={{
-                        padding: '0.6rem 2.8rem',
-                     }}
-                     onClick={onSubmit}
-                  >
-                     Save Product
-                  </YellowButton>
-               </div>
-               {!productCreateClicked && (
-                  <div className='d-flex my-3'>
-                     {/* <AutoCompleteSelect
+                  {editProductId ? (
+                     <YellowButton
+                        variant='contained'
+                        color='primary'
                         style={{
-                           marginRight: '1rem',
-                           backgroundColor: '#ffffff',
+                           padding: '0.6rem 2.8rem',
                         }}
-                        options={categories}
-                        value={selectedCategory}
-                        setValue={setSelectedCategory}
-                        label='Select Category'
-                     /> */}
-
+                        onClick={onSubmitUpdate}
+                     >
+                        Update Product
+                     </YellowButton>
+                  ) : (
+                     <YellowButton
+                        variant='contained'
+                        color='primary'
+                        style={{
+                           padding: '0.6rem 2.8rem',
+                        }}
+                        onClick={onSubmitCreate}
+                     >
+                        Save Product
+                     </YellowButton>
+                  )}
+               </Box>
+               {!productCreateClicked && (
+                  <Box
+                     sx={{
+                        display: 'flex',
+                        my: 3,
+                     }}
+                  >
                      <SolrufTextFieldGray
                         select
                         size='small'
                         label='Select Category'
-                        value={selectedCategory}
+                        value={selectedCategory || ''}
                         onChange={(e) => setSelectedCategory(e.target.value)}
                         sx={{ mr: 2 }}
                      >
-                        {categories.map(({ category_id, name }) => (
-                           <MenuItem value={category_id}>{name}</MenuItem>
+                        {categories?.map(({ category_id, name }, id) => (
+                           <MenuItem key={id} value={category_id}>
+                              {name}
+                           </MenuItem>
                         ))}
                      </SolrufTextFieldGray>
-
-                     {/* <AutoCompleteSelect
-                        options={subCategories}
-                        value={selectedSubCategory}
-                        setValue={setSelectedSubCategory}
-                        label='Select Sub Category'
-                        style={{ backgroundColor: '#ffffff' }}
-                     /> */}
 
                      <SolrufTextFieldGray
                         select
                         size='small'
                         label='Select Sub Category'
-                        value={selectedSubCategory}
+                        value={selectedSubCategory || ''}
                         onChange={(e) => setSelectedSubCategory(e.target.value)}
                      >
-                        {subCategories.map(({ category_id, name }) => (
-                           <MenuItem value={category_id}>{name}</MenuItem>
+                        {subCategories?.map(({ category_id, name }, id) => (
+                           <MenuItem key={id} value={category_id}>
+                              {name}
+                           </MenuItem>
                         ))}
                      </SolrufTextFieldGray>
-                  </div>
+                  </Box>
                )}
                <div>
                   {!productCreateClicked && (
@@ -555,8 +807,18 @@ const AddProduct = () => {
                      </>
                   )}
                   {productCreateClicked && (
-                     <div className='upload-background mt-4 d-flex justify-content-between w-100'>
-                        <p className='mt-3'>{productName}</p>
+                     <Box
+                        className='upload-background'
+                        sx={{
+                           display: 'flex',
+                           justifyContent: 'space-between',
+                           mt: 3,
+                           width: '100%',
+                        }}
+                     >
+                        <Typography sx={{ mt: 3 }} component='p'>
+                           {productName}
+                        </Typography>
                         <Button
                            style={{
                               color: '#000',
@@ -567,17 +829,30 @@ const AddProduct = () => {
                         >
                            <EditIcon />
                         </Button>
-                     </div>
+                     </Box>
                   )}
-                  <div className='my-5'>
-                     {/* <AutoCompleteSelect
-                        options={brands || []}
-                        value={selectedBrand}
-                        setValue={setSelectedBrand}
-                        label='Select Brand'
-                        style={{ backgroundColor: '#ffffff' }}
-                        disabled={selectedCategory === null ? true : false}
-                     /> */}
+
+                  <Box
+                     sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        mt: 3,
+                        ml: 2,
+                        columnGap: 2,
+                     }}
+                  >
+                     <Typography>Is Active ?</Typography>
+                     <SolrufSwitch
+                        sx={{ py: 0.5 }}
+                        checked={isActive}
+                        onChange={handleIsActiveChange}
+                     />
+                  </Box>
+                  <Box
+                     sx={{
+                        my: 3,
+                     }}
+                  >
                      <SolrufTextFieldGray
                         select
                         size='small'
@@ -589,16 +864,17 @@ const AddProduct = () => {
                            <MenuItem value={id}>{name}</MenuItem>
                         ))}
                      </SolrufTextFieldGray>
-                  </div>
-                  <AppTextInputButton
-                     textArea={true}
-                     placeholder='Product Description'
-                     className='mt-2'
-                     value={productDescription}
-                     onChange={(e) => {
-                        setProductDescription(e.target.value);
-                     }}
-                  />
+                  </Box>
+                  <Box>
+                     <AppTextInputButton
+                        textArea={true}
+                        placeholder='Product Description'
+                        value={productDescription}
+                        onChange={(e) => {
+                           setProductDescription(e.target.value);
+                        }}
+                     />
+                  </Box>
                </div>
 
                {/* //? document upload box for product // */}
@@ -627,11 +903,7 @@ const AddProduct = () => {
                         }}
                         {...getRootProps()}
                      >
-                        <input
-                           {...getInputProps()}
-                           multiple
-                           // onChange={(e) => console.log(e.target.files)}
-                        />
+                        <input {...getInputProps()} multiple />
                         <Box
                            sx={{
                               display: 'flex',
@@ -674,6 +946,30 @@ const AddProduct = () => {
                         />
                      );
                   })}
+
+                  {prevProductDocuments &&
+                     prevProductDocuments.map((doc) => (
+                        <Box
+                           sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              mt: 1,
+                              borderBottom: '1px solid gray',
+                           }}
+                        >
+                           <Typography>{doc?.doc_name}</Typography>
+                           <Button
+                              endIcon={<CloseIcon />}
+                              color='secondary'
+                              onClick={() =>
+                                 prevDocDeleteHandler(
+                                    doc?.doc_id,
+                                    'prevProductDocuments'
+                                 )
+                              }
+                           ></Button>
+                        </Box>
+                     ))}
                </DocumentUploadBox>
 
                {/* //? document upload box for product end// */}
@@ -756,17 +1052,99 @@ const AddProduct = () => {
                         />
                      );
                   })}
+                  {prevWarrantyDocuments &&
+                     prevWarrantyDocuments.map((doc) => (
+                        <Box
+                           sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              mt: 1,
+                              borderBottom: '1px solid gray',
+                           }}
+                        >
+                           <Typography>{doc?.doc_name}</Typography>
+                           <Button
+                              endIcon={<CloseIcon />}
+                              color='secondary'
+                              onClick={() =>
+                                 prevDocDeleteHandler(
+                                    doc?.doc_id,
+                                    'prevWarrantyDocuments'
+                                 )
+                              }
+                           ></Button>
+                        </Box>
+                     ))}
                </DocumentUploadBox>
                {/* //? document upload box for warrantee end// */}
+
+               <Box
+                  sx={{
+                     width: '100%',
+                     display: 'flex',
+                     justifyContent: 'space-between',
+                     alignItems: 'center',
+                     my: 2,
+                     columnGap: 2,
+                  }}
+               >
+                  <SolrufTextField
+                     label='Hsn'
+                     size='small'
+                     value={taxFields.hsn_sac_code}
+                     onChange={(e) => {
+                        setTaxFields({
+                           ...taxFields,
+                           hsn_sac_code: e.target.value,
+                        });
+                     }}
+                  />
+                  <SolrufTextField
+                     label='Igst'
+                     size='small'
+                     value={taxFields.tax_igst}
+                     onChange={(e) => {
+                        setTaxFields({
+                           ...taxFields,
+                           tax_igst: e.target.value,
+                        });
+                     }}
+                  />
+                  <SolrufTextField
+                     label='Cgst'
+                     size='small'
+                     value={taxFields.tax_cgst}
+                     onChange={(e) => {
+                        setTaxFields({
+                           ...taxFields,
+                           tax_cgst: e.target.value,
+                        });
+                     }}
+                  />
+                  <SolrufTextField
+                     label='Sgst'
+                     size='small'
+                     value={taxFields.tax_sgst}
+                     onChange={(e) => {
+                        setTaxFields({
+                           ...taxFields,
+                           tax_sgst: e.target.value,
+                        });
+                     }}
+                  />
+               </Box>
 
                <div>
                   <Typography variant='h6' gutterBottom className='mt-4 pl-3'>
                      Add Product Images
                   </Typography>
                   <FileUploadWithProgress
+                     fileType={['image/png', 'image/jpeg']}
                      document={productImages}
                      setDocument={setProductImages}
                      name='Add Product Images (3-5MB)'
+                     prevImages={prevProductImages}
+                     setPrevProductImages={setPrevProductImages}
                   />
                </div>
                <div>
@@ -777,8 +1155,18 @@ const AddProduct = () => {
                   >
                      Product Fields
                   </Typography>
-                  <div className='d-flex align-items-center'>
-                     <div className='w-100 pt-1 col-6 col-md-3'>
+                  <Box
+                     sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                     }}
+                  >
+                     <Box
+                        sx={{
+                           flex: 1,
+                           pt: 1,
+                        }}
+                     >
                         <AutoCompleteSelect
                            style={{
                               marginRight: '1rem',
@@ -792,12 +1180,19 @@ const AddProduct = () => {
                            disabled={
                               selectedSubCategory !== null ? false : true
                            }
+                           notAdd={true}
                         />
-                     </div>
-                     <div className='w-100 col-6 col-md-3'>
+                     </Box>
+                     <Box
+                        sx={{
+                           flex: 1,
+                           pt: 1,
+                           mx: 1,
+                        }}
+                     >
                         <FieldUnitBox>
                            <input
-                              type='number'
+                              type='text'
                               placeholder='Field Unit'
                               name='field_unit'
                               value={fieldUnit}
@@ -813,18 +1208,25 @@ const AddProduct = () => {
                               value={selectedUnit}
                            >
                               {units.map((unit) => (
-                                 <option value={unit}>{unit}</option>
+                                 <option key={unit} value={unit}>
+                                    {unit}
+                                 </option>
                               ))}
                            </select>
                         </FieldUnitBox>
-                     </div>
-                     <div className='w-100 col-6 col-md-4'>
+                     </Box>
+                     <Box
+                        sx={{
+                           flex: 1,
+                           pt: 1,
+                        }}
+                     >
                         <SelectCheckBox
                            selected={selectedViews}
                            setSelected={setSelectedViews}
                            options={ViewPointOptions}
                         />
-                     </div>
+                     </Box>
                      <div className='col-6 col-md-2'>
                         <YellowButton
                            variant='contained'
@@ -847,47 +1249,66 @@ const AddProduct = () => {
                                  setProductFields(
                                     productFields.map((productField) => {
                                        if (productField.nanoid === editId) {
-                                          console.log(selectedAttribute);
+                                          // console.log(selectedAttribute);
                                           return {
                                              ...productField,
                                              attribute_id: selectedAttribute.id,
-                                             value: selectedAttribute.name,
+                                             attribute_name:
+                                                selectedAttribute.name,
                                              editable: true,
                                              value_unit: fieldUnit,
                                              value_unit_type: selectedUnit,
+                                             attribute_filterable: false,
+                                             attribute_filter_type: 'select',
                                              views: {
-                                                list: {
-                                                   level:
-                                                      productFields.indexOf(
-                                                         selectedAttribute
-                                                      ) + 1,
+                                                portfolioCard: {
+                                                   level: productField.views
+                                                      .portfolioCard.level,
                                                    visibility:
                                                       selectedViews.indexOf(
-                                                         'List View'
+                                                         'Portfolio card'
                                                       ) > -1
                                                          ? true
                                                          : false,
                                                 },
-                                                grid: {
-                                                   level:
-                                                      productFields.indexOf(
-                                                         selectedAttribute
-                                                      ) + 1,
+                                                procurementCard: {
+                                                   level: productField.views
+                                                      .procurementCard.level,
                                                    visibility:
                                                       selectedViews.indexOf(
-                                                         'Grid View'
+                                                         'Procurement card'
                                                       ) > -1
                                                          ? true
                                                          : false,
                                                 },
-                                                main: {
-                                                   level:
-                                                      productFields.indexOf(
-                                                         selectedAttribute
-                                                      ) + 1,
+                                                vendorEditablePurchase: {
+                                                   level: productField.views
+                                                      .vendorEditablePurchase
+                                                      .level,
                                                    visibility:
                                                       selectedViews.indexOf(
-                                                         'Product Main Page'
+                                                         'Vendor editable purchase'
+                                                      ) > -1
+                                                         ? true
+                                                         : false,
+                                                },
+                                                vendorEditableBooking: {
+                                                   level: productField.views
+                                                      .vendorEditableBooking
+                                                      .level,
+                                                   visibility:
+                                                      selectedViews.indexOf(
+                                                         'Vendor editable booking'
+                                                      ) > -1
+                                                         ? true
+                                                         : false,
+                                                },
+                                                productFeatureList: {
+                                                   level: productField.views
+                                                      .productFeatureList.level,
+                                                   visibility:
+                                                      selectedViews.indexOf(
+                                                         'Product feature list'
                                                       ) > -1,
                                                 },
                                              },
@@ -902,43 +1323,76 @@ const AddProduct = () => {
                                     ...productFields,
                                     {
                                        attribute_id: selectedAttribute?.id,
-                                       value: selectedAttribute.name,
+                                       attribute_name: selectedAttribute.name,
                                        editable: true,
                                        value_unit: fieldUnit,
                                        value_unit_type: selectedUnit,
+                                       attribute_filterable: false,
+                                       attribute_filter_type: null,
                                        views: {
-                                          list: {
-                                             level:
-                                                productFields.indexOf(
-                                                   selectedAttribute
-                                                ) + 1,
+                                          portfolioCard: {
+                                             level: productFields.filter(
+                                                (list) =>
+                                                   list.views.portfolioCard
+                                                      .visibility === true
+                                             ).length,
                                              visibility:
                                                 selectedViews.indexOf(
-                                                   'List View'
+                                                   'Portfolio card'
                                                 ) > -1
                                                    ? true
                                                    : false,
                                           },
-                                          grid: {
-                                             level:
-                                                productFields.indexOf(
-                                                   selectedAttribute
-                                                ) + 1,
+                                          procurementCard: {
+                                             level: productFields.filter(
+                                                (list) =>
+                                                   list.views.procurementCard
+                                                      .visibility === true
+                                             ).length,
                                              visibility:
                                                 selectedViews.indexOf(
-                                                   'Grid View'
+                                                   'Procurement card'
                                                 ) > -1
                                                    ? true
                                                    : false,
                                           },
-                                          main: {
-                                             level:
-                                                productFields.indexOf(
-                                                   selectedAttribute
-                                                ) + 1,
+                                          vendorEditablePurchase: {
+                                             level: productFields.filter(
+                                                (list) =>
+                                                   list.views
+                                                      .vendorEditablePurchase
+                                                      .visibility === true
+                                             ).length,
                                              visibility:
                                                 selectedViews.indexOf(
-                                                   'Product Main Page'
+                                                   'Vendor editable purchase'
+                                                ) > -1
+                                                   ? true
+                                                   : false,
+                                          },
+                                          vendorEditableBooking: {
+                                             level: productFields.filter(
+                                                (list) =>
+                                                   list.views
+                                                      .vendorEditableBooking
+                                                      .visibility === true
+                                             ).length,
+                                             visibility:
+                                                selectedViews.indexOf(
+                                                   'Vendor editable booking'
+                                                ) > -1
+                                                   ? true
+                                                   : false,
+                                          },
+                                          productFeatureList: {
+                                             level: productFields.filter(
+                                                (list) =>
+                                                   list.views.productFeatureList
+                                                      .visibility === true
+                                             ).length,
+                                             visibility:
+                                                selectedViews.indexOf(
+                                                   'Product feature list'
                                                 ) > -1,
                                           },
                                        },
@@ -946,6 +1400,7 @@ const AddProduct = () => {
                                        nanoid: nanoid(),
                                     },
                                  ]);
+                                 console.log(productFields);
                               }
                               emptyAttributes();
                               setEditId(null);
@@ -954,142 +1409,47 @@ const AddProduct = () => {
                            Save
                         </YellowButton>
                      </div>
-                  </div>
+                  </Box>
                </div>
-               <div className='my-5 px-0'>
-                  <Container maxWidth='xl'>
-                     <TabPanel
-                        handleTabChange={handleTabChange}
-                        activeTab={tab}
-                        tabs={[
-                           'List View / Grid View',
-                           // 'Grid View',
-                           // 'Product Main Page',
-                           'All',
-                        ]}
+
+               <div>
+                  <Typography variant='h6' gutterBottom className='mt-4 pl-3'>
+                     All Features
+                  </Typography>
+                  {productFields.map((filteredList) => (
+                     <ListViewTable
+                        list={filteredList}
+                        onClickEdit={() => {
+                           onClickEdit(filteredList.nanoid);
+                        }}
                      />
-                     {tab === 0 && (
-                        <>
-                           <div>
-                              <DragDropContext onDragEnd={handleDragEnd}>
-                                 <Droppable droppableId='droppable'>
-                                    {/* {productFields
-                                       .filter(
-                                          (list) =>
-                                             list.views.list.visibility === true
-                                       )
-                                       .map((filteredList) => (
-                                          <ListViewTable
-                                             list={filteredList}
-                                             onClickEdit={() => {
-                                                onClickEdit(
-                                                   filteredList.nanoid
-                                                );
-                                             }}
-                                          />
-                                       ))} */}
-                                    {(provided) => (
-                                       <div
-                                          {...provided.droppableProps}
-                                          ref={provided.innerRef}
-                                          style={{ minHeight: '300px' }}
-                                       >
-                                          {productFields
-                                             .filter(
-                                                (list) =>
-                                                   list.views.list
-                                                      .visibility === true
-                                             )
-                                             .map((filteredList, i) => (
-                                                <Draggable
-                                                   key={
-                                                      filteredList.attribute_id
-                                                   }
-                                                   draggableId={filteredList?.attribute_id?.toString()}
-                                                   index={i}
-                                                >
-                                                   {(provided) => (
-                                                      <div
-                                                         draggable='true'
-                                                         {...provided.draggableProps}
-                                                         {...provided.dragHandleProps}
-                                                         ref={provided.innerRef}
-                                                         list={filteredList}
-                                                      >
-                                                         <ListViewTable
-                                                            unit={selectedUnit}
-                                                            list={filteredList}
-                                                            onClickEdit={() => {
-                                                               onClickEdit(
-                                                                  filteredList.nanoid
-                                                               );
-                                                            }}
-                                                         />
-                                                      </div>
-                                                   )}
-                                                </Draggable>
-                                             ))}
-                                       </div>
-                                    )}
-                                 </Droppable>
-                              </DragDropContext>
-                           </div>
-                        </>
-                     )}
-                     {tab === 1 && (
-                        <>
-                           <div>
-                              {productFields
-                                 .filter(
-                                    (list) =>
-                                       list.views.grid.visibility === true
-                                 )
-                                 .map((filteredList) => (
-                                    <ListViewTable
-                                       list={filteredList}
-                                       onClickEdit={() => {
-                                          onClickEdit(filteredList.nanoid);
-                                       }}
-                                    />
-                                 ))}
-                           </div>
-                        </>
-                     )}
-                     {/* {tab === 2 && (
-                        <>
-                           <div>
-                              {productFields
-                                 .filter(
-                                    (list) =>
-                                       list.views.main.visibility === true
-                                 )
-                                 .map((filteredList) => (
-                                    <ListViewTable
-                                       list={filteredList}
-                                       onClickEdit={() => {
-                                          onClickEdit(filteredList.nanoid);
-                                       }}
-                                    />
-                                 ))}
-                           </div>
-                        </>
-                     )}
-                     {tab === 3 && (
-                        <>
-                           <div>
-                              {productFields.map((filteredList) => (
-                                 <ListViewTable
-                                    list={filteredList}
-                                    onClickEdit={() => {
-                                       onClickEdit(filteredList.nanoid);
-                                    }}
-                                 />
-                              ))}
-                           </div>
-                        </>
-                     )} */}
-                  </Container>
+                  ))}
                </div>
+               <Box sx={{ my: 4 }}>
+                  <YellowButton
+                     className='my-3 ml-3'
+                     variant='contained'
+                     color='primary'
+                     style={{
+                        padding: '0.6rem 2.8rem',
+                     }}
+                     onClick={() => setOpenModal(true)}
+                  >
+                     Preview
+                  </YellowButton>
+               </Box>
+               {openModal && (
+                  <FilterModal
+                     modalProps={{
+                        openModal,
+                        setopenModal: setOpenModal,
+                        productFields,
+                        onClickEdit,
+                        setProductFields,
+                     }}
+                  />
+               )}
+
                <Backdrop
                   sx={{
                      color: '#fff',

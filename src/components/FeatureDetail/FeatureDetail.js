@@ -1,8 +1,10 @@
-import { Typography } from '@mui/material';
+import { Typography, useMediaQuery } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 
-const FeatureDetail = ({ icon, title, value, style }) => {
+const FeatureDetail = ({ icon, title, value, style, valueStyle }) => {
+   const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+
    return (
       <Box
          sx={{
@@ -15,10 +17,19 @@ const FeatureDetail = ({ icon, title, value, style }) => {
       >
          {icon}
          <Box>
-            <Typography fontWeight={600}>{title}</Typography>
+            <Typography fontWeight={400} sx={{ fontSize: '15px' }}>
+               {title}
+            </Typography>
             <Typography
-               fontWeight={600}
-               sx={{ fontSize: '1.2rem', color: 'black', maxWidth: '400px' }}
+               fontWeight={500}
+               sx={{
+                  fontSize: '15px',
+                  color: 'black',
+                  maxWidth: !matches ? '400px' : '120px',
+                  flexWrap: 'wrap',
+                  wordWrap: 'break-word',
+                  ...valueStyle,
+               }}
             >
                {value}
             </Typography>

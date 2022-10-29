@@ -1,6 +1,14 @@
-import { Box, CircularProgress, Typography } from '@mui/material';
+import {
+   Box,
+   CircularProgress,
+   FormControl,
+   FormControlLabel,
+   FormLabel,
+   Radio,
+   RadioGroup,
+   Typography,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import YellowButton from '../../../components/YellowButton/YellowButton';
 import AutoCompleteSelect from '../../../components/AutoCompleteSelect/AutoCompleteSelect';
 import './AddAttribute.css';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,7 +25,8 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { axiAuth } from '../../../utils/axiosInstance';
-import SelectCheckBox from '../../../components/SelectCheckBox/SelectCheckBox';
+import PrimaryButton from '../../../components/Custom/PrimaryButton/PrimaryButton';
+// import SelectCheckBox from '../../../components/SelectCheckBox/SelectCheckBox';
 
 const AddAttribute = () => {
    const [selectedCategory, setSelectedCategory] = useState(null);
@@ -28,9 +37,14 @@ const AddAttribute = () => {
    const [subCategories, setSubCategories] = useState([]);
    const [brands, setBrands] = useState([]);
    const [attributeList, setAttributeList] = useState([]);
-   const [selectedViews, setSelectedViews] = useState([]);
 
-   console.log(selectedViews);
+   const [filterType, setFilterType] = React.useState(null);
+
+   const handleFilterChange = (event) => {
+      setFilterType(event.target.value);
+   };
+
+   console.log({ filterType });
 
    const createAttributeSelector = useSelector(
       (state) => state.createAttribute
@@ -60,7 +74,6 @@ const AddAttribute = () => {
       let newSubCategoryId;
 
       if (!selectedCategory.category_id) {
-         console.log('comes here');
          const response = await axiAuth.post(
             'api/admin/categories',
             selectedCategory
@@ -80,9 +93,6 @@ const AddAttribute = () => {
             ...selectedSubCategory,
             parent_id: newCategoryId || selectedCategory.category_id,
          });
-
-         console.log(selectedSubCategory);
-         console.log(newCategoryId);
 
          if (response.status === 200) {
             newSubCategoryId = response.data.category_id;
@@ -117,18 +127,22 @@ const AddAttribute = () => {
 
       if (
          attributeList.some(
-            (attribute) => attribute.name === selectedAttribute.name
+            (attribute) => attribute?.name === selectedAttribute?.name
          )
       ) {
          toast.warn('This attribute already exists');
       } else {
-         createAttribute(
-            {
-               name: selectedAttribute?.name,
-               category_id: selectedSubCategory.category_id || newSubCategoryId,
-            },
-            dispatch
-         ).then((response) => {
+         const newAttribute = {
+            name: selectedAttribute?.name,
+            category_id: selectedSubCategory.category_id || newSubCategoryId,
+            filterable: !filterType || filterType === 'n/a' ? 0 : 1,
+         };
+
+         if (filterType !== 'n/a' && filterType !== null) {
+            newAttribute.filter_type = filterType;
+         }
+
+         createAttribute(newAttribute, dispatch).then((response) => {
             if (response === 'Attribute created') {
                toast.success(response);
                setValue('attribute', '');
@@ -168,8 +182,6 @@ const AddAttribute = () => {
       }
    }, [selectedSubCategory]);
 
-   console.log(selectedSubCategory);
-
    return (
       <div
          className='py-5'
@@ -178,9 +190,15 @@ const AddAttribute = () => {
          }}
       >
          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className='d-flex my-3'>
+            <Box
+               sx={{
+                  display: 'flex',
+                  my: 2,
+                  flexDirection: ['column', 'column', 'row'],
+               }}
+            >
                <AutoCompleteSelect
-                  style={{ marginRight: '1rem' }}
+                  sx={{ marginRight: '1rem', marginBottom: ['1rem', '1rem', 0] }}
                   options={categories}
                   value={selectedCategory}
                   setValue={setSelectedCategory}
@@ -201,18 +219,25 @@ const AddAttribute = () => {
                   register={register}
                   error={errors}
                />
-            </div>
+            </Box>
             <div>
                <Typography
                   variant='h6'
                   gutterBottom
-                  className='my-4 text-center p-2'
+                  sx={{
+                     textAlign: 'center',
+                     my: 2,
+                     mt: 4
+                  }}
                >
                   + Add Field
                </Typography>
-               <div className='d-flex my-3'>
+               <Box sx={{
+                  display: 'flex',
+                  my: 2,
+               }}>
                   <AutoCompleteSelect
-                     style={{ marginTop: '3px' }}
+                     style={{ marginTop: '3px', }}
                      options={attributeList}
                      value={selectedAttribute}
                      setValue={setSelectedAttribute}
@@ -223,13 +248,17 @@ const AddAttribute = () => {
                      error={errors}
                      disabled={selectedSubCategory === null ? true : false}
                   />
-               </div>
+               </Box>
             </div>
             <div>
                <Typography
                   variant='h6'
                   gutterBottom
-                  className='my-4 text-center p-2'
+                  sx={{
+                     textAlign: 'center',
+                     my: 2,
+                     mt: 4
+                  }}
                >
                   + Add Brand
                </Typography>
@@ -248,28 +277,53 @@ const AddAttribute = () => {
                   />
                </div>
             </div>
-            <Box sx={{ maxWidth: '300px' }}>
-               <SelectCheckBox
-                  selected={selectedViews}
-                  setSelected={setSelectedViews}
-                  options={['Range Filter', 'SelectFilter']}
-               />
+            <Box sx={{ mt: 5 }}>
+               <FormControl>
+                  <FormLabel
+                     id='demo-row-radio-buttons-group-label'
+                     sx={{
+                        fontSize: '1.3rem',
+                        color: '#000000',
+                        fontWeight: 500,
+                     }}
+                  >
+                     Filter Type
+                  </FormLabel>
+                  <RadioGroup
+                     row
+                     aria-labelledby='demo-row-radio-buttons-group-label'
+                     name='row-radio-buttons-group'
+                     onChange={handleFilterChange}
+                  >
+                     <FormControlLabel
+                        value='range'
+                        control={<Radio />}
+                        label='Range'
+                     />
+                     <FormControlLabel
+                        value='select'
+                        control={<Radio />}
+                        label='Select'
+                     />
+                     <FormControlLabel
+                        value='n/a'
+                        control={<Radio />}
+                        label='N/A'
+                     />
+                  </RadioGroup>
+               </FormControl>
             </Box>
             <div className='w-100'>
-               <YellowButton
-                  variant='contained'
-                  color='primary'
-                  style={{
-                     padding: '0.5rem 2.8rem',
-                  }}
-                  className='mx-auto mt-5'
+               <PrimaryButton
+                  type='submit'
+                  sx={{ display: 'block', mx: 'auto', width: ['100%','50%'], mt: 2 }}
                >
                   {createAttributeSelector.loading ? (
                      <CircularProgress color='success' size={20} />
                   ) : (
                      'Save'
                   )}
-               </YellowButton>
+               </PrimaryButton>
             </div>
          </form>
       </div>

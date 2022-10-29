@@ -10,6 +10,7 @@ const Button = styled('button')({
    borderColor: '#4D4D4D',
    borderWidth: '4px',
    outline: 'none',
+   cursor: 'pointer',
    '&:hover': {},
    '&:active': {
       outline: 'none',

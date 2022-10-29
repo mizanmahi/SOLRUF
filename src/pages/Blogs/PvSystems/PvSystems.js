@@ -1,19 +1,19 @@
-import { Container, styled, Typography } from '@mui/material';
-import { Box } from '@mui/system';
-import React from 'react';
-import BlogAccordionContent from '../../../components/BlogAccordionContent/BlogAccordionContent';
-import BlogIntroSection from '../../../components/BlogIntroSection/BlogIntroSection';
-import BlogTitledBox from '../../../components/BlogTitledBox/BlogTitledBox';
-import CustomAccordionForBlogs from '../../../components/CustomAccordionForBlogs/CustomAccordionForBlogs';
+import { Container, styled, Typography } from "@mui/material";
+import { Box } from "@mui/system";
+import React from "react";
+import BlogAccordionContent from "../../../components/BlogAccordionContent/BlogAccordionContent";
+import BlogIntroSection from "../../../components/BlogIntroSection/BlogIntroSection";
+import BlogTitledBox from "../../../components/BlogTitledBox/BlogTitledBox";
+import CustomAccordionForBlogs from "../../../components/CustomAccordionForBlogs/CustomAccordionForBlogs";
 
 const Wrapper = styled(Box)(({ theme }) => ({
-   paddingBottom: '2rem',
-   background: '#F3F3F3'
+  paddingBottom: "2rem",
+  background: "#F3F3F3",
 }));
 const Flex = styled(Box)(({ theme }) => ({
-   display: 'flex',
-   justifyContent: 'space-around',
-   alignItems: 'stretch',
+  display: "flex",
+  justifyContent: "space-around",
+  alignItems: "stretch",
 }));
 
 const text1 = `A grid-connected system is a simple setup that makes use of a
@@ -40,95 +40,106 @@ A hybrid PV system combines different power sources to improve power availabilit
 `;
 
 const PvSystems = () => {
-   return (
-      <Wrapper>
-         <BlogIntroSection title='Types of PV Systems' />
-         <Container maxWidth='lg'>
-            <Typography sx={{ mb: 2 }}>
-               PV systems that are connected to the grid do not require battery
-               storage. A battery can, however, be added to a grid-connected
-               solar system at any time.
-            </Typography>
-            {/*  accordion 1 */}
-            <CustomAccordionForBlogs title='1. Grid-Connect Systems' defaultExpanded={true}>
-               <BlogAccordionContent
-                  text={text1}
-                  imageUrl='https://i.ibb.co/PtW7Myq/image-10.png'
-               />
-            </CustomAccordionForBlogs>
+  return (
+    <Wrapper>
+      <BlogIntroSection title="Types of PV Systems" />
+      <Container maxWidth="lg" sx={{ padding: { sm: "20px", xs: 0 } }}>
+        <Typography sx={{ mb: 2, padding: { sm: "auto", xs: "20px" } }}>
+          PV systems that are connected to the grid do not require battery
+          storage. A battery can, however, be added to a grid-connected solar
+          system at any time.
+        </Typography>
+        {/*  accordion 1 */}
+        <CustomAccordionForBlogs
+          title="1. Grid-Connect Systems"
+          defaultExpanded={true}
+        >
+          <BlogAccordionContent
+            text={text1}
+            imageUrl="https://i.ibb.co/PtW7Myq/image-10.png"
+          />
+        </CustomAccordionForBlogs>
 
-            <Flex>
-               <BlogTitledBox title='METERING SYSTEM' sx={{ mr: 3 }}>
-                  The meter is used for measuring the electricity produced by
-                  your system before being exported to the grid, as is the case
-                  in most of India. The electricity will run through your meter
-                  before reaching the switchboard and not after it. The consumer
-                  is then charged for net electricity used over a month or year
-                  period.
-               </BlogTitledBox>
-               <BlogTitledBox title='ELECTRICITY GRID'>
-                  Electricity that is sent to the grid from your solar system
-                  can then be used by other consumers on the grid (your
-                  neighbours). When your solar system is not operating, or you
-                  are using more electricity than your system is producing, you
-                  will start importing or consuming electricity from the grid.
-                  Unlike hybrid systems, On-grid solar systems are not able to
-                  function or generate electricity during blackout for safety
-                  reasons.
-               </BlogTitledBox>
-            </Flex>
+        <Flex sx={{ flexDirection: { sm: "row", xs: "column" } }}>
+          <BlogTitledBox title="METERING SYSTEM" sx={{ mr: { sm: 3, xs: 0 } }}>
+            The meter is used for measuring the electricity produced by your
+            system before being exported to the grid, as is the case in most of
+            India. The electricity will run through your meter before reaching
+            the switchboard and not after it. The consumer is then charged for
+            net electricity used over a month or year period.
+          </BlogTitledBox>
+          <BlogTitledBox title="ELECTRICITY GRID">
+            Electricity that is sent to the grid from your solar system can then
+            be used by other consumers on the grid (your neighbours). When your
+            solar system is not operating, or you are using more electricity
+            than your system is producing, you will start importing or consuming
+            electricity from the grid. Unlike hybrid systems, On-grid solar
+            systems are not able to function or generate electricity during
+            blackout for safety reasons.
+          </BlogTitledBox>
+        </Flex>
 
-            <CustomAccordionForBlogs
-               title='2. Standalone Systems'
-               text={text2}
-               sx={{ mt: 3 }}
-            >
-               <BlogAccordionContent
-                  text={text1}
-                  imageUrl='https://i.ibb.co/sJkr4XW/image-28.png'
-               />
-            </CustomAccordionForBlogs>
+        <CustomAccordionForBlogs
+          title="2. Standalone Systems"
+          text={text2}
+          sx={{ mt: 3 }}
+        >
+          <BlogAccordionContent
+            text={text1}
+            imageUrl="https://i.ibb.co/sJkr4XW/image-28.png"
+          />
+        </CustomAccordionForBlogs>
 
-            <Flex>
-               <BlogTitledBox title='BATTERY BANK' sx={{ mr: 3 }}>
-                  Once solar power is used by the appliances in your property,
-                  any excess power will be sent to your battery bank. Once the
-                  battery is full it will stop receiving power from the solar
-                  system. When your solar system is not working (night time or
-                  cloudy days), your appliances will draw power from the
-                  batteries.
-               </BlogTitledBox>
-               <BlogTitledBox title='BANKUP GENERATOR'>
-                  For times of the year when the batteries are low on charge and
-                  the weather is very cloudy you will generally need a backup
-                  power source, such as a backup generator. The size of the
-                  backup generator (measured in kVA) should be adequate to
-                  supply your house and charge the batteries at the same time.
-               </BlogTitledBox>
-            </Flex>
+        <Flex sx={{ flexDirection: { sm: "row", xs: "column" } }}>
+          <BlogTitledBox title="BATTERY BANK" sx={{ mr: { sm: 3, xs: 0 } }}>
+            Once solar power is used by the appliances in your property, any
+            excess power will be sent to your battery bank. Once the battery is
+            full it will stop receiving power from the solar system. When your
+            solar system is not working (night time or cloudy days), your
+            appliances will draw power from the batteries.
+          </BlogTitledBox>
+          <BlogTitledBox title="BANKUP GENERATOR">
+            For times of the year when the batteries are low on charge and the
+            weather is very cloudy you will generally need a backup power
+            source, such as a backup generator. The size of the backup generator
+            (measured in kVA) should be adequate to supply your house and charge
+            the batteries at the same time.
+          </BlogTitledBox>
+        </Flex>
 
-            <CustomAccordionForBlogs
-               title='3. Hybrid PV Systems'
-               text={text2}
-               sx={{ mt: 3 }}
-            >
-               <BlogAccordionContent
-                  text={text3}
-                  imageUrl='https://i.ibb.co/djR2Nb1/image-29.png'
-               />
-            </CustomAccordionForBlogs>
+        <CustomAccordionForBlogs
+          title="3. Hybrid PV Systems"
+          text={text2}
+          sx={{ mt: 3 }}
+        >
+          <BlogAccordionContent
+            text={text3}
+            imageUrl="https://i.ibb.co/djR2Nb1/image-29.png"
+          />
+        </CustomAccordionForBlogs>
 
-            <Flex sx={{}}>
-               <BlogTitledBox title='BATTERY BANK' sx={{ mr: 3 }}>
-               In a hybrid system once the solar power is used by the appliances in your property, any excess power will be sent to the battery bank. Once the battery bank is fully charged, it will stop receiving power from the solar system. The energy from the battery can then be discharged and used to power your home, usually during the peak evening period when the cost of electricity is typically at its highest.
-               </BlogTitledBox>
-               <BlogTitledBox title='ELECTRICITY GRID'>
-               Depending on how your hybrid system is set up and whether your utility allows it, once your batteries are fully charged excess solar power not required by your appliances can be exported to the grid via your meter. When your solar system is not in use, and if you have drained the usable power in your batteries your appliances will then start drawing power from the grid.
-               </BlogTitledBox>
-            </Flex>
-         </Container>
-      </Wrapper>
-   );
+        <Flex sx={{ flexDirection: { sm: "row", xs: "column" } }}>
+          <BlogTitledBox title="BATTERY BANK" sx={{ mr: { sm: 3, xs: 0 } }}>
+            In a hybrid system once the solar power is used by the appliances in
+            your property, any excess power will be sent to the battery bank.
+            Once the battery bank is fully charged, it will stop receiving power
+            from the solar system. The energy from the battery can then be
+            discharged and used to power your home, usually during the peak
+            evening period when the cost of electricity is typically at its
+            highest.
+          </BlogTitledBox>
+          <BlogTitledBox title="ELECTRICITY GRID">
+            Depending on how your hybrid system is set up and whether your
+            utility allows it, once your batteries are fully charged excess
+            solar power not required by your appliances can be exported to the
+            grid via your meter. When your solar system is not in use, and if
+            you have drained the usable power in your batteries your appliances
+            will then start drawing power from the grid.
+          </BlogTitledBox>
+        </Flex>
+      </Container>
+    </Wrapper>
+  );
 };
 
 export default PvSystems;

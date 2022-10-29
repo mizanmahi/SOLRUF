@@ -1,7 +1,7 @@
 import { Box } from '@mui/system';
 import React, { useCallback, useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { Grid, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { Grid, MenuItem, TextField, Typography } from '@mui/material';
 import SolrufTextField from '../../components/TextField/TextField';
 import { useDropzone } from 'react-dropzone';
 import UploadError from '../MyPortfolio/UploadError';

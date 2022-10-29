@@ -10,15 +10,15 @@ const StyledBackToButton = styled(Button)(({ theme }) => ({
       background: 'transparent',
    },
    '& .MuiSvgIcon-root': {
-      color: '#000000',
-      fontSize: '30px',
-      fontWeight: 'bold',
+      color: theme.palette.primary.dark,
+      fontSize: '25px',
    },
 }));
 
-const BackToButton = ({ children, onClick }) => {
+const BackToButton = ({ children, onClick, sx }) => {
    return (
       <StyledBackToButton
+         sx={{ ...sx }}
          onClick={onClick}
          startIcon={<KeyboardBackspaceIcon />}
       >

@@ -1,10 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const user = JSON.parse(localStorage.getItem('user'));
-
 const initialState = {
-   user,
-   role: user ? user.role : '',
+   user: null,
+   role: '',
+   enquiryDetails: null,
 };
 
 export const userSlice = createSlice({
@@ -12,11 +11,15 @@ export const userSlice = createSlice({
    initialState,
    reducers: {
       saveUser: (state, action) => {
-         console.log(action.payload);
          state.user = action.payload;
          state.role = action.payload.user.role;
          state.token = action.payload.token;
          localStorage.setItem('token', action.payload.token);
+      },
+      updateUser: (state, action) => {
+         state.user = action.payload;
+         state.role = action.payload.user.role;
+         state.token = action.payload.token;
       },
       removeUser: (state, action) => {
          state.user = null;
@@ -24,10 +27,22 @@ export const userSlice = createSlice({
          state.token = null;
          localStorage.removeItem('token');
       },
+      setEnquiryDetails: (state, action) => {
+         state.enquiryDetails = action.payload;
+      },
+      removeEnquiryDetails: (state, action) => {
+         state.enquiryDetails = null;
+      },
    },
 });
 
 // Action creators are generated for each case reducer function
-export const { saveUser, removeUser } = userSlice.actions;
+export const {
+   saveUser,
+   updateUser,
+   removeUser,
+   setEnquiryDetails,
+   removeEnquiryDetails,
+} = userSlice.actions;
 
 export default userSlice.reducer;

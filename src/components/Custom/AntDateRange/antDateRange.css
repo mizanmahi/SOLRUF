@@ -1,0 +1,47 @@
+.ant-picker-dropdown {
+   z-index: 2000 !important;
+}
+
+.ant-date-picker {
+   /* box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1) !important; */
+}
+
+.ant-picker.ant-picker-borderless.ant-date-picker {
+   background: #fff !important;
+   padding: .5rem 0.7rem !important;
+   border-radius: 5px;
+}
+
+.ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner {
+   background-color: #ffd05b !important;
+   color: rgba(0, 0, 0, 0.8) !important;
+}
+.ant-picker-cell-range-end .ant-picker-cell-inner {
+   background-color: #ffd05b !important;
+   color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.ant-picker-suffix .anticon-calendar svg {
+   color: #ffd05b !important;
+}
+
+.ant-date-picker .ant-picker-input input::placeholder {
+   /* color: rgba(0, 0, 0, 0.7) !important;
+   font-size: 1rem;
+   font-weight: 600;
+   font-family: 'Inter', sans-serif; */
+}
+/* .ant-date-picker .ant-picker-range {
+   position: relative;
+   display: inline-flex;
+}
+.ant-date-picker .ant-picker-focused {
+   border-color: #ffd05b !important;
+   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+   border-right-width: 1px !important;
+   outline: 0;
+} */
+
+.ant-picker.ant-picker-borderless {
+   /* box-shadow: 4px 4px 15px 0px rgba(0, 0, 0, 0.1) !important; */
+}

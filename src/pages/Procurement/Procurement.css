@@ -1,0 +1,8 @@
+.dashboard__filter {
+   padding-bottom: 22px;
+   padding-right: 5px;
+   padding-left: 5px;
+}
+.dashboard__filter::-webkit-scrollbar {
+   width: 6px;
+}

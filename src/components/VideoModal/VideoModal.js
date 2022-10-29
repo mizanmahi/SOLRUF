@@ -19,7 +19,7 @@ const VideoBox = styled(Box)(({ theme }) => ({
 }));
 
 const VideoModal = ({ open, handleClose, videoLink }) => {
-   console.log(open);
+
 
    return (
       <Modal

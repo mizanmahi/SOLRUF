@@ -1,282 +1,647 @@
-import {
-   Button,
-   Container,
-   Grid,
-   styled,
-   Switch,
-   Typography,
-} from '@mui/material';
+import { Button, Container, Grid, styled, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useCallback, useState } from 'react';
-import CustomAccordion from '../../components/CustomAccordion/CustomAccordion';
+import React, { useState } from 'react';
 import CustomTextArea from '../../components/CustomTextArea/CustomTextArea';
-import SingleProduct from '../../components/SingleProduct/SingleProduct';
+import { useForm } from 'react-hook-form';
+
 import SolrufTextField from '../../components/TextField/TextField';
-import { useDropzone } from 'react-dropzone';
-import UploadError from '../MyPortfolio/UploadError';
-import SingleFIleUploadWithProgress from '../MyPortfolio/SingleFIleUploadWithProgress';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import FileUploadWithProgress from '../../components/FileUploadWithProgress/FileUploadWithProgress';
+
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useDispatch, useSelector } from 'react-redux';
+import HorizontalProductCard from '../../components/HorizontalProductCard/HorizontalProductCard';
+import PrimaryButton from '../../components/Custom/PrimaryButton/PrimaryButton';
+import CustomAccordionForDrawer from '../../components/Custom/CustomAccordionForDrawer/CustomAccordionForDrawer';
+import { Flex, BookingAvailabilityBox } from './customizeProduct.style';
+import SolrufSwitch from '../../components/Custom/SolrufSwitch/SolrufSwitch';
+import { formatAttribute } from './utils';
+import { axiAuth } from '../../utils/axiosInstance';
+import { toast } from 'react-toastify';
+import { formatDocumentsWithNameAndUrl } from '../../utils/utils';
+import {
+   addSelectedProductByVendor,
+   setEditMode,
+} from '../../redux/slices/Vendor/VendorProductListSlice';
+import UploadDocumentsWithName from '../../components/Custom/UploadDocumentsWithName/UploadDocumentsWithName';
+import CustomErrorText from '../../components/CustomErrorText/CustomErrorText';
 
-const FileInputBox = styled(Box)(({ theme }) => {
-   return {
-      border: '2px solid #FFD05B',
-      height: 200,
-      width: '100%',
-      maxWidth: '300px',
-      background: '#F3F3F3',
-      borderRadius: 20,
-      padding: theme.spacing(2),
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      position: 'relative',
-      margin: '.8rem auto',
-   };
-});
-
-const DottedBox = styled(Box)(({ theme }) => {
-   return {
-      position: 'absolute',
-      width: '80%',
-      height: '80%',
-      border: '2px dashed #FFD05B',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'column',
-   };
-});
-
-const ButtonNext = styled(Button)(({ theme }) => ({
-   background: theme.palette.primary.main,
-   padding: '0.5rem 1rem',
+const Wrapper = styled(Box)(({ theme }) => ({
+   padding: theme.spacing(2),
+   marginTop: theme.spacing(3),
+   borderRadius: theme.spacing(1.5),
+   '@media (max-width: 600px)': {
+      padding: 0,
+   },
 }));
 
-const CustomizeProduct = ({ nextHandler }) => {
-   const [document, setDocument] = useState([]);
-   const [bookingDocument, setBookingDocument] = useState([]);
-   const [availability, setAvailability] = useState(false);
+const CustomizeProduct = ({
+   nextHandler,
+   showProductPageHandler,
+   setFetchProducts,
+}) => {
+   const dispatch = useDispatch();
 
-   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
-      const mappedAcceptedFiles = acceptedFiles.map((file) => {
-         return {
-            file,
-            error: [],
-         };
-      });
-      setDocument((cur) => [...cur, ...mappedAcceptedFiles, ...rejectedFiles]);
-   }, []);
+   const { selectedProductByVendor, editMode } = useSelector(
+      (state) => state.vendorProductList
+   );
 
-   const { getRootProps, getInputProps } = useDropzone({
-      onDrop,
-      maxSize: 5000000,
+   console.log({ selectedProductByVendor });
 
-      // accept: 'image/jpeg, image/png',
+   const [submittingAttribute, setSubmittingAttribute] = useState(false);
+
+   const {
+      register,
+      formState: { errors },
+      handleSubmit,
+   } = useForm({
+      defaultValues: {
+         warranty_years:
+            selectedProductByVendor?.my_warranty_details?.years || '',
+         warranty_description:
+            selectedProductByVendor?.my_warranty_details?.description || '',
+         advance_payment:
+            selectedProductByVendor?.my_payment_policy?.amount || '',
+         advance_payment_policy:
+            selectedProductByVendor?.my_payment_policy?.description || '',
+      },
    });
 
-   const onFileUpload = (url, file) => {
-      setDocument((cur) =>
-         cur.map((fw) => {
-            if (fw.file === file) {
-               return { ...fw, url };
+   const isEdit =
+      selectedProductByVendor?.attributes &&
+      selectedProductByVendor?.attributes?.some(
+         (attr) => attr.attribute_values.length > 1
+      )
+         ? 1
+         : 0;
+
+   const [pricingDetailsFields, setPricingDetailsFields] = useState(
+      selectedProductByVendor?.attributes?.filter(
+         (attribute) =>
+            attribute?.attribute_values[isEdit]?.views?.vendor_editable_purchase
+               ?.visibility
+      )
+   );
+
+   const [bookingAvailabilityFields, setBookingAvailabilityFields] = useState(
+      selectedProductByVendor?.attributes?.filter(
+         (attribute) =>
+            attribute?.attribute_values[isEdit]?.views?.vendor_editable_booking
+               ?.visibility
+      )
+   );
+
+   const [bookingAvailability, setBookingAvailability] = useState(
+      selectedProductByVendor?.details?.booking_availability ? true : false
+   );
+
+   console.log({ pricingDetailsFields, bookingAvailabilityFields });
+
+   const pricingDetailsFieldsChange = (
+      e,
+      attributeId,
+      value_id,
+      field_name
+   ) => {
+      const { value } = e.target;
+
+      // if field name is exclusive then user could type only 0 or 1
+      if (field_name.toLowerCase() === 'exclusive') {
+         if (value !== '0' && value !== '1' && value !== '') {
+            return;
+         }
+      }
+
+      setPricingDetailsFields((prevState) => {
+         return prevState.map((attribute) => {
+            if (attribute.id === attributeId) {
+               return {
+                  ...attribute,
+                  attribute_values: attribute.attribute_values.map(
+                     (attrValue) => ({
+                        ...attrValue,
+                        value:
+                           attrValue.id === value_id ? value : attrValue.value,
+                     })
+                  ),
+               };
             }
-            return fw;
-         })
-      );
+            return attribute;
+         });
+      });
    };
 
-   const deleteHandler = (file) => {
-      setDocument((cur) => cur.filter((fw) => fw.file !== file));
+   const bookingAvailabilityFieldsChange = (e, attributeId, value_id) => {
+      console.log({ value_id });
+      const { value } = e.target;
+      setBookingAvailabilityFields((prevState) => {
+         return prevState.map((attribute) => {
+            if (attribute.id === attributeId) {
+               return {
+                  ...attribute,
+                  attribute_values: attribute.attribute_values.map(
+                     (attrValue) => ({
+                        ...attrValue,
+                        value:
+                           attrValue.id === value_id ? value : attrValue.value,
+                     })
+                  ),
+               };
+            }
+            return attribute;
+         });
+      });
+   };
+
+   const [document, setDocument] = useState([]);
+   const [documents2, setDocuments2] = useState([]);
+
+   // console.log({ documents2, document });
+
+   const handleBookingAvailabilityChange = (event) => {
+      setBookingAvailability(event.target.checked);
+   };
+
+   // console.log(setFetchProducts, 'haha');
+
+   const onSubmit = async (data) => {
+      setSubmittingAttribute(true);
+      console.log({
+         data,
+         product_documents: formatDocumentsWithNameAndUrl(document),
+         booking_details_document: formatDocumentsWithNameAndUrl(documents2),
+      });
+      try {
+         setSubmittingAttribute(true);
+
+         let res;
+         console.log(0);
+
+         if (isEdit === 0) {
+            // add the attributes
+            res = await axiAuth.post('api/vendor/products/attributes', {
+               product_id: selectedProductByVendor.product_id,
+               booking_availability: bookingAvailability,
+               attribute_values: [
+                  ...formatAttribute(pricingDetailsFields, isEdit),
+                  ...formatAttribute(bookingAvailabilityFields, isEdit),
+               ],
+            });
+         } else {
+            // update attribute
+            res = await axiAuth.put(`api/vendor/products/attributes/update`, {
+               product_id: selectedProductByVendor.product_id,
+               booking_availability: bookingAvailability,
+               attribute_values: [
+                  ...formatAttribute(pricingDetailsFields, isEdit),
+                  ...formatAttribute(bookingAvailabilityFields, isEdit),
+               ],
+            });
+         }
+
+         const payload = {
+            ...data,
+            advance_payment_policy: data?.advance_payment_policy || '-', // sending the default data if no data is provided
+            advance_payment: data?.advance_payment || 0,
+         };
+
+         const res2 = await axiAuth.put(
+            `api/vendor/products/${selectedProductByVendor.product_id}`,
+            {
+               ...payload,
+               product_documents: [
+                  ...formatDocumentsWithNameAndUrl(document),
+                  // ...selectedProductByVendor?.my_documents
+                  //    ?.filter((doc) => doc.doc_type === 'product')
+                  //    .map((doc) => ({
+                  //       name: doc.doc_name,
+                  //       url: doc.doc_url,
+                  //    })),
+               ],
+               booking_details_document: [
+                  ...formatDocumentsWithNameAndUrl(documents2),
+                  ...selectedProductByVendor?.my_documents
+                     ?.filter((doc) => doc.doc_type === 'booking_details')
+                     .map((doc) => ({
+                        name: doc.doc_name,
+                        url: doc.doc_url,
+                     })),
+               ],
+            }
+         );
+
+         if (res2.status === 200 && res.status === 200) {
+            setSubmittingAttribute(false);
+
+            if (isEdit === 0) {
+               toast.success('Product Added Successfully!');
+            } else {
+               toast.success('Product Updated Successfully!');
+            }
+
+            //  getting back to product page
+            showProductPageHandler();
+            dispatch(setEditMode(false));
+
+            // refetching the products
+            setFetchProducts((prev) => !prev);
+
+            // dispatch(addSelectedProductByVendor(null));
+         } else {
+            toast.error('Something went wrong');
+         }
+      } catch (error) {
+         setSubmittingAttribute(false);
+         console.log({ error });
+         toast.error(error.response.data.message);
+      }
+   };
+
+   console.log(errors);
+   console.log(editMode);
+
+   const backHandler = () => {
+      if (editMode) {
+         showProductPageHandler();
+         dispatch(setEditMode(false));
+         dispatch(addSelectedProductByVendor(null));
+         return;
+      }
+      nextHandler(2);
    };
 
    return (
-      <div>
-         <Container maxWidth='lg'>
-            <Button startIcon={<ArrowBackIcon />} sx={{color: '#000000', mt: 2}} onClick={() => nextHandler(3)}>Back</Button>
-            <Box
-               sx={{ maxWidth: '1000px', width: '100%', margin: '1rem auto' }}
+      <Wrapper>
+         <Container
+            maxWidth='lg'
+            component='form'
+            disableGutters={window.innerWidth < 600 ? true : false}
+            onSubmit={handleSubmit(onSubmit)}
+            sx={{
+               position: 'relative',
+            }}
+         >
+            {!selectedProductByVendor?.active && (
+               <Box
+                  sx={{
+                     height: '100%',
+                     width: '100%',
+                     top: 0,
+                     left: 0,
+                     display: 'flex',
+                     justifyContent: 'center',
+                     alignItems: 'center',
+                     position: 'absolute',
+                     zIndex: 100,
+                     background: 'rgba(255,255,255,0.7)',
+                     borderRadius: '0.5rem',
+                  }}
+               >
+                  <Box
+                     sx={{
+                        background: '#E21F30',
+                        p: 2,
+                        borderRadius: '8px',
+                        boxShadow: '0px 4px 24px  0 rgba(0, 69, 184, 0.15)',
+                        backdropFilter: 'blur(10px)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: '100%',
+                        maxWidth: '700px',
+                     }}
+                  >
+                     <Typography
+                        sx={{
+                           fontSize: '1.5rem',
+                           color: '#fff',
+                           fontWeight: 'bold',
+                           textAlign: 'center',
+                        }}
+                     >
+                        This product is not available for addition in portfolio!
+                     </Typography>
+                  </Box>
+               </Box>
+            )}
+
+            <Button
+               startIcon={<ArrowBackIcon />}
+               sx={{ color: '#000000', mt: 2, display: ['none', 'block'], zIndex: 150 }}
+               onClick={backHandler}
             >
-               <SingleProduct />
-            </Box>
-
-            <CustomAccordion title='Pricing Details' sx={{background: 'transparent'}}>
-               <Grid container spacing={3}>
-                  <Grid item sm={12} md={6}>
-                     <SolrufTextField
-                        label='Price'
-                        iconText={<Typography variant='body2'>INR</Typography>}
-                     />
-                  </Grid>
-                  <Grid item sm={12} md={6}>
-                     <SolrufTextField
-                        label='Price Per Watt'
-                        iconText={<Typography variant='body2'>INR</Typography>}
-                     />
-                  </Grid>
-               </Grid>
-            </CustomAccordion>
-            {/* ============ document uploading ============ */}
-            <CustomAccordion title='Pricing Details' sx={{background: 'transparent'}}>
-               <Grid container spacing={3}>
-                  <Grid item sm={12} md={6}>
-                     <SolrufTextField
-                        label='Price'
-                        iconText={
-                           <Typography variant='body2'>
-                              Warranty Years
-                           </Typography>
-                        }
-                     />
-                     <CustomTextArea placeholder='Warranty description' />
-                  </Grid>
-                  <Grid item sm={12} md={6}>
-                     <Box>
-                        {document.length === 0 && (
-                           <FileInputBox {...getRootProps()}>
-                              <input {...getInputProps()} />
-
-                              <DottedBox>
-                                 <Typography variant='body2' textAlign='center'>
-                                    Add Document (Upto 5 mb)
-                                 </Typography>
-                                 <img
-                                    src='https://i.ibb.co/M23FX1T/upload-Plus.png'
-                                    alt=''
-                                    style={{
-                                       width: '100',
-                                       height: '100',
-                                    }}
-                                 />
-                              </DottedBox>
-                           </FileInputBox>
-                        )}
-
-                        {/* ============ */}
-
-                        <Box
-                           sx={{
-                              background: '',
-                              p: 2,
-                              maxHeight: '300px',
-                              overflowY: 'auto',
-                              width: 300,
-                              mx: 'auto',
-                           }}
-                        >
-                           {document.map((fileWrapper, i) => {
-                              return fileWrapper?.errors?.length ? (
-                                 <UploadError
-                                    key={i}
-                                    file={fileWrapper.file}
-                                    errors={fileWrapper.errors}
-                                    onDelete={deleteHandler}
-                                 />
-                              ) : (
-                                 <SingleFIleUploadWithProgress
-                                    key={i}
-                                    file={fileWrapper.file}
-                                    onDelete={deleteHandler}
-                                    onFileUpload={onFileUpload}
-                                 />
-                              );
-                           })}
-                        </Box>
-                     </Box>
-                  </Grid>
-               </Grid>
-            </CustomAccordion>
-
+               Back
+            </Button>
             <Box
                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  my: 5,
+                  maxWidth: '1000px',
+                  width: '100%',
+                  margin: '1rem auto',
+                  display: ['none', 'block'],
                }}
             >
-               <Typography variant='h4' sx={{ mr: 3 }}>
-                  Booking Availability
-               </Typography>
-               {/* <Switch inputProps={ {'aria-label': 'Switch demo'} } defaultChecked color="warning" /> */}
-               {/* <CustomSwitch /> */}
-               <img
-                  src={
-                     availability
-                        ? 'https://i.ibb.co/9by4N3V/Frame-188.png'
-                        : 'https://i.ibb.co/ydvSQmN/Frame-187.png'
-                  }
-                  alt='availability switch'
-                  onClick={() => setAvailability(!availability)}
-                  style={{ cursor: 'pointer' }}
+               <HorizontalProductCard
+                  product={selectedProductByVendor}
+                  sx={{ mx: 'auto', mb: 2 }}
+                  type='procurement'
                />
             </Box>
 
-            {availability && (
+            <CustomAccordionForDrawer
+               defaultExpanded={true}
+               title='Pricing Details'
+               sx={{
+                  background: 'transparent',
+                  boxShadow: '4px 0px 10px 0px rgba(0, 0, 0, 0.1)',
+               }}
+            >
                <Grid container spacing={3}>
-                  <Grid item sm={12} md={6}>
-                     <SolrufTextField
-                        label='Booking Price'
-                        iconText={<Typography variant='body2'>INR</Typography>}
-                     />
-                  </Grid>
-                  <Grid item sm={12} md={6}>
-                     <SolrufTextField
-                        label='Booking Price Per Watt'
-                        iconText={<Typography variant='body2'>INR</Typography>}
-                     />
-                  </Grid>
-                  <Grid item sm={12} md={6}>
-                     <SolrufTextField
-                        label='Booking Period'
-                        iconText={
-                           <Typography variant='body2'>Days/Months</Typography>
-                        }
-                     />
-                  </Grid>
-                  <Grid item sm={12} md={6}>
-                     <SolrufTextField
-                        label='Advance Payment'
-                        iconText={<Typography variant='body2'>INR</Typography>}
-                     />
-                  </Grid>
+                  {pricingDetailsFields.length > 0 &&
+                     pricingDetailsFields.map((details) => (
+                        <Grid
+                           item
+                           md={12}
+                           lg={6}
+                           key={details?.id}
+                           sx={{
+                              '@media (max-width: 600px)': {
+                                 width: '100%',
+                              },
+                           }}
+                        >
+                           <SolrufTextField
+                              value={details?.attribute_values[isEdit]?.value}
+                              label={details?.name}
+                              iconText={
+                                 <Typography variant='body2'>
+                                    {
+                                       details.attribute_values[isEdit]
+                                          ?.value_unit
+                                    }
+                                 </Typography>
+                              }
+                              onChange={(e) =>
+                                 pricingDetailsFieldsChange(
+                                    e,
+                                    details.id,
+                                    details.attribute_values[isEdit].id,
+                                    details?.name
+                                 )
+                              }
+                              required
+                              helperText={
+                                 details?.name?.toLowerCase() === 'exclusive'
+                                    ? 'Type 1 for true and 0 for false'
+                                    : ''
+                              }
+                              sx={{
+                                 '& .MuiFormHelperText-root': {
+                                    color: 'rgba(0, 0, 0, 0.6)',
+                                 },
+                              }}
+                           />
+                        </Grid>
+                     ))}
 
-                  <Grid item sm={12} md={6}>
-                     <CustomTextArea
-                        placeholder='Advance Payment Policy Description'
-                        style={{ marginTop: '0' }}
-                        rows='7'
-                     />
-                  </Grid>
-                  <Grid item sm={12} md={6}>
-                     <FileUploadWithProgress
-                        document={bookingDocument}
-                        setDocument={setBookingDocument}
+                  <Grid
+                     item
+                     md={12}
+                     lg={6}
+                     sx={{
+                        '@media (max-width: 600px)': {
+                           width: '100%',
+                        },
+                     }}
+                  >
+                     <SolrufTextField
+                        label='Warranty years'
+                        size='small'
+                        {...register('warranty_years', {
+                           required: 'Warranty years is required',
+                        })}
+                        error={errors.warranty_years}
+                        helperText={errors.warranty_years?.message}
                      />
                   </Grid>
                </Grid>
-            )}
-            <ButtonNext
-               endIcon={<ArrowForwardIcon />}
+               <Box sx={{ mt: 2 }}>
+                  <Box
+                     sx={{
+                        '@media (max-width: 600px)': {
+                           mb: 2,
+                        },
+                     }}
+                  >
+                     <Typography
+                        variant='body2'
+                        sx={{ fontSize: 12, mb: -0.5, ml: 1.5 }}
+                     >
+                        Pricing Details
+                     </Typography>
+                     <CustomTextArea
+                        placeholder='Write pricing details...'
+                        rows={3}
+                        style={{
+                           marginTop: '10px',
+                           flex: 1,
+                           width: '100%',
+                        }}
+                        {...register('warranty_description', {
+                           required: 'Pricing details is required',
+                        })}
+                     />
+
+                     {errors.warranty_description?.message && (
+                        <CustomErrorText
+                           sx={{ mt: -3.5 }}
+                           errorMessage={errors.warranty_description?.message}
+                        />
+                     )}
+                  </Box>
+
+                  <Box sx={{ flex: 1 }}>
+                     <UploadDocumentsWithName
+                        title='Add Warranty Documents'
+                        sx={{ mt: [-3, 0, -3, 1], minWidth: 'auto' }}
+                        documents={document}
+                        setDocuments={setDocument}
+                        prevDocuments={selectedProductByVendor?.my_documents?.filter(
+                           (doc) => doc.doc_type === 'vendor_warranty'
+                        )}
+                     />
+                  </Box>
+               </Box>
+            </CustomAccordionForDrawer>
+
+            {/* ================== Booking availability section ================== */}
+
+            <BookingAvailabilityBox>
+               <Flex sx={{ alignItems: 'center' }}>
+                  <Typography
+                     variant='h6'
+                     sx={{
+                        fontWeight: 600,
+                        fontSize: '1.25rem',
+                        mr: 2.5,
+                        ml: 1.5,
+                     }}
+                  >
+                     Booking Availability
+                  </Typography>
+                  <SolrufSwitch
+                     sx={{ mt: 0.8, py: 1 }}
+                     checked={bookingAvailability}
+                     onChange={handleBookingAvailabilityChange}
+                  />
+               </Flex>
+               {bookingAvailability && (
+                  <Box sx={{ px: 2, pb: 2 }}>
+                     <Grid container spacing={3}>
+                        {bookingAvailabilityFields.length > 0 &&
+                           bookingAvailabilityFields.map((details) => (
+                              <Grid
+                                 item
+                                 md={12}
+                                 lg={6}
+                                 key={details.id}
+                                 sx={{
+                                    '@media (max-width: 600px)': {
+                                       width: '100%',
+                                    },
+                                 }}
+                              >
+                                 <SolrufTextField
+                                    label={details.name}
+                                    iconText={
+                                       <Typography variant='body2'>
+                                          {
+                                             details.attribute_values[isEdit]
+                                                ?.value_unit
+                                          }
+                                       </Typography>
+                                    }
+                                    value={
+                                       details.attribute_values[isEdit]?.value
+                                    }
+                                    onChange={(e) =>
+                                       bookingAvailabilityFieldsChange(
+                                          e,
+                                          details.id,
+                                          details.attribute_values[isEdit].id
+                                       )
+                                    }
+                                    //  helperText={details.name + ' is required'}
+                                    required={true}
+                                 />
+                              </Grid>
+                           ))}
+
+                        <Grid
+                           item
+                           md={12}
+                           lg={6}
+                           sx={{
+                              '@media (max-width: 600px)': {
+                                 width: '100%',
+                              },
+                           }}
+                        >
+                           <SolrufTextField
+                              label='Advance payment'
+                              size='small'
+                              {...register('advance_payment', {
+                                 required: 'Advance payment is required',
+                              })}
+                              error={errors?.advance_payment}
+                              helperText={errors?.advance_payment?.message}
+                           />
+                        </Grid>
+                     </Grid>
+
+                     <Box sx={{ mt: 2 }}>
+                        <Box>
+                           <Typography
+                              variant='body2'
+                              sx={{ fontSize: 12, mb: -0.5, ml: 1.5 }}
+                           >
+                              Advance Payment Policy Description
+                           </Typography>
+                           <CustomTextArea
+                              rows={3}
+                              placeholder='Write advance payment policy...'
+                              defaultValue=' '
+                              style={{
+                                 marginTop: '10px',
+                                 flex: 1,
+                                 width: '100%',
+                              }}
+                              {...register('advance_payment_policy', {
+                                 required: 'Advance payment policy is required',
+                              })}
+                           />
+
+                           {errors.advance_payment_policy?.message && (
+                              <CustomErrorText
+                                 sx={{ mt: -3.5 }}
+                                 errorMessage={
+                                    errors.advance_payment_policy?.message
+                                 }
+                              />
+                           )}
+                        </Box>
+
+                        <Box
+                           sx={{
+                              flex: 1,
+                              mt: 4,
+                              mb: {
+                                 xs: 5,
+                                 sm: 0,
+                              },
+                           }}
+                        >
+                           <UploadDocumentsWithName
+                              title='Add booking documents'
+                              sx={{
+                                 mt: [-3, 0, -3, 0.5],
+                                 minWidth: 'auto',
+                              }}
+                              documents={documents2}
+                              setDocuments={setDocuments2}
+                              prevDocuments={selectedProductByVendor?.my_documents?.filter(
+                                 (doc) => doc.doc_type === 'booking_details'
+                              )}
+                           />
+                        </Box>
+                     </Box>
+                  </Box>
+               )}
+            </BookingAvailabilityBox>
+
+            <PrimaryButton
+               sx={{ px: 8, py: 1, mb: 2, mt: 5, display: ['none', 'flex'] }}
+               type='submit'
+               disabled={submittingAttribute}
+            >
+               Submit
+            </PrimaryButton>
+
+            <PrimaryButton
                sx={{
-                  color: '#4D4D4D',
-                  mx: 'auto',
-                  display: 'flex',
-                  minWidth: 250,
-                  maxWidth: 250,
-                  my: 5,
-                  '&:hover': {
-                     background: '#f7f7f7',
+                  py: 1,
+                  width: '100%',
+                  position: 'fixed',
+                  bottom: '0',
+                  display: {
+                     xs: 'flex',
+                     sm: 'none',
                   },
                }}
-               onClick={() => nextHandler(2)}
+               type='submit'
+               disabled={submittingAttribute}
             >
-               Next
-            </ButtonNext>
+               Submit
+            </PrimaryButton>
          </Container>
-      </div>
+      </Wrapper>
    );
 };
 

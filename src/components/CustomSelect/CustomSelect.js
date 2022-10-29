@@ -1,4 +1,4 @@
-import { FormControl, InputLabel, Select, TextField } from '@mui/material';
+import { FormControl, InputLabel, Select } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 
@@ -10,6 +10,7 @@ const CustomSelect = ({
    label,
    sx,
    defaultValue,
+   ...rest
 }) => {
    return (
       <Box sx={{ minWidth: 120, ...sx }}>
@@ -22,6 +23,7 @@ const CustomSelect = ({
          >
             <InputLabel id='demo-simple-select-label'>{label}</InputLabel>
             <Select
+            {...rest}
                name={name}
                labelId='demo-simple-select-label'
                value={value}

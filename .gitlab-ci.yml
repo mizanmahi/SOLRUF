@@ -1,0 +1,56 @@
+cache:
+  paths:
+    - node_modules
+
+stages:
+  - build
+  - deploy
+
+.npm_build:
+  image: node:12.18.1
+  script:
+    - npm install --omit=dev
+    - npm run build
+  artifacts:
+    paths:
+      - ./build
+
+npm_prod:
+  extends: .npm_build
+  stage: build
+  only:
+    - master
+
+npm_dev:
+  extends: .npm_build
+  stage: build
+  only:
+    - development
+
+.deploy_aws:
+  image: python:latest
+  script:
+    - pip install awscli
+    - aws s3 sync ./build/ s3://www.solruf.com
+
+.deploy_aws_dev:
+  image: python:latest
+  script:
+    - pip install awscli
+    - aws s3 sync ./build/ s3://dev.solruf.com
+
+deploy_prod:
+  extends: .deploy_aws
+  stage: deploy
+  dependencies:
+    - npm_prod
+  only:
+    - master
+
+deploy_dev:
+  extends: .deploy_aws_dev
+  stage: deploy
+  dependencies:
+    - npm_dev
+  only:
+    - development

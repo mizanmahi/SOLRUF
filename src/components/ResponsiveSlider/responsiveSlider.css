@@ -6,7 +6,7 @@
 }
 
 .my_swiper .swiper-slide {
-   height: 200px;
+   height: 250px !important;
    padding-bottom: 35px;
    padding-left: 20px;
    padding-right: 20px;

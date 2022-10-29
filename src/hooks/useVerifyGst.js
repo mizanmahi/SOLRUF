@@ -11,7 +11,7 @@ const useVerifyGst = () => {
       setGstVerifying(true);
       // return;
       try {
-         const response = await axiAuth.post(`api/vendor/verify-gst`, {
+         const response = await axiAuth.post(`api/verify-gst`, {
             gstin: gst,
          });
 
@@ -29,11 +29,12 @@ const useVerifyGst = () => {
    };
 
    return {
+      verifyGst,
+      gstVerified,
+      setGstVerified,
+      gstVerifying,
       gstError,
       setGstError,
-      gstVerified,
-      verifyGst,
-      gstVerifying,
    };
 };
 

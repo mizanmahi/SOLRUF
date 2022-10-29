@@ -34,8 +34,14 @@ const CloseIconBox = styled(Box)(({ theme }) => ({
    borderRadius: '8px',
    padding: '1px',
    cursor: 'pointer',
+   height:'25px',
+   width:'25px',
+   display:'flex',
+   justifyContent:'center',
+   alignItems:'center',
    '&:hover': {
       background: '#ddd',
+      cursor: 'pointer',
    },
 }));
 

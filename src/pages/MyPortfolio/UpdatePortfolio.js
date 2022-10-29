@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+   Avatar,
    Button,
-   Chip,
    Container,
    Grid,
    MenuItem,
@@ -9,7 +9,7 @@ import {
    useMediaQuery,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Box, fontFamily } from '@mui/system';
+import { Box } from '@mui/system';
 import Select from 'react-select';
 import { XIcon, PhotographIcon, CheckIcon } from '@heroicons/react/outline';
 import { PlusIcon, MinusIcon } from '@heroicons/react/solid';
@@ -23,21 +23,31 @@ import { useRef } from 'react';
 import UploadError from './UploadError';
 import YellowButton from '../../components/YellowButton/YellowButton';
 import { useForm } from 'react-hook-form';
-import { axiAuth } from '../../utils/axiosInstance';
+import { axiAuth, nodeURL } from '../../utils/axiosInstance';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import CustomAccordion from '../../components/CustomAccordion/CustomAccordion';
 import QuantityController from '../../components/QuantityController/QuantityController';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useDispatch } from 'react-redux';
-import { setCreatePortfolio } from '../../redux/slices/portfolio.slice';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+   setCreatePortfolio,
+   setExtra,
+} from '../../redux/slices/portfolio.slice';
 import { useDebounce } from 'use-debounce';
-import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
 import useVerifyGst from '../../hooks/useVerifyGst';
 import DoneIcon from '@mui/icons-material/Done';
 import Loader from '../../components/Loader/Loader';
 import CustomErrorText from '../../components/CustomErrorText/CustomErrorText';
+import PrimaryButton from '../../components/Custom/PrimaryButton/PrimaryButton';
+import axios from 'axios';
+import { ExtraBox, ServiceChip } from './updatePortfolio.style';
+// import { FormWrapper, ExtraBox, ServiceChip } from './updatePortfolio.style';
+import BackdropLoader from '../../components/Custom/BackdropLoader/BackdropLoader';
+import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
+import add_logo_svg from '../../media/Svg/add_logo.svg';
+import SolrufSwitch from '../../components/Custom/SolrufSwitch/SolrufSwitch';
 
 const PageTitleBox = styled(Box)(({ theme }) => {
    return {
@@ -193,7 +203,7 @@ const VerifyButton = styled(Button)(({ theme }) => ({
    boxShadow: 'none',
    '&:hover': {
       background: theme.palette.primary.main,
-      boxShadow: 0.5,
+      boxShadow: '0 4px 10px 0 rgba(0,0,0,0.14)',
    },
 }));
 
@@ -231,37 +241,27 @@ const options = [
    { value: 'madhya pradesh', label: 'madhya pradesh' },
 ];
 
-const statesOfIndia = [
-   { state: 'Maharashtra', label: 'Maharashtra' },
-   { state: 'Delhi', label: 'Delhi' },
-   { state: 'West Bengal', label: 'West Bengal' },
-   { state: 'Chennai', label: 'Chennai' },
-   { state: 'Madhya Pradesh', label: 'Madhya Pradesh' },
-];
-
-// const services = [
-//    { value: 'service#1', label: 'Service#1' },
-//    { value: 'service#2', label: 'Service#2' },
-//    { value: 'service#3', label: 'Service#3' },
-//    { value: 'service#4', label: 'Service#4' },
-// ];
-
-const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
+const UpdatePortfolio = ({
+   portfolioData,
+   portfolioOnUpdateHandler,
+   mobileView,
+   showEditModal,
+   setShowEditModal,
+}) => {
    const {
-      city,
       logo: logo_url,
       gst,
-      pincode: pincodetoUpdate,
       state,
       total_projects,
       services: servicesToUpdate,
       certificates,
    } = portfolioData;
 
-   console.log(portfolioData);
+   console.log({ portfolioData });
+
+   const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
    const [prevCertificate, setPrevCertificate] = useState(certificates);
-
    const [services, setServices] = useState([]);
 
    // fetching services from backend
@@ -269,7 +269,6 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
       axiAuth
          .get('api/services')
          .then(({ data }) => {
-            console.log(data);
             setServices(
                data.services.map((service) => ({
                   value: service.service_id,
@@ -290,8 +289,7 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
       ...servicesToUpdate.map((service) => service),
    ]);
 
-   console.log(selectedService);
-
+   const [portfolioSubmitting, setPortfolioSubmitting] = useState(false);
    const [file, setFile] = useState(null);
    const [logo, setLogo] = useState(logo_url);
    const [fileSizeError, setFileSizeError] = useState('');
@@ -301,6 +299,8 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
 
    const [previewImage, setPreviewImage] = useState(logo_url);
    const [projectNumber, setProjectNumber] = useState(total_projects);
+
+   const statesOfIndia = useSelector((state) => state.utils.statesOfIndia);
 
    const handleChange = (selectedCountry) => {
       setSelectedCountry(selectedCountry);
@@ -326,11 +326,11 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
       setPreviewImage('');
       const file = e.target.files[0];
       setFile(file);
-
+      console.log(file);
       setFileSizeError('');
       setFIleUploadDone(false);
 
-      if (file?.size > 5242880) {
+      if (file?.size > 2000000) {
          setFileSizeError('File size should be less than 5MB');
          return;
       }
@@ -342,10 +342,8 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
          const response = await axiAuth.post('api/upload', data, {
             onUploadProgress: (progressEvent) => {
                const { loaded, total } = progressEvent;
-               console.log(total);
                const percentage = Math.floor((loaded * 100) / total);
                setPercentage(percentage);
-               console.log({ loaded, total, percentage });
                if (percentage === 100) {
                   console.log(file);
                   const reader = new FileReader();
@@ -372,10 +370,18 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
       setFile(null);
    };
 
+   const [solarSubsidyOn, setSolarSubsidyOn] = useState(portfolioData.solar_subsidy);
+
+   const handleSolarSubsidyChange = () => {
+      setSolarSubsidyOn(!solarSubsidyOn);
+   };
+
    const [certificateFiles, setCertificateFiles] = useState([]);
    const [certificateNameError, setCertificateNameError] = useState('');
 
    const nameRef = useRef(null);
+
+   console.log(certificateFiles);
 
    const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
       if (nameRef.current.value.trim().length === 0) {
@@ -388,7 +394,7 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
          file.givenName = nameRef.current.value;
          return {
             file,
-            error: [],
+            errors: [],
          };
       });
       setCertificateFiles((cur) => [
@@ -424,7 +430,7 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
       reset,
       watch,
       setValue,
-      formState: { errors },
+      formState: { errors, dirtyFields },
    } = useForm({
       defaultValues: portfolioData,
    });
@@ -434,31 +440,32 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
    const [serviceError, setServiceError] = useState('');
 
    const submitHandler = async (profileData) => {
-      const certificates = certificateFiles.map(
-         (certificate) => certificate.url
-      );
+      const certificates = certificateFiles
+         .filter((file) => file?.errors?.length === 0)
+         .map((certificate) => certificate.url);
 
-      const file_names = certificateFiles.map(
-         (certificate) => certificate.file.givenName
-      );
+      const file_names = certificateFiles
+         .filter((file) => file?.errors?.length === 0)
+         .map((certificate) => certificate.file.givenName);
+
       const services = selectedService;
-      const state = selectedCountry.value;
       const total_projects = +projectNumber;
 
       const formData = {
          ...profileData,
-         state,
+         state: indiaState,
          services,
          certificates,
          file_names,
          total_projects,
          logo,
-         city,
          pincode: pinCode,
+         solar_subsidy: solarSubsidyOn,
       };
 
       if (!gstVerified) {
          setGstError('Please verify your GST');
+         toast.warn('Please verify your GST');
          return;
       }
 
@@ -474,9 +481,15 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
       }
 
       try {
-         const { data } = await axiAuth.post('api/vendor/profile', formData);
-         if (data.message === 'Updated successfully') {
-            toast.success(data.message);
+         setPortfolioSubmitting(true);
+         const { data } = await axios.post(
+            `${nodeURL}add_watermark_on_portfolio_update`,
+            { ...formData, token: localStorage.getItem('token') }
+         );
+
+         if (data === 'Watermark successfully added!!') {
+            toast.success('Portfolio updated successfully');
+            setPortfolioSubmitting(false);
             reset();
             setCertificateFiles([]);
             setSelectedCountry('State');
@@ -485,49 +498,66 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
             setPreviewImage('');
             setFile(null);
             dispatch(setCreatePortfolio(false));
-            portfolioOnUpdateHandler();
+            dispatch(
+               setExtra(
+                  solarSubsidyOn
+                     ? {
+                          cta: profileData.extra_cta,
+                          title: profileData.extra_title,
+                       }
+                     : null
+               )
+            );
+            if (showEditModal) {
+               setShowEditModal(false);
+            } else {
+               portfolioOnUpdateHandler();
+            }
          }
       } catch (error) {
-         console.log('error occurred');
-         console.log(error.message);
+         setPortfolioSubmitting(false);
+         console.log('error occurred while updating portfolio', error);
       }
    };
    console.log('errors', errors);
 
-   const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-
    const [watchGst, pinCode] = watch(['gst', 'pincode']);
+
+   const {
+      verifyGst,
+      gstVerifying,
+      gstVerified,
+      setGstVerified,
+      gstError,
+      setGstError,
+   } = useVerifyGst();
+
    const [debouncedPinCode] = useDebounce(pinCode, 1000);
-   // const [district, setDistrict] = useState(city);
    const [indiaState, setIndiaState] = useState(state);
 
    useEffect(() => {
+      if (watchGst && dirtyFields.gst) {
+         setGstVerified(false);
+         setGstError('Click on verify to verify your GST');
+      } else {
+         setGstVerified(true);
+         setGstError('');
+      }
+   }, [watchGst, setGstError, setGstVerified, dirtyFields.gst]);
+
+   useEffect(() => {
       if (debouncedPinCode.length !== 6) return;
-      const options = {
-         method: 'POST',
-         url: 'https://pincode.p.rapidapi.com/',
-         headers: {
-            'content-type': 'application/json',
-            'x-rapidapi-host': 'pincode.p.rapidapi.com',
-            'x-rapidapi-key':
-               '53d3e51015msh53a0f06a2fd9375p1c3484jsnd53c4f58cf42',
-         },
-         data: { searchBy: 'pincode', value: debouncedPinCode },
-      };
-      axios
-         .request(options)
+      axiAuth
+         .get(`api/pin-code/search?pin_code=${debouncedPinCode}`)
          .then(({ data }) => {
             console.log(data);
-            setIndiaState(data[0].circle);
-            console.log(data[0].circle);
-
-            setValue('city', data[0].district);
-            console.log(data);
+            setIndiaState(data.pin_code.state);
+            setValue('city', data.pin_code.district);
          })
-         .catch((error) => {
-            console.log({ error });
+         .catch((err) => {
+            console.log(err);
          });
-   }, [debouncedPinCode]);
+   }, [debouncedPinCode, setValue]);
 
    const chipDeleteHandler = (chip) => {
       setSelectedServices(
@@ -535,37 +565,57 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
       );
    };
 
+   useEffect(() => {
+      if (!solarSubsidyOn) dispatch(setExtra(null));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [solarSubsidyOn]);
+
    const handleStateChange = (e) => {
       console.log(e.target.value);
       setIndiaState(e.target.value);
    };
 
-   const onCertificateDelete = async (id) => {
+   const [certificateDeleteId, setCertificateDeleteId] = useState(null);
+
+   const [deleteCertificateConfirm, setDeleteCertificateConfirm] = useState({
+      role: 'Portfolio',
+      isOpen: false,
+      title: 'Delete Certificate',
+      message: 'Certificate will be deleted permanently',
+      cacheRole: 'Vendor',
+   });
+
+   const onCertificateDelete = async () => {
+      if (!certificateDeleteId) return;
       const { data } = await axiAuth.delete(
          'api/vendor/projects/certificate/delete',
          {
             data: {
-               certificate_id: id,
+               certificate_id: certificateDeleteId,
             },
          }
       );
-      console.log(id);
+      console.log(certificateDeleteId);
       if (data.message === 'Certificate has been deleted') {
-         alert(data.message);
          setPrevCertificate((prevCertificates) =>
             prevCertificates.filter(
-               (prevCertificate) => prevCertificate.id !== id
+               (prevCertificate) => prevCertificate.id !== certificateDeleteId
             )
          );
+         setDeleteCertificateConfirm({
+            ...deleteCertificateConfirm,
+            isOpen: false,
+         });
       }
    };
 
-   console.log(prevCertificate);
-
-   // ** gst verification code
-
-   const { verifyGst, gstVerifying, gstVerified, gstError, setGstError } =
-      useVerifyGst();
+   if (portfolioSubmitting) {
+      return (
+         <Box sx={{ mt: 3 }}>
+            <BackdropLoader />
+         </Box>
+      );
+   }
 
    return (
       <Box
@@ -573,12 +623,18 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
             bgcolor: '#f3f3f3',
             px: [0],
             pb: 1,
-            borderRadius: '15px',
+            borderRadius: mobileView ? '0px' : '15px',
             overflow: 'hidden',
          }}
       >
-         <ToastContainer />
-         <PageTitleBox>
+         <PageTitleBox
+            sx={{
+               display: {
+                  xs: 'none',
+                  sm: 'flex',
+               },
+            }}
+         >
             <Container maxWidth='xl'>
                <Grid container columnSpacing={3} sx={{ alignItems: 'center' }}>
                   <Grid item xs={12} md={5} sx={{ m: 0 }}>
@@ -592,7 +648,9 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                               cursor: 'pointer',
                               ml: '-5px',
                            }}
-                           onClick={portfolioOnUpdateHandler}
+                           onClick={() => {
+                              portfolioOnUpdateHandler();
+                           }}
                         />
                         <BackToPortfolioButton
                            sx={{ fontSize: '20px', color: '#000000' }}
@@ -600,18 +658,6 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                            Update Portfolio
                         </BackToPortfolioButton>
                      </Flex>
-                  </Grid>
-                  <Grid item xs={12} md={7}>
-                     <Box sx={{ maxWidth: '400px', marginLeft: 'auto' }}>
-                        {/* <Typography
-                           sx={{ textAlign: 'right', fontWeight: 600 }}
-                           gutterBottom
-                             
-                        >
-                           Consumer Sharable Link
-                        </Typography>
-                        <CopyText title='http://google.com/profile/456' /> */}
-                     </Box>
                   </Grid>
                </Grid>
             </Container>
@@ -655,18 +701,17 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                                        }`,
                                     }}
                                  >
-                                    <img
+                                    <Avatar
+                                       sx={{
+                                          width: '130px',
+                                          height: '130px',
+                                       }}
+                                       alt='logo'
                                        src={
                                           previewImage
                                              ? previewImage
-                                             : 'https://i.ibb.co/M23FX1T/upload-Plus.png'
+                                             : add_logo_svg
                                        }
-                                       alt=''
-                                       style={{
-                                          width: '150px',
-                                          height: '150px',
-                                          borderRadius: '50%',
-                                       }}
                                     />
                                  </DottedBox>
                               </UploadBox>
@@ -674,7 +719,7 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                                  <Box
                                     sx={{
                                        width: '100%',
-                                       maxWidth: '410px',
+                                       // maxWidth: '410px',
                                        // background: '#d0d7d9',
                                        p: 2,
                                        borderRadius: 2,
@@ -685,7 +730,7 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                                           display: 'flex',
                                           justifyContent: 'space-between',
                                           alignItems: 'center',
-                                          width: '98%',
+                                          // width: '98%',
                                        }}
                                     >
                                        <Box>
@@ -697,11 +742,16 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                                              component='a'
                                              sx={{ ml: 1 }}
                                           >
-                                             {file && file.name}
+                                             {file && file.name.length > 20 ? file.name.slice(0, 20) + '...' : file && file.name}
                                           </Typography>
                                        </Box>
                                        {fileUploadDone || previewImage ? (
-                                          <Box>
+                                          <Box
+                                             sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                             }}
+                                          >
                                              <CheckIcon
                                                 style={{
                                                    width: 30,
@@ -888,11 +938,11 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                                     message: 'Video is Required',
                                  },
                               })}
-                              error={errors.video_url}
+                              error={errors.video_url ? true : false}
                               helperText={
                                  errors.video_url
                                     ? errors.video_url.message
-                                    : ' '
+                                    : "Video shouldn't be age restricted!"
                               }
                            />
                         </Grid>
@@ -933,7 +983,7 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                                  minLength: {
                                     value: 6,
                                     message: 'Pin Code must be 6 digits',
-                                 }
+                                 },
                               })}
                               error={errors.pincode}
                               helperText={
@@ -943,6 +993,11 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                         </Grid>
                         <Grid item sm={12} md={4}>
                            <SolrufTextFieldGray
+                              sx={{
+                                 '& ul.MuiList-root.MuiMenu-list': {
+                                    height: '500px% !important',
+                                 },
+                              }}
                               defaultValue={state}
                               select
                               size='small'
@@ -950,8 +1005,8 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                               value={indiaState}
                               onChange={handleStateChange}
                            >
-                              {statesOfIndia.map(({ state, label }) => (
-                                 <MenuItem value={state}>{label}</MenuItem>
+                              {statesOfIndia.map((state) => (
+                                 <MenuItem value={state}>{state}</MenuItem>
                               ))}
                            </SolrufTextFieldGray>
                         </Grid>
@@ -1164,27 +1219,12 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                            {`  `}
                         </Typography>
                      )}
-                     <Box sx={{ mt: 2 }}>
+                     <Box sx={{ mt: 2, mb: 1 }}>
                         {selectedService.map((item, index) => {
                            return (
-                              <Chip
+                              <ServiceChip
                                  label={item}
                                  key={index}
-                                 sx={{
-                                    ml: 1,
-                                    mb: 1,
-                                    borderRadius: 1,
-                                    bgcolor: '#2448FC',
-                                    fontWeight: 500,
-                                    fontSize: '1.1rem',
-                                    color: '#ffffff',
-                                    '& .MuiSvgIcon-root': {
-                                       color: '#ffffff',
-                                       '&:hover': {
-                                          color: 'red',
-                                       },
-                                    },
-                                 }}
                                  onDelete={() => chipDeleteHandler(item)}
                               />
                            );
@@ -1262,9 +1302,13 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                                        fontSize: '1.2rem',
                                        borderBottom: '0 !important',
                                     }}
-                                    onClick={() =>
-                                       onCertificateDelete(certificate.id)
-                                    }
+                                    onClick={() => {
+                                       setCertificateDeleteId(certificate.id);
+                                       setDeleteCertificateConfirm({
+                                          ...deleteCertificateConfirm,
+                                          isOpen: true,
+                                       });
+                                    }}
                                  >
                                     <CloseIcon />
                                  </Button>
@@ -1298,16 +1342,187 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                            );
                         })}
                      </CertificateBox>
-                     <YellowButton
-                        style={{ marginLeft: '85%', marginTop: '2rem' }}
+
+                     {/*  ========= solar subsidy section for desktop ========= */}
+                     <ExtraBox
+                        sx={{
+                           mt: 3,
+                           width: '100%',
+                           maxWidth: '300px',
+                        }}
+                     >
+                        <Flex sx={{ alignItems: 'center', py: 1 }}>
+                           <Typography
+                              sx={{
+                                 fontWeight: 600,
+                                 fontSize: '1rem',
+                                 color: '#000',
+                                 mr: 2.5,
+                                 ml: 2,
+                              }}
+                           >
+                              Are you an empanelled member? & do you provide
+                              subsidy?
+                           </Typography>
+                           <SolrufSwitch
+                              sx={{ py: 0.5 }}
+                              checked={solarSubsidyOn}
+                              onChange={handleSolarSubsidyChange}
+                           />
+                        </Flex>
+                     </ExtraBox>
+                     <PrimaryButton
+                        sx={{
+                           marginLeft: '85%',
+                           marginTop: '2rem',
+                           py: 1.5,
+                           px: 4,
+                        }}
+                        onClick={handleSubmit(submitHandler)}
                      >
                         Save
-                     </YellowButton>
+                     </PrimaryButton>
 
                      {/* =========================== mobile ui ===========================*/}
                   </>
                ) : (
                   <>
+                     <Grid item md={6}>
+                        {/* ====== Profile image uploader ====== */}
+                        <label htmlFor='uploadProfilePic'>
+                           <input
+                              type='file'
+                              id='uploadProfilePic'
+                              style={{ display: 'none' }}
+                              onChange={uploadHandler}
+                           />
+                           <UploadBox
+                              sx={{
+                                 minHeight: '180px',
+                                 width: '100%',
+                                 flexDirection: 'row',
+                                 alignItems: 'center',
+                                 justifyContent: 'center',
+                                 marginBottom: '1rem',
+                              }}
+                           >
+                              <Typography
+                                 sx={{
+                                    flex: 2,
+                                 }}
+                              >
+                                 Add Photo (Max size 5MB .jpg or .jpeg format)
+                              </Typography>
+                              <DottedBox
+                                 sx={{
+                                    border: `${
+                                       previewImage
+                                          ? ''
+                                          : '2px dashed rgba(0,0,0,0.6)'
+                                    }`,
+                                    height: '100px',
+                                    width: '100px',
+                                    flex: '1',
+                                 }}
+                              >
+                                 <Avatar
+                                    sx={{
+                                       width: '90px',
+                                       height: '90px',
+                                    }}
+                                    alt='logo'
+                                    src={
+                                       previewImage
+                                          ? previewImage
+                                          : add_logo_svg
+                                    }
+                                 />
+
+                                 {/* <img
+                                    src={previewImage}
+                                    alt='logo'
+                                    style={{ width: '100%' }}
+                                 /> */}
+                              </DottedBox>
+                           </UploadBox>
+                           {(file || previewImage) && (
+                              <Box
+                                 sx={{
+                                    width: '100%',
+
+                                    p: 2,
+                                    borderRadius: 2,
+                                 }}
+                              >
+                                 <Box
+                                    sx={{
+                                       display: 'flex',
+                                       justifyContent: 'space-between',
+                                       alignItems: 'center',
+                                    }}
+                                 >
+                                    <Box>
+                                       <PhotographIcon style={{ width: 20 }} />
+                                       <Typography
+                                          variant='body2'
+                                          component='a'
+                                          sx={{ ml: 1 }}
+                                       >
+                                          {file && file.name.slice(0, 25)}
+                                       </Typography>
+                                    </Box>
+                                    {fileUploadDone || previewImage ? (
+                                       <Box
+                                          sx={{
+                                             display: 'flex',
+                                             alignItems: 'center',
+                                          }}
+                                       >
+                                          <CheckIcon
+                                             style={{
+                                                width: 30,
+                                                color: 'green',
+                                             }}
+                                          />
+                                          <XIcon
+                                             style={{
+                                                width: 20,
+                                                cursor: 'pointer',
+                                             }}
+                                             onClick={(e) =>
+                                                profileCancelHandler(e)
+                                             }
+                                          />
+                                       </Box>
+                                    ) : (
+                                       <XIcon
+                                          style={{
+                                             width: 20,
+                                             cursor: 'pointer',
+                                          }}
+                                          onClick={profileCancelHandler}
+                                       />
+                                    )}
+                                 </Box>
+                                 {fileSizeError ? (
+                                    <>
+                                       <Typography sx={{ color: 'red' }}>
+                                          {fileSizeError} Try Another!
+                                       </Typography>
+                                    </>
+                                 ) : (
+                                    !fileUploadDone &&
+                                    !previewImage && (
+                                       <LinearProgressWithLabel
+                                          variant='determinate'
+                                          value={percentage}
+                                       />
+                                    )
+                                 )}
+                              </Box>
+                           )}
+                        </label>
+                     </Grid>
                      {/* ========= basic details for mobile ========= */}
                      <CustomAccordion
                         title='Basic Details'
@@ -1394,98 +1609,6 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                               })}
                               style={{ marginTop: '0rem' }}
                            ></Textarea>
-                           {/* ========= profile image uploader for mobile ========= */}
-                           <label
-                              htmlFor='uploadProfilePic'
-                              style={{ width: '100%' }}
-                           >
-                              <input
-                                 type='file'
-                                 id='uploadProfilePic'
-                                 style={{ display: 'none' }}
-                                 onChange={uploadHandler}
-                              />
-
-                              <img
-                                 src='https://i.ibb.co/C23nQcK/Frame-165.png'
-                                 alt='upload profile'
-                                 style={{
-                                    maxWidth: '100%',
-                                    margin: '0 auto',
-                                    display: 'block',
-                                 }}
-                              />
-                           </label>
-                           {file && (
-                              <Box
-                                 sx={{
-                                    width: '100%',
-                                    maxWidth: '410px',
-                                    background: '#ffffff',
-                                    p: 2,
-                                    borderRadius: 2,
-                                 }}
-                              >
-                                 <Box
-                                    sx={{
-                                       display: 'flex',
-                                       justifyContent: 'space-between',
-                                       alignItems: 'center',
-                                       width: '98%',
-                                    }}
-                                 >
-                                    <Box>
-                                       <PhotographIcon style={{ width: 20 }} />
-                                       <Typography
-                                          variant='body2'
-                                          component='a'
-                                          sx={{ ml: 1 }}
-                                       >
-                                          {file && file.name}
-                                       </Typography>
-                                    </Box>
-                                    {fileUploadDone ? (
-                                       <Box>
-                                          <CheckIcon
-                                             style={{
-                                                width: 30,
-                                                color: 'green',
-                                             }}
-                                          />
-                                          <XIcon
-                                             style={{
-                                                width: 20,
-                                                cursor: 'pointer',
-                                             }}
-                                             onClick={profileCancelHandler}
-                                          />
-                                       </Box>
-                                    ) : (
-                                       <XIcon
-                                          style={{
-                                             width: 20,
-                                             cursor: 'pointer',
-                                          }}
-                                          onClick={profileCancelHandler}
-                                       />
-                                    )}
-                                 </Box>
-                                 {fileSizeError ? (
-                                    <>
-                                       <Typography sx={{ color: 'red' }}>
-                                          {fileSizeError} Try Another!
-                                       </Typography>
-                                    </>
-                                 ) : (
-                                    !fileUploadDone && (
-                                       <LinearProgressWithLabel
-                                          variant='determinate'
-                                          value={percentage}
-                                       />
-                                    )
-                                 )}
-                              </Box>
-                           )}
                         </Grid>
                      </CustomAccordion>
                      {/* ========= company details for mobile ========= */}
@@ -1587,6 +1710,8 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                            </Box>
                         </Grid>
                      </CustomAccordion>
+
+                     {/* ========= certificates for mobile ========= */}
                      <CustomAccordion
                         title='Certification'
                         noPadding={true}
@@ -1643,6 +1768,37 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                                     {certificateNameError}
                                  </Typography>
                               )}
+                              {prevCertificate?.map((certificate) => (
+                                 <React.Fragment>
+                                    <Flex
+                                       sx={{ justifyContent: 'space-between' }}
+                                    >
+                                       <Typography>
+                                          {certificate.name}
+                                       </Typography>
+                                       <Button
+                                          color='secondary'
+                                          sx={{
+                                             fontWeight: 600,
+                                             fontSize: '1.2rem',
+                                             borderBottom: '0 !important',
+                                          }}
+                                          onClick={() => {
+                                             setCertificateDeleteId(
+                                                certificate.id
+                                             );
+                                             setDeleteCertificateConfirm({
+                                                ...deleteCertificateConfirm,
+                                                isOpen: true,
+                                             });
+                                          }}
+                                       >
+                                          <CloseIcon />
+                                       </Button>
+                                    </Flex>
+                                    <hr />
+                                 </React.Fragment>
+                              ))}
 
                               {/* ================================================ */}
 
@@ -1664,14 +1820,48 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                               })}
                            </CertificateBox>
                         </Grid>
+
+                        {/*  ========= solar subsidy section for mobile ========= */}
+                        <ExtraBox
+                           sx={{
+                              mt: 3,
+                              width: '100%',
+                              maxWidth: '300px',
+                           }}
+                        >
+                           <Flex sx={{ alignItems: 'center', py: 1 }}>
+                              <Typography
+                                 sx={{
+                                    fontWeight: 600,
+                                    fontSize: '1rem',
+                                    color: '#000',
+                                    mr: 2.5,
+                                    ml: 2,
+                                 }}
+                              >
+                                 Are you an empanelled member? & do you provide
+                                 subsidy?
+                              </Typography>
+                              <SolrufSwitch
+                                 sx={{ py: 0.5 }}
+                                 checked={solarSubsidyOn}
+                                 onChange={handleSolarSubsidyChange}
+                              />
+                           </Flex>
+                        </ExtraBox>
                      </CustomAccordion>
 
                      <YellowButton
                         style={{
-                           marginLeft: 'auto',
+                           // marginLeft: 'auto',
                            marginTop: '2rem',
                            width: '100%',
+                           position: 'fixed',
+                           bottom: '0',
+                           left: 0,
+                           zIndex: 100,
                         }}
+                        onClick={handleSubmit(submitHandler)}
                      >
                         Save
                      </YellowButton>
@@ -1679,6 +1869,15 @@ const UpdatePortfolio = ({ portfolioData, portfolioOnUpdateHandler }) => {
                )}
             </FormBox>
          </Container>
+
+         <ConfirmDialog
+            confirmDialog={{
+               ...deleteCertificateConfirm,
+               onConfirm: onCertificateDelete,
+            }}
+            setConfirmDialog={setDeleteCertificateConfirm}
+            variant='warning'
+         />
       </Box>
    );
 };

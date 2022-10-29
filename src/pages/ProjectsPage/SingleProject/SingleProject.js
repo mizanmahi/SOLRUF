@@ -7,10 +7,10 @@ import { styled } from '@mui/material/styles';
 import { Box } from '@mui/system';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import YellowButton from '../../../components/YellowButton/YellowButton';
 import { useDispatch } from 'react-redux';
 import { setProjectToBeEdited } from '../../../redux/slices/projectSlice';
 import { axiAuth } from '../../../utils/axiosInstance';
+import PrimaryButton from '../../../components/Custom/PrimaryButton/PrimaryButton';
 
 const SingleProjectBox = styled(Box)(({ theme }) => {
    return {
@@ -23,6 +23,7 @@ const SingleProjectBox = styled(Box)(({ theme }) => {
       flexDirection: 'column',
       justifyContent: 'space-between',
       boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+      overflow: 'hidden',
    };
 });
 
@@ -126,9 +127,9 @@ const SingleProject = ({ project, setShowForm }) => {
                <Box className={classes.pinBox}>
                   <Typography
                      variant='h6'
-                     sx={{ fontWeight: 500, color: '#000000' }}
+                     sx={{ fontWeight: 500, color: '#000000', maxWidth: '70%' }}
                   >
-                     {name}
+                     {name.length > 22 ? `${name.substring(0, 22)}...` : name}
                   </Typography>
                   {isPinned ? (
                      <Button
@@ -161,29 +162,32 @@ const SingleProject = ({ project, setShowForm }) => {
             </ImageBox>
             <hr />
             <ButtonBox>
-               <YellowButton
+               <PrimaryButton
+                  variant='secondary'
                   onClick={() => editHandler(project_id)}
                   style={{
-                     border: '2px solid #FFD05B',
-                     color: '#4D4D4D',
-                     background: '#fff',
                      padding: match1350 ? '.5rem .8rem' : '.7rem 1.5rem',
                   }}
+                  IconStart={EditIcon}
                >
-                  {' '}
-                  <EditIcon /> Edit
-               </YellowButton>
-               <YellowButton
-                  style={{
-                     border: '2px solid red',
-                     color: 'red',
-                     background: '#fff',
+                  Edit
+               </PrimaryButton>
+               <PrimaryButton
+                  sx={{
+                     border: '2px solid #F20519',
+                     color: '#F20519',
                      padding: match1350 ? '.4rem .7rem' : '.7rem 1.4rem',
+                     '&:hover': {
+                        background: '#F20519',
+                        color: '#ffffff',
+                        border: '2px solid transparent',
+                     },
                   }}
+                  IconStart={DeleteIcon}
+                  variant='secondary'
                >
-                  {' '}
-                  <DeleteIcon /> Delete
-               </YellowButton>
+                  Delete
+               </PrimaryButton>
             </ButtonBox>
          </SingleProjectBox>
       </Grid>

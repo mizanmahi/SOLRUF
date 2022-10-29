@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children, ...rest }) => {
    const location = useLocation();
 
    const { user } = useSelector((state) => state.user);
-   console.log(location);
+   // console.log(location);
 
    // if (!user) {
    //    dispatch(openLoginModal());

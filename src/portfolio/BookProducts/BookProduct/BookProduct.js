@@ -5,14 +5,13 @@ import ProductDetailList from '../../../components/ProductDetailList/ProductDeta
 import { styled } from '@mui/material/styles';
 import Slider from 'react-slick';
 import YellowButton from '../../../components/YellowButton/YellowButton';
-import LightButton from '../../../components/YellowButton/LightButton/LightButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
-import SliderWithCustomImagePreview from '../../../components/SliderWithCustomImagePreview/SliderWithCustomImagePreview';
 import { useDispatch } from 'react-redux';
 import { increase } from '../../../redux/slices/counterSlice';
 import SliderWIthThumbnail from '../../../components/SliderWIthThumbnail/SliderWIthThumbnail';
+import { useNavigate } from 'react-router';
 
 const RArrow = styled('div')({
    background: 'transparent',
@@ -82,6 +81,7 @@ const modalStyles = {
 const BookProduct = ({ editDelete, noModal, style, bookingOn }) => {
    const [open, setOpen] = useState(false);
    const dispatch = useDispatch();
+   const navigate = useNavigate();
 
    const handleModalOpen = () => {
       if (noModal) return;
@@ -128,7 +128,7 @@ const BookProduct = ({ editDelete, noModal, style, bookingOn }) => {
                position: 'relative',
             }}
             style={{ ...style }}
-            onClick={handleModalOpen}
+            // onClick={handleModalOpen}
          >
             <Slider {...settings}>
                <Box sx={{ borderRadius: 10, width: '100%' }}>
@@ -204,7 +204,7 @@ const BookProduct = ({ editDelete, noModal, style, bookingOn }) => {
                   {!editDelete ? (
                      <YellowButton
                         style={{ flexGrow: 1 }}
-                        onClick={addToCartHandler}
+                        onClick={() => navigate('/purchaseProduct')}
                      >
                         Purchase
                      </YellowButton>

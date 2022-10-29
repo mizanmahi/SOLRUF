@@ -16,7 +16,12 @@ const StyledNextButton = styled(Button)(({ theme }) => ({
 
 const NextButton = ({ children, sx, ...rest }) => {
    return (
-      <StyledNextButton {...rest} endIcon={<KeyboardBackspaceIcon />} end sx={{ ...sx }}>
+      <StyledNextButton
+         {...rest}
+         endIcon={<KeyboardBackspaceIcon />}
+         end
+         sx={{ ...sx }}
+      >
          {children}
       </StyledNextButton>
    );

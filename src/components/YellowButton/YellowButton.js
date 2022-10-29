@@ -15,6 +15,7 @@ const YellowButton = ({ onClick, children, style, loading, ...rest }) => {
           borderRadius: '5px',
           border: 'none',
           display: 'block',
+          cursor: 'pointer',
           boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.10)',
           ...style,
           '&:hover': {

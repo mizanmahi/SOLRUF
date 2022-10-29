@@ -25,7 +25,7 @@ function SelectCheckBox({ selected, setSelected, options }) {
   };
 
   return (
-    <FormControl className='w-100 p-1'>
+    <FormControl style={{width: '100%', maxWidth: '250px'}}>
       <InputLabel id='mutiple-select-label'>Field View Points</InputLabel>
       <Select
         labelId='mutiple-select-label'

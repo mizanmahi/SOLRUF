@@ -19,3 +19,21 @@
       border: 2px solid #ffd05b;
    }
 }
+
+.css-1mx0ypb-MuiTypography-root:hover{
+   color: #ffd05b !important;
+}
+
+.utility{
+   border-radius: 50%;
+   cursor: pointer;
+   height: 35px;
+   width: 35px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.utility:hover{
+   background-color: #D9D9D9;
+}

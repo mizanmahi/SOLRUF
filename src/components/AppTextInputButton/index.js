@@ -28,7 +28,7 @@ export const AppTextInputButton = ({
   };
   return (
     <div>
-      <div className='input-group mb-3'>
+      <div>
         {textArea ? (
           <textarea
             className={`form-control text-area-style ${className}`}
@@ -38,7 +38,10 @@ export const AppTextInputButton = ({
             style={{
               height: '150px',
               borderRadius: '7px !important',
-              fontFamily: 'inter'
+              fontFamily: 'inter',
+              width: '100%',
+              margin: '1rem 0',
+              padding: '1rem',
             }}
           />
         ) : (
@@ -49,7 +52,7 @@ export const AppTextInputButton = ({
               placeholder={placeholder}
               value={value}
               onChange={handleChange}
-              style={{fontFamily: 'inter'}}
+              style={{fontFamily: 'inter', width: '50%', padding: '0.5rem', margin: '0.5rem'}}
             />
             {isButtonPresent && (
               <button

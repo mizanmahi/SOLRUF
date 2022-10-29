@@ -1,1139 +1,686 @@
+import React, { useState } from "react";
+import { Grid, Typography, Dialog } from "@mui/material";
+import { Box } from "@mui/system";
+// import React, { useState } from "react";
+import { XIcon } from "@heroicons/react/outline";
+import "./userPortfolioProfile.css";
+import BookNow from "./Projects/BookNow/BookNow";
+import BookProducts from "./BookProducts/BookProducts";
+import YellowButton from "../components/YellowButton/YellowButton";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import CustomModal from "../components/CustomModal/CustomModal";
+import { useEffect } from "react";
+import { axiAuth } from "../utils/axiosInstance";
+import { useNavigate, useParams } from "react-router";
+import Loader from "../components/Loader/Loader";
+import VideoModal from "../components/VideoModal/VideoModal";
+import { Helmet } from "react-helmet";
+import ProjectsSlider from "./Projects/ProjectsSlider";
 import {
-   Avatar,
-   Button,
-   Chip,
-   Container,
-   Grid,
-   Tooltip,
-   Typography,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import Modal from '@mui/material/Modal';
-import { Box } from '@mui/system';
-import React, { useState } from 'react';
-import {
-   HomeIcon,
-   PhoneMissedCallIcon,
-   MailIcon,
-   ExternalLinkIcon,
-   XIcon,
-   PhoneIcon,
-} from '@heroicons/react/outline';
+  BookWrapper,
+  ConsultTextField,
+  InnerWrapper,
+  ModalWrapper,
+  ProfileErrorWrapper,
+  useStyles,
+} from "./userPortfolioProfile.style";
+import { setPortfolioData } from "../redux/slices/portfolio.slice";
+import { useDispatch } from "react-redux";
+import { KeyboardBackspace } from "@mui/icons-material";
 
-import { LocationMarkerIcon } from '@heroicons/react/outline';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
+import PurchaseProductMobile from "../pages/PurchaseProductPage/PurchaseProductMobile";
+import { modalTopBackButtonStyle } from "../theme/modalTopBackButtonStyle";
 
-import './userPortfolioProfile.css';
-import Projects from './Projects/Projects';
-import BookNow from './Projects/BookNow/BookNow';
-import { makeStyles } from '@mui/styles';
-import TextField from '../components/TextField/TextField';
-import BookProducts from './BookProducts/BookProducts';
-import YellowButton from '../components/YellowButton/YellowButton';
-import LightButton from '../components/YellowButton/LightButton/LightButton';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import DownloadIcon from '@mui/icons-material/Download';
-import CustomModal from '../components/CustomModal/CustomModal';
-import { tooltipClasses } from '@mui/material/Tooltip';
-import TextModal from '../components/TextModal/TextModal';
-import { useEffect } from 'react';
-import { axiAuth } from '../utils/axiosInstance';
-import { useNavigate, useParams } from 'react-router';
-import ProfileHeader from '../components/ProfileHeader/ProfileHeader';
-import ProfileFooter from '../components/ProfileFooter/ProfileFooter';
-import CollapsableText from '../components/CollapsableText/CollapsableText';
-import Loader from '../components/Loader/Loader';
-import VideoModal from '../components/VideoModal/VideoModal';
+import { useForm } from "react-hook-form";
+import PrimaryButton from "../components/Custom/PrimaryButton/PrimaryButton";
+import { toast } from "react-toastify";
+import { formatYoutubeVideoUrl } from "../utils/utils";
+import LeadForm from "../components/LeadForm/LeadForm";
+import SubsidyBox from "./SubsidyBox/SubsidyBox";
+import DetailModal from "./DetailModal";
+import PolicyDialog from "./PolicyDialog";
+import BottomSheetDialog from "./BottomSheetDialog";
+import BookingFormModal from "./BookingFormModal";
+import ProfileTop from "./ProfileTop";
 
-const style = {
-   position: 'absolute',
-   top: '50%',
-   left: '50%',
-   transform: 'translate(-50%, -50%)',
-   width: 400,
-   bgcolor: '#D0D7D9',
-   border: '2px solid #000',
-   boxShadow: 24,
-   p: 4,
+const paraStyle = {
+  maxHeight: "500px !important",
 };
 
-const ConsultBookingHeader = styled(Box)(({ theme }) => {
-   return {
-      display: 'flex',
-      justifyContent: 'space-around',
-      alignItems: 'center',
-      [theme.breakpoints.down('sm')]: {
-         flexDirection: 'row',
-      },
-   };
-});
-
-const useStyles = makeStyles((theme) => {
-   return {
-      bookingFormBox: {
-         width: '100%',
-         mx: 'auto',
-         padding: '2rem',
-         background: '#f3f3f3',
-         borderRadius: 10,
-         margin: '2rem auto',
-         position: 'relative',
-         transition: 'all 0.9s ease-in-out',
-         '@media (max-width: 600px)': {
-            padding: '1.2rem',
-         },
-      },
-      closeBtn: {
-         position: 'absolute',
-         top: '0.5rem',
-         right: '0.5rem',
-         cursor: 'pointer',
-         color: '#000',
-         height: '2rem',
-         fontWeight: 'bold',
-         transition: 'all 0.3s ease-in-out',
-         '@media (max-width: 600px)': {
-            height: '1rem',
-         },
-      },
-      phonePanel: {
-         display: 'flex',
-         maxWidth: '400px',
-         justifyContent: 'space-around',
-         background: (props) => (props.openPhonePanel ? '#FFD05B' : '#D0D7D9'),
-         padding: theme.spacing(2),
-         borderRadius: '10px',
-         textAlign: 'right',
-         '@media (max-width: 600px)': {
-            textAlign: 'center',
-            padding: '.5rem',
-            marginRight: '.5rem',
-         },
-         alignItems: 'flex-start',
-         cursor: 'pointer',
-         border: '2px solid #000',
-      },
-      addressPanel: {
-         display: 'flex',
-         maxWidth: '400px',
-         justifyContent: 'space-around',
-         background: (props) => (props.openPhonePanel ? '#D0D7D9' : '#FFD05B'),
-         padding: theme.spacing(2),
-         borderRadius: '10px',
-         textAlign: 'right',
-         '@media (max-width: 600px)': {
-            textAlign: 'center',
-            padding: '.5rem',
-         },
-         alignItems: 'flex-start',
-         cursor: 'pointer',
-         border: '2px solid #000',
-      },
-      circle: {
-         minWidth: 25,
-         height: 25,
-         borderRadius: '50%',
-         background: (props) => (props.openPhonePanel ? '#000' : ''),
-         border: '2px solid #000',
-         display: 'inline-block',
-         '@media (max-width: 600px)': {
-            height: 15,
-            minWidth: 15,
-         },
-      },
-      circle2: {
-         background: (props) => (!props.openPhonePanel ? '#000' : ''),
-         border: '2px solid #000',
-         display: 'inline-block',
-         height: 25,
-         minWidth: 25,
-         borderRadius: '50%',
-         '@media (max-width: 600px)': {
-            height: 15,
-            minWidth: 15,
-         },
-      },
-   };
-});
-
-const CertificateList = styled('li')(({ theme }) => ({
-   marginBottom: theme.spacing(1),
-   '&::marker': {
-      color: '#0339A6',
-   },
-   '& a': {
-      fontWeight: 500,
-      color: '#0339A6',
-      fontSize: '1.1rem',
-      '& svg': {
-         width: '1rem',
-         marginBottom: '.5rem',
-         marginLeft: '.5rem',
-      },
-   },
-}));
-
-const ConsultTextField = styled(TextField)(({ theme }) => ({
-   '& label.Mui-focused': {
-      color: theme.palette.primary.dark,
-   },
-   '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-         borderColor: theme.palette.primary.main,
-         borderWidth: '2px',
-      },
-      '&:hover fieldset': {
-         borderColor: theme.palette.primary.main,
-      },
-      '&.Mui-focused fieldset': {
-         borderColor: theme.palette.primary.main,
-      },
-   },
-   width: '100%',
-   marginTop: '1rem',
-}));
-
-const HtmlTooltip = styled(({ className, ...props }) => (
-   <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-   [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: 'transparent',
-      //   color: 'rgba(0, 0, 0, 0.87)',
-      maxWidth: 220,
-      //   fontSize: theme.typography.pxToRem(12),
-      //   border: '1px solid #dadde9',
-      padding: 0,
-      margin: 0,
-   },
-}));
-
-const CustomTab = styled(Tab)(({ theme }) => ({
-   fontSize: '.8rem',
-   '&.Mui-selected': {
-      fontWeight: 'bold',
-      color: theme.palette.secondary.main,
-   },
-}));
-
-const ProfilePhoto = styled(Box)(({ theme }) => ({
-   width: '100px',
-   height: '100px',
-   borderRadius: '50%',
-   overflow: 'hidden',
-   '& img': {
-      width: '100%',
-   },
-}));
-
-const MobileDescription = styled(Box)(({ theme }) => ({
-   padding: theme.spacing(3.9),
-   bgcolor: '#D0D7D9',
-   margin: `${theme.spacing(3.5)}px 0`,
-   borderRadius: 2,
-   border: 0,
-
-   boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-   maxHeight: '400px',
-   overflowY: 'auto',
-}));
-
-const CertificateButtonMobile = styled(Button)(({ theme }) => ({
-   width: '80%',
-   marginBottom: theme.spacing(1),
-   color: theme.palette.secondary.main,
-   background: theme.palette.secondary.light,
-   '&:hover': {
-      background: theme.palette.primary.main,
-      color: '#ffffff',
-   },
-}));
-
 const UserPortfolioProfile = ({ noPadding }) => {
-   const [open, setOpen] = useState(false);
-   const handleOpen = () => setOpen(true);
-   const handleClose = () => setOpen(false);
+  const [scrollIndex, setScrollIndex] = useState(0);
+  // const { extra } = useSelector((state) => state.portfolio);
 
-   const [openBooking, setOpenBooking] = useState(false);
-   const [openPhonePanel, setOpenPhonePanel] = useState(true);
+  useEffect(() => {
+    if (scrollIndex === 3)
+      descriptionRef?.current?.scrollIntoView({ behavior: "smooth" });
+    if (scrollIndex === 2)
+      certificatesRef?.current?.scrollIntoView({ behavior: "smooth" });
+    if (scrollIndex === 1)
+      aboutRef?.current?.scrollIntoView({ behavior: "smooth" });
+    if (scrollIndex === 0)
+      companyRef?.current?.scrollIntoView({ behavior: "smooth" });
+  }, [scrollIndex]);
 
-   const [openAfterSalePolicyModal, setOpenAfterSalePolicyModal] =
-      useState(false);
+  // const [selectedListItem, setSelectedListItem] = useState([]);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [productForPurchase, setProductForPurchase] = useState(null);
+  // const [showTooltip, setShowTooltip] = useState(false);
+  const [showTooltip2, setShowTooltip2] = useState(false);
 
-   const handleAfterSalePolicyModalOpen = () => {
-      setOpenAfterSalePolicyModal(true);
-   };
-   const handleAfterSalePolicyModalClose = () =>
-      setOpenAfterSalePolicyModal(false);
+  const openPurchaseModal = (product) => {
+    setProductForPurchase(product);
+    setShowPurchaseModal(true);
+  };
 
-   const classes = useStyles({ openPhonePanel });
+  const closePurchaseModal = () => {
+    setShowPurchaseModal(false);
+  };
 
-   const handleOpenBooking = () => {
-      setOpenBooking((openBooking) => !openBooking);
-   };
+  const descriptionRef = React.useRef(null);
+  const companyRef = React.useRef(null);
+  const aboutRef = React.useRef(null);
+  const certificatesRef = React.useRef(null);
 
-   const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+  const [showPolicyDialog, setShowPolicyDialog] = useState(false);
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
-   const [tabValue, setTabValue] = React.useState(0);
+  const [openBooking, setOpenBooking] = useState(false);
+  const [openPhonePanel, setOpenPhonePanel] = useState(true);
 
-   const handleChange = (e, newValue) => {
-      setTabValue(newValue);
-   };
+  const [openAfterSalePolicyModal, setOpenAfterSalePolicyModal] =
+    useState(false);
+  const handleAfterSalePolicyModalOpen = () => {
+    setOpenAfterSalePolicyModal(true);
+  };
+  const handleAfterSalePolicyModalClose = () =>
+    setOpenAfterSalePolicyModal(false);
 
-   const handleTextExpandClose = () => {
-      setAboutTextExpanded(false);
-   };
-   const [aboutTextExpanded, setAboutTextExpanded] = useState(false);
+  const classes = useStyles({ openPhonePanel });
 
-   // const [projects, setProjects] = useState([]);
+  const handleOpenBooking = () => {
+    setOpenBooking((openBooking) => !openBooking);
+  };
 
-   const [profileData, setProfileData] = useState(null);
-   const [profileDataLoading, setProfileDataLoading] = useState(true);
-   const [profileDataError, setProfileDataError] = useState(false);
+  const matches = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
-   const { name } = useParams();
+  const [tabValue, setTabValue] = React.useState(0);
+  const [tabValue2, setTabValue2] = React.useState(0);
 
-   useEffect(() => {
-      setProfileDataLoading(true);
-      setProfileDataError(false);
-      axiAuth
-         .get(`api/share/${name}`)
-         .then(({ data }) => {
-            console.log(data);
-            setProfileData(data.data);
-            setProfileDataLoading(false);
-         })
-         .catch((err) => {
-            setProfileDataError('Error Loading Profile data');
-            setProfileDataLoading(false);
-         });
-   }, [name]);
+  const handleChange = (e, newValue) => {
+    setTabValue(newValue);
+  };
 
-   console.log(profileData);
+  const handleChange2 = (e, newValue) => {
+    setTabValue2(newValue);
+  };
 
-   const WrapperStyle = {
-      py: noPadding ? '0' : 4,
-      background: noPadding ? 'transparent' : '#F3F3F3',
-   };
+  const handleTextExpandClose = () => {
+    setAboutTextExpanded(false);
+  };
+  const [aboutTextExpanded, setAboutTextExpanded] = useState(false);
 
-   const navigate = useNavigate();
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
+  const [showProductDetail, setShowProductDetail] = useState(false);
 
-   const bookNowClickHandler = () => {
-      navigate('/product-booking');
-   };
+  const showDetailModal = () => {
+    setShowProductDetail(true);
+  };
 
-   const portfolio = profileData?.portfolio;
-   const certificates = profileData?.certificates;
-   const projects = profileData?.projects;
+  const hideDetailModal = () => {
+    setShowProductDetail(false);
+  };
 
-   const videoUrl = portfolio?.video_url?.replace('watch?v=', 'embed/');
+  // const [projects, setProjects] = useState([]);
 
-   return (
-      <>
-         <ProfileHeader />
-         {!profileDataLoading ? (
-            <Box sx={WrapperStyle}>
-               <Container maxWidth='xl'>
-                  <Box
-                     sx={{
-                        bgcolor: '#ffffff',
-                        p: [1, 3.9],
-                        borderRadius: 4,
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-                     }}
+  const [profileData, setProfileData] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [profileDataLoading, setProfileDataLoading] = useState(true);
+  const [profileDataError, setProfileDataError] = useState(false);
+
+  const [bookingFormModal, setBookingFormModal] = useState(false);
+
+  const dispatch = useDispatch();
+
+  const { name } = useParams();
+
+  useEffect(() => {
+    setProfileDataLoading(true);
+    setProfileDataError(false);
+    axiAuth
+      .get(`api/share/${name}`)
+      .then(({ data }) => {
+        console.log(data);
+        setProfileData(data.data);
+        setProducts(data.products);
+        dispatch(setPortfolioData(data));
+        setProfileDataLoading(false);
+      })
+      .catch((err) => {
+        setProfileDataError("Error Loading Profile data");
+        console.log(err);
+        setProfileDataLoading(false);
+      });
+  }, [name, dispatch]);
+
+  console.log(profileData);
+
+  const WrapperStyle = {
+    py: noPadding ? "0" : 4,
+    background: noPadding ? "transparent" : "#F3F3F3",
+  };
+
+  const navigate = useNavigate();
+
+  const bookNowClickHandler = () => {
+    navigate("/product-booking");
+  };
+
+  const portfolio = profileData?.portfolio;
+  const certificates = profileData?.certificates;
+  const projects = profileData?.projects;
+
+  const videoUrl = formatYoutubeVideoUrl(portfolio?.video_url);
+
+  // consult from handler
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const consultFormSubmitHandler = async (data, event) => {
+    console.log({ data, event });
+    const consultData = {
+      ...data,
+      service_type: "n/a",
+      message: "n/a",
+      type: openPhonePanel ? "Phone Call" : "Site Visit",
+      vendor_id: portfolio.user_id,
+    };
+
+    try {
+      const { status, data } = await axiAuth.post(
+        "api/booking-consultations",
+        consultData
+      );
+
+      if (status === 200) {
+        setOpenBooking(false);
+        console.log(data);
+        // event.target.reset();
+        reset();
+        toast.success("Consult is created successfully");
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const [leadFormOpen, setLeadFormOpen] = useState(false);
+  // const [leadFormShown, setLeadFormShown] = useState(false);
+
+  // open a form after 5 seconds of page load
+  useEffect(() => {
+    let timer;
+    const storageData = JSON.parse(localStorage.getItem("leadFormShown"));
+    if (storageData) {
+      timer = setTimeout(() => {
+        setLeadFormOpen(true);
+      }, 7200000);
+      return;
+    } else {
+      localStorage.setItem("leadFormShown", true);
+      timer = setTimeout(() => {
+        setLeadFormOpen(true);
+      }, 2000);
+    }
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (profileDataError) {
+    return (
+      <ProfileErrorWrapper>
+        <Typography variant="h5">{profileDataError}</Typography>
+        <Typography variant="h6">Try again reloading the page!</Typography>
+      </ProfileErrorWrapper>
+    );
+  }
+
+  return (
+    <>
+      <Helmet>
+        <title>Profile - Solruf</title>
+        <meta
+          name="description"
+          content="This is a dummy portfolio page description"
+        />
+        <meta name="theme-color" content="#ffd05b" />
+        <body class="light" />
+      </Helmet>
+      {!profileDataLoading ? (
+        <Box sx={WrapperStyle}>
+          <InnerWrapper sx={{ padding: { sm: "20px", xs: "0px" } }}>
+            <Typography
+              variant="h6"
+              component="h1"
+              gutterBottom
+              sx={{ mb: 3, px: 1 }}
+            >
+              The vendor profile and all of their products are verified by
+              SOLRUF*
+            </Typography>
+
+            <ProfileTop
+              portfolio={portfolio}
+              setShowPolicyDialog={setShowPolicyDialog}
+              certificates={certificates}
+              matches={matches}
+              videoUrl={videoUrl}
+              setAboutTextExpanded={setAboutTextExpanded}
+              aboutTextExpanded={aboutTextExpanded}
+              handleTextExpandClose={handleTextExpandClose}
+              modalTopBackButtonStyle={modalTopBackButtonStyle}
+              handleOpen={handleOpen}
+              showTooltip2={showTooltip2}
+              setShowTooltip2={setShowTooltip2}
+              handleAfterSalePolicyModalOpen={handleAfterSalePolicyModalOpen}
+            />
+
+            {/* ======================== Book Consult Start ======================== */}
+
+            <BookWrapper
+              sx={{
+                my: 4,
+                mx: { xs: 2, sm: 0 },
+                p: [1.5, 8],
+                borderRadius: 4,
+              }}
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  width: 1,
+                  height: 1,
+                  bgcolor: "#000",
+                  opacity: 0.6,
+                  top: 0,
+                  left: 0,
+                  borderRadius: 4,
+                }}
+              ></Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: ["column", "row"],
+                  alignItems: "center",
+                  justifyContent: { xs: "center", sm: "space-around" },
+                  width: "100%",
+                  height: `${openBooking ? "auto" : "100%"}`,
+                }}
+              >
+                <Typography
+                  //  variant='h6'
+                  sx={{
+                    fontWeight: 700,
+                    mb: [2, 0],
+                    color: "#fff",
+                    zIndex: 1,
+                    fontSize: ["1rem", "2rem"],
+                  }}
+                >
+                  Kindly a book a consulting for Site Visit and other
+                  requirement
+                </Typography>
+                <Box sx={{ zIndex: "100" }}>
+                  <PrimaryButton
+                    sx={{
+                      display: { xs: "none", sm: "block" },
+                      borderRadius: "36px",
+                      backgroundColor: "#FFD05B",
+                      padding: "0.8rem 1.8rem",
+                      color: "black",
+                      fontWeight: "600",
+                      fontSize: "1rem",
+                    }}
+                    onClick={handleOpenBooking}
                   >
-                     <Grid container rowSpacing={2}>
-                        <Grid item xs={12} sm={12} md={6}>
-                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              {portfolio?.logo ? (
-                                 <ProfilePhoto>
-                                    <img src={portfolio.logo} alt='' />
-                                 </ProfilePhoto>
-                              ) : (
-                                 <Avatar
-                                    alt='Remy Sharp'
-                                    src='https://i.ibb.co/0sLRgyb/logic-1.png'
-                                    sx={{
-                                       width: 70,
-                                       height: 70,
-                                       '&.MuiAvatar-root': {
-                                          bgcolor: '#D0D7D9',
-                                          p: 1.3,
-                                       },
-                                    }}
-                                 />
-                              )}
-                              <Typography
-                                 variant='h5'
-                                 sx={{ fontWeight: 600, ml: 3.5 }}
-                              >
-                                 {portfolio.name}
-                              </Typography>
-                           </Box>
-                        </Grid>
-                        <Grid
-                           item
-                           xs={12}
-                           sm={12}
-                           md={6}
-                           sx={{ alignSelf: 'center' }}
-                        >
-                           <Box
-                              sx={{
-                                 display: 'flex',
-                                 alignItems: 'center',
-                                 justifyContent: [
-                                    'flex-start',
-                                    'flex-start',
-                                    'flex-end',
-                                 ],
-                                 flexWrap: 'wrap',
-                                 mb: [2, 0, 0],
-                              }}
-                           >
-                              {portfolio.services.map((service, i) => (
-                                 <Chip
-                                    key={i}
-                                    label={service}
-                                    sx={{
-                                       ml: 1,
-                                       color: '#fff',
-                                       borderRadius: 1,
-                                       bgcolor: 'blue',
-                                       fontWeight: 600,
-                                       fontSize: '1.1rem',
-                                       mb: 1,
-                                    }}
-                                 />
-                              ))}
-                           </Box>
-                        </Grid>
-                     </Grid>
-
-                     {/* =========================== portfolio header end =========================== */}
-
-                     <Box
-                        sx={{
-                           p: 3.9,
-                           bgcolor: '#D0D7D9',
-                           my: 3.5,
-                           borderRadius: 3.9,
-                           border: 3,
-                           borderColor: '#FFD05B',
-                           display: ['none', 'none', 'block'],
-                        }}
-                     >
-                        <CollapsableText
-                           text={portfolio.description}
-                           collapseAt={250}
-                        />
-                     </Box>
-
-                     {/* ===================== portfolio description end ========================*/}
-
-                     <Grid container>
-                        <Grid item sm={12} md={7} sx={{ width: '100%' }}>
-                           <Box
-                              sx={{
-                                 display: ['flex', 'block'],
-                                 flexDirection: ['column'],
-                                 justifyContent: 'center',
-                              }}
-                           >
-                              <Box
-                                 sx={{
-                                    display: 'flex',
-                                    alignItems: 'top',
-                                    mb: 2,
-                                 }}
-                              >
-                                 <LocationMarkerIcon
-                                    style={{
-                                       height: '1.7rem',
-                                       minHeight: 23,
-                                       minWidth: 23,
-                                       marginRight: '.5rem',
-                                    }}
-                                 />
-                                 <Typography variant='h6' fontSize='1.1rem'>
-                                    <span
-                                       style={{
-                                          fontWeight: '600',
-                                          fontSize: '1.2rem',
-                                       }}
-                                    >
-                                       Location: -
-                                    </span>
-                                    {portfolio.location}
-                                 </Typography>
-                              </Box>
-                              <Box
-                                 sx={{
-                                    display: 'flex',
-                                    alignItems: 'top',
-                                    mb: 2,
-                                 }}
-                              >
-                                 <HomeIcon
-                                    style={{
-                                       height: '1.7rem',
-                                       marginRight: '.5rem',
-                                    }}
-                                 />
-                                 <Typography variant='h6' fontSize='1.1rem'>
-                                    <span
-                                       style={{
-                                          fontWeight: '600',
-                                          fontSize: '1.2rem',
-                                       }}
-                                    >
-                                       City / District: -{' '}
-                                    </span>
-                                    {portfolio.city}, {portfolio.state}
-                                 </Typography>
-                              </Box>
-                              <Box
-                                 sx={{
-                                    display: 'flex',
-                                    alignItems: 'top',
-                                    mb: 2,
-                                 }}
-                              >
-                                 <PhoneMissedCallIcon
-                                    style={{
-                                       height: '1.7rem',
-                                       marginRight: '.5rem',
-                                    }}
-                                 />
-                                 <Typography variant='h6' fontSize='1.1rem'>
-                                    <span
-                                       style={{
-                                          fontWeight: '600',
-                                          fontSize: '1.2rem',
-                                       }}
-                                    >
-                                       Mobile Number: -{' '}
-                                    </span>
-                                    <a
-                                       href='tel:99788969898'
-                                       style={{ textDecoration: 'none' }}
-                                    >
-                                       {portfolio.mobile}
-                                    </a>
-                                 </Typography>
-                              </Box>
-                              <Box
-                                 sx={{
-                                    display: 'flex',
-                                    alignItems: 'top',
-                                    mb: 2,
-                                 }}
-                              >
-                                 <MailIcon
-                                    style={{
-                                       height: '1.7rem',
-                                       marginRight: '.5rem',
-                                    }}
-                                 />
-                                 <Typography variant='h6' fontSize='1.1rem'>
-                                    <span
-                                       style={{
-                                          fontWeight: '600',
-                                          fontSize: '1.2rem',
-                                       }}
-                                    >
-                                       Email: - {''}
-                                    </span>
-                                    <a
-                                       href='mailto:sumo@solruf.com'
-                                       style={{ textDecoration: 'none' }}
-                                    >
-                                       {portfolio.email}
-                                    </a>
-                                 </Typography>
-                              </Box>
-
-                              <Box
-                                 sx={{
-                                    mt: 3.9,
-                                    width: '100%',
-                                    display: ['none', 'block'],
-                                 }}
-                              >
-                                 {certificates?.length > 0 && (
-                                    <Typography
-                                       variant='h5'
-                                       sx={{ fontWeight: 600 }}
-                                    >
-                                       Certification
-                                    </Typography>
-                                 )}
-
-                                 <Box component='ul' sx={{ mt: 2 }}>
-                                    {certificates?.map(
-                                       ({ name, file }, i) =>
-                                          i < 4 && (
-                                             <CertificateList key={i}>
-                                                <Typography
-                                                   component='a'
-                                                   href={file}
-                                                >
-                                                   {name}
-                                                   <ExternalLinkIcon />
-                                                </Typography>
-                                             </CertificateList>
-                                          )
-                                    )}
-                                 </Box>
-                              </Box>
-
-                              {matches && (
-                                 <Box sx={{ mt: 2 }}>
-                                    <YellowButton
-                                       style={{
-                                          width: '100%',
-                                          margin: '0 auto',
-                                          fontSize: '1rem',
-                                          padding: '.6rem 1rem',
-                                       }}
-                                    >
-                                       <PhoneIcon style={{ width: 20 }} /> Call
-                                       Now
-                                    </YellowButton>
-
-                                    <Box
-                                       sx={{
-                                          // maxWidth: 480,
-                                          bgcolor: '#D0D7D9',
-                                          mt: 2,
-                                          borderRadius: 1,
-                                          boxShadow:
-                                             '0px 4px 5px rgba(0, 0, 0, 0.10)',
-                                       }}
-                                    >
-                                       <Tabs
-                                          value={tabValue}
-                                          onChange={handleChange}
-                                          variant='scrollable'
-                                          scrollButtons
-                                          allowScrollButtonsMobile
-                                          aria-label='details tabs'
-                                          sx={{
-                                             '& .MuiTabs-indicator': {
-                                                height: 5,
-                                             },
-                                             '& .MuiButtonBase-root': {
-                                                padding: '1rem',
-                                             },
-                                          }}
-                                       >
-                                          <CustomTab
-                                             label='Company Details'
-                                             sx={{
-                                                fontSize: '.8rem',
-                                                '&.Mui-selected': {
-                                                   fontWeight: 'bold',
-                                                   color: 'secondary.main',
-                                                },
-                                             }}
-                                          />
-
-                                          <CustomTab
-                                             label='About'
-                                             sx={{
-                                                fontSize: '.8rem',
-                                                '&.Mui-selected': {
-                                                   fontWeight: 'bold',
-                                                   color: 'secondary.main',
-                                                },
-                                             }}
-                                          />
-                                          <CustomTab
-                                             label='Certificate'
-                                             sx={{
-                                                fontSize: '.8rem',
-
-                                                '&.Mui-selected': {
-                                                   fontWeight: 'bold',
-                                                   color: 'secondary.main',
-                                                },
-                                             }}
-                                          />
-                                          <CustomTab
-                                             label='Description'
-                                             sx={{
-                                                fontSize: '.8rem',
-                                                '&.Mui-selected': {
-                                                   fontWeight: 'bold',
-                                                   color: 'secondary.main',
-                                                },
-                                             }}
-                                          />
-                                       </Tabs>
-
-                                       {/* ============ content of different tabs for mobile version */}
-                                    </Box>
-
-                                    {tabValue === 0 && (
-                                       <Box>
-                                          <Typography sx={{ mb: 2, mt: 4 }}>
-                                             <span
-                                                style={{ fontWeight: '600' }}
-                                             >
-                                                Turnover: -
-                                             </span>
-                                             {` ${portfolio.turnover} ${portfolio.turnover_type}/Year`}
-                                          </Typography>
-                                          <Typography sx={{ mb: 2 }}>
-                                             <span
-                                                style={{ fontWeight: '600' }}
-                                             >
-                                                Total Projects: -
-                                             </span>
-                                             300/400
-                                          </Typography>
-                                          <Typography sx={{ mb: 2 }}>
-                                             <span
-                                                style={{ fontWeight: '600' }}
-                                             >
-                                                GST No: -
-                                             </span>
-                                             {portfolio.gst}
-                                             <HtmlTooltip
-                                                title={
-                                                   <>
-                                                      <img
-                                                         src='https://i.ibb.co/2g62C66/Group-178-1.png'
-                                                         alt=''
-                                                      />
-                                                   </>
-                                                }
-                                                placement='top'
-                                             >
-                                                <img
-                                                   style={{
-                                                      marginLeft: '1rem',
-                                                   }}
-                                                   src='https://i.ibb.co/pWNNjTt/vecteezy-profile-verification-check-marks-icons-vector-illustration-1-3.png'
-                                                   alt=''
-                                                />
-                                             </HtmlTooltip>
-                                          </Typography>
-                                       </Box>
-                                    )}
-                                    {tabValue === 1 && (
-                                       <Box
-                                          sx={{
-                                             p: 3.9,
-                                             bgcolor: '#D0D7D9',
-                                             my: 3.5,
-                                             borderRadius: 2,
-                                          }}
-                                       >
-                                          <Box
-                                             sx={{
-                                                bgcolor: '',
-                                                position: 'relative',
-                                             }}
-                                             onClick={handleOpen}
-                                          >
-                                             <iframe
-                                                style={{
-                                                   borderRadius: '1rem',
-                                                   maxWidth: '100%',
-                                                }}
-                                                height='170'
-                                                src={videoUrl}
-                                                title='YouTube video player'
-                                                frameBorder='0'
-                                                allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
-                                                allowfullscreen
-                                             ></iframe>
-                                             <Box
-                                                sx={{
-                                                   position: 'absolute',
-                                                   top: 0,
-                                                   left: 0,
-                                                   bgcolor: '',
-                                                   width: '100%',
-                                                   height: '100%',
-                                                   opacity: 0.3,
-                                                }}
-                                             ></Box>
-                                          </Box>
-                                          <Typography
-                                             sx={{ fontSize: '1.1rem', mt: 1 }}
-                                             onClick={() => {}}
-                                          >
-                                             {portfolio.description.slice(
-                                                0,
-                                                100
-                                             )}
-                                             <Button
-                                                sx={{
-                                                   color: 'blue',
-                                                   textTransform: 'none',
-                                                   py: 0,
-                                                }}
-                                                onClick={() =>
-                                                   setAboutTextExpanded(
-                                                      !aboutTextExpanded
-                                                   )
-                                                }
-                                             >
-                                                Read More
-                                             </Button>
-                                          </Typography>
-                                          <TextModal
-                                             open={aboutTextExpanded}
-                                             text={portfolio.description}
-                                             title='Project Details'
-                                             handleClose={handleTextExpandClose}
-                                          />
-                                       </Box>
-                                    )}
-
-                                    {tabValue === 2 && (
-                                       <Box sx={{ mt: 2 }}>
-                                          {certificates.map(
-                                             ({ name, file }, i) =>
-                                                i < 4 && (
-                                                   <CertificateButtonMobile
-                                                      component='a'
-                                                      href={file}
-                                                      target='_blank'
-                                                      variant='contained'
-                                                      endIcon={<DownloadIcon />}
-                                                   >
-                                                      {name}
-                                                   </CertificateButtonMobile>
-                                                )
-                                          )}
-                                       </Box>
-                                    )}
-
-                                    {tabValue === 3 && (
-                                       <MobileDescription>
-                                          <Typography
-                                             sx={{ fontSize: '1.1rem' }}
-                                          >
-                                             {portfolio.description}
-                                          </Typography>
-                                       </MobileDescription>
-                                    )}
-                                 </Box>
-                              )}
-                           </Box>
-                        </Grid>
-                        <Grid item sm={12} md={5}>
-                           <Box
-                              sx={{
-                                 display: 'flex',
-                                 flexDirection: 'column',
-                                 alignItems: 'flex-end',
-                                 mt: 0,
-                              }}
-                           >
-                              <Box sx={{ display: ['none', 'block'] }}>
-                                 <Box
-                                    onClick={handleOpen}
-                                    sx={{ bgcolor: '', position: 'relative' }}
-                                 >
-                                    <iframe
-                                       style={{ borderRadius: '1rem' }}
-                                       width='280'
-                                       height='170'
-                                       src={videoUrl}
-                                       title='YouTube video player'
-                                       frameBorder='0'
-                                       allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
-                                       allowfullscreen
-                                    ></iframe>
-                                    <Box
-                                       sx={{
-                                          position: 'absolute',
-                                          top: 0,
-                                          left: 0,
-                                          bgcolor: '',
-                                          width: '100%',
-                                          height: '100%',
-                                          opacity: 0.3,
-                                       }}
-                                    ></Box>
-                                 </Box>
-                                 <Box sx={{ display: ['none', 'block'] }}>
-                                    <Typography
-                                       sx={{ mb: 2, mt: 4 }}
-                                       variant='h6'
-                                       fontSize='1.1rem'
-                                    >
-                                       <span
-                                          style={{
-                                             fontWeight: '600',
-                                             fontSize: '1.2rem',
-                                          }}
-                                       >
-                                          Turnover: -
-                                       </span>
-
-                                       {` ${portfolio.turnover} ${portfolio.turnover_type} / Year`}
-                                    </Typography>
-                                    <Typography
-                                       sx={{ mb: 2 }}
-                                       variant='h6'
-                                       fontSize='1.1rem'
-                                    >
-                                       <span
-                                          style={{
-                                             fontWeight: '600',
-                                             fontSize: '1.2rem',
-                                          }}
-                                       >
-                                          Total Projects: -
-                                       </span>
-                                       300/400
-                                    </Typography>
-                                    <Typography
-                                       sx={{ mb: 2 }}
-                                       variant='h6'
-                                       fontSize='1.1rem'
-                                    >
-                                       <span
-                                          style={{
-                                             fontWeight: '600',
-                                             fontSize: '1.2rem',
-                                          }}
-                                       >
-                                          GST No: -
-                                       </span>
-                                       {portfolio.gst}
-                                       <Tooltip
-                                          title={
-                                             <span
-                                                style={{ fontSize: '1.2rem' }}
-                                             >
-                                                GST Verified
-                                             </span>
-                                          }
-                                          placement='top'
-                                          arrow
-                                          sx={{
-                                             '& .MuiTooltip-popper': {
-                                                fontSize: '1rem',
-                                             },
-                                          }}
-                                       >
-                                          <img
-                                             style={{ marginLeft: '1rem' }}
-                                             src='https://i.ibb.co/pWNNjTt/vecteezy-profile-verification-check-marks-icons-vector-illustration-1-3.png'
-                                             alt=''
-                                          />
-                                       </Tooltip>
-                                    </Typography>
-                                 </Box>
-                              </Box>
-                           </Box>
-                        </Grid>
-                        <Grid
-                           item
-                           sx={{ display: 'flex', justifyContent: 'flex-end' }}
-                           xs={12}
-                        >
-                           <img
-                              onClick={handleAfterSalePolicyModalOpen}
-                              src='https://i.ibb.co/QDy19HX/Frame-185.png'
-                              alt='service policy icon'
-                              style={{
-                                 cursor: 'pointer',
-                                 width: '350px',
-                                 marginTop: '1rem',
-                              }}
-                           />
-                        </Grid>
-                     </Grid>
+                    Book Consulting
+                  </PrimaryButton>
+                  <Box sx={{ display: { xs: "block", sm: "none" } }}>
+                    <YellowButton
+                      onClick={() => {
+                        setBookingFormModal(!bookingFormModal);
+                      }}
+                      style={{
+                        background: "#FFD05B",
+                        borderRadius: "24px",
+                        color: "black",
+                      }}
+                    >
+                      Book Consulting
+                    </YellowButton>
                   </Box>
-                  {/* ======================== Book Consult Start ======================== */}
-                  <Box
-                     sx={{
-                        my: 4,
-                        bgcolor: '#D0D7D9',
-                        p: [1.5, 5],
-                        borderRadius: 3,
-                     }}
+                </Box>
+              </Box>
+
+              {openBooking && (
+                <Box
+                  className={classes.bookingFormBox}
+                  data-aos="fade-down"
+                  sx={{ p: ["1rem", "2rem"] }}
+                >
+                  <XIcon
+                    className={classes.closeBtn}
+                    onClick={handleOpenBooking}
+                  />
+                  <Grid
+                    spacing={[0, 2, 2, 2]}
+                    container
+                    sx={{
+                      mt: 2.5,
+                      width: ["100%", "70%"],
+                      mx: ["auto"],
+                      flexWrap: "nowrap",
+                      justifyContent: "center",
+                    }}
                   >
-                     <ConsultBookingHeader
-                        sx={{ flexDirection: ['column', 'row'] }}
-                     >
-                        <Typography
-                           variant='h6'
-                           sx={{ fontWeight: 700, mb: [2, 0] }}
-                        >
-                           Lorem ipsum dolor sit amet consectetur, adipisicing
-                           elit. Nulla, ad.
-                        </Typography>
-                        <LightButton onClick={handleOpenBooking}>
-                           Book Consulting
-                        </LightButton>
-                     </ConsultBookingHeader>
-
-                     {openBooking && (
-                        <Box
-                           className={classes.bookingFormBox}
-                           data-aos='fade-down'
-                           sx={{ p: ['1rem', '2rem'] }}
-                        >
-                           <XIcon
-                              className={classes.closeBtn}
-                              onClick={handleOpenBooking}
-                           />
-                           <Grid
-                              spacing={[0, 2, 2, 2]}
-                              container
-                              sx={{
-                                 mt: 2.5,
-
-                                 width: ['100%', '70%'],
-
-                                 mx: ['auto', 'auto', 'auto', 'auto'],
-                                 flexWrap: 'nowrap',
-                                 justifyContent: 'center',
-                              }}
-                           >
-                              <Grid item sm={6}>
-                                 <Box
-                                    className={classes.phonePanel}
-                                    sx={{ mb: 2 }}
-                                    onClick={() => setOpenPhonePanel(true)}
-                                 >
-                                    {/* <CheckCircleIcon style={{width: "20px"}} /> */}
-                                    {
-                                       <div
-                                          className={`${classes.circle}`}
-                                       ></div>
-                                    }
-                                    <Box>
-                                       <Typography
-                                          variant='h5'
-                                          fontWeight={600}
-                                          gutterBottom
-                                          sx={{ fontSize: ['1rem', '1.2rem'] }}
-                                       >
-                                          Phone Call
-                                       </Typography>
-                                       <Typography
-                                          fontWeight={500}
-                                          sx={{ fontSize: [10, 14] }}
-                                       >
-                                          Lorem ipsum dolor sit amet,
-                                          consectetur adipisicing.
-                                       </Typography>
-                                    </Box>
-                                 </Box>
-                              </Grid>
-                              <Grid item sm={6}>
-                                 <Box
-                                    className={classes.addressPanel}
-                                    onClick={() => setOpenPhonePanel(false)}
-                                 >
-                                    {<div className={classes.circle2}></div>}
-                                    <Box>
-                                       <Typography
-                                          variant='h5'
-                                          fontWeight={600}
-                                          gutterBottom
-                                          sx={{ fontSize: ['1rem', '1.2rem'] }}
-                                       >
-                                          Site Visit
-                                       </Typography>
-                                       <Typography
-                                          fontWeight={500}
-                                          sx={{ fontSize: [10, 14] }}
-                                       >
-                                          Lorem ipsum dolor sit amet,
-                                          consectetur adipisicing.
-                                       </Typography>
-                                    </Box>
-                                 </Box>
-                              </Grid>
-                           </Grid>
-                           <Box
-                              component='form'
-                              sx={{
-                                 width: ['100%', '80%'],
-                                 mx: 'auto',
-                                 display: 'flex',
-                                 flexDirection: 'column',
-                                 alignItems: 'center',
-                              }}
-                           >
-                              <ConsultTextField label='Name' />
-                              <ConsultTextField label='Phone Number' />
-                              <ConsultTextField label='Email (Optional)' />
-
-                              {!openPhonePanel && (
-                                 <ConsultTextField label='Address' />
-                              )}
-
-                              <YellowButton
-                                 onClick={handleOpenBooking}
-                                 style={{ marginTop: '2.5rem' }}
-                              >
-                                 Submit
-                              </YellowButton>
-                           </Box>
+                    <Grid item sm={6}>
+                      <Box
+                        className={classes.phonePanel}
+                        sx={{ mb: 2 }}
+                        onClick={() => setOpenPhonePanel(true)}
+                      >
+                        {<div className={`${classes.circle}`}></div>}
+                        <Box>
+                          <Typography
+                            variant="h5"
+                            fontWeight={600}
+                            gutterBottom
+                            sx={{ fontSize: ["1rem", "1.2rem"] }}
+                          >
+                            Phone Call
+                          </Typography>
+                          <Typography
+                            fontWeight={500}
+                            sx={{ fontSize: [10, 14] }}
+                          >
+                            Lorem ipsum dolor sit amet, consectetur adipisicing.
+                          </Typography>
                         </Box>
-                     )}
-                  </Box>
-
-                  {/* ============ Projects Slider ============ */}
-                  {projects.length > 0 && <Projects projects={projects} />}
-
-                  <BookNow onClick={bookNowClickHandler} />
-
-                  <BookProducts />
-
-                  {/* ============ modals ============ */}
-                  {/* Modal for video */}
-                  <Modal
-                     open={open}
-                     onClose={handleClose}
-                     aria-labelledby='modal-modal-title'
-                     aria-describedby='modal-modal-description'
+                      </Box>
+                    </Grid>
+                    <Grid item sm={6}>
+                      <Box
+                        className={classes.addressPanel}
+                        onClick={() => setOpenPhonePanel(false)}
+                      >
+                        {<div className={classes.circle2}></div>}
+                        <Box>
+                          <Typography
+                            variant="h5"
+                            fontWeight={600}
+                            gutterBottom
+                            sx={{ fontSize: ["1rem", "1.2rem"] }}
+                          >
+                            Site Visit
+                          </Typography>
+                          <Typography
+                            fontWeight={500}
+                            sx={{ fontSize: [10, 14] }}
+                          >
+                            Lorem ipsum dolor sit amet, consectetur adipisicing.
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                  <Box
+                    component="form"
+                    sx={{
+                      width: ["100%", "80%"],
+                      mx: "auto",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                    onSubmit={handleSubmit(consultFormSubmitHandler)}
                   >
-                     <Box sx={style}>
-                        <Typography
-                           id='modal-modal-title'
-                           variant='h6'
-                           component='h2'
-                        >
-                           Text in a modal
-                        </Typography>
-                        <Typography id='modal-modal-description' sx={{ mt: 2 }}>
-                           Duis mollis, est non commodo luctus, nisi erat
-                           porttitor ligula.
-                        </Typography>
-                     </Box>
-                  </Modal>
-                  {/* Modal for policy */}
-                  <CustomModal
-                     open={openAfterSalePolicyModal}
-                     modalText={portfolio.return_policy}
-                     handleClose={handleAfterSalePolicyModalClose}
-                  />
-                  <VideoModal
-                     open={open}
-                     handleClose={handleClose}
-                     videoLink={portfolio.video_url}
-                     // videoLink='https://www.youtube.com/watch?v=Cg-6WRhpWy8'
-                  />
-               </Container>
+                    <ConsultTextField
+                      label="Name"
+                      {...register("name", {
+                        required: {
+                          value: true,
+                          message: "Name is required",
+                        },
+                      })}
+                      error={errors.name}
+                      helperText={errors.name?.message}
+                    />
+                    <ConsultTextField
+                      label="Phone Number"
+                      type="number"
+                      {...register("mobile", {
+                        required: {
+                          value: true,
+                          message: "Phone Number is required",
+                        },
+                      })}
+                      error={errors.mobile}
+                      helperText={errors.mobile?.message}
+                    />
+                    <ConsultTextField
+                      label="Email (Optional)"
+                      {...register("email", {
+                        pattern: {
+                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                          message: "Invalid email address",
+                        },
+                      })}
+                      error={errors.email}
+                      helperText={errors.email?.message}
+                    />
+
+                    {!openPhonePanel && (
+                      <ConsultTextField
+                        label="Address"
+                        {...register("address", {
+                          required: {
+                            value: !openPhonePanel,
+                            message: "Address name is required",
+                          },
+                        })}
+                        error={errors.address}
+                        helperText={errors.name?.address}
+                      />
+                    )}
+
+                    <PrimaryButton
+                      // onClick={handleOpenBooking}
+                      sx={{ marginTop: "2.5rem", px: 5, py: 1.5 }}
+                      type="submit"
+                    >
+                      Submit
+                    </PrimaryButton>
+                  </Box>
+                </Box>
+              )}
+            </BookWrapper>
+            {/* ======================== Book Consult end ======================== */}
+
+            {/* subsidy box */}
+
+            {portfolio?.solar_subsidy && <SubsidyBox />}
+
+            {/* ============ Projects Slider ============ */}
+            <Box sx={{ mb: 5, mx: { sm: "auto", xs: 2 } }}>
+              {projects.length > 0 && <ProjectsSlider projects={projects} />}
             </Box>
-         ) : (
-            <Loader />
-         )}
-         <ProfileFooter />
-      </>
-   );
+
+            <BookNow onClick={bookNowClickHandler} />
+
+            {/*  book products section */}
+            <BookProducts
+              products={products}
+              setProducts={setProducts}
+              openPurchaseModal={openPurchaseModal}
+              closePurchaseModal={closePurchaseModal}
+              vendorSlug={portfolio.slug}
+            />
+          </InnerWrapper>
+
+          {/* ============ modals ============ */}
+
+          <Dialog
+            // TransitionComponent={Transition}
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <ModalWrapper>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Text in a modal
+              </Typography>
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+              </Typography>
+            </ModalWrapper>
+          </Dialog>
+
+          {/* Modal for policy */}
+          <CustomModal
+            open={openAfterSalePolicyModal}
+            modalText={portfolio.return_policy}
+            handleClose={handleAfterSalePolicyModalClose}
+          />
+
+          {/* MOBILE MODAL FOR POLICY */}
+          <Dialog
+            // TransitionComponent={Transition}
+            sx={{ top: "0" }}
+            fullScreen
+            open={showPolicyDialog}
+            handleClose={() => setShowPolicyDialog(false)}
+            hideBackdrop={true}
+          >
+            <PolicyDialog
+              modalTopBackButtonStyle={modalTopBackButtonStyle}
+              setShowPolicyDialog={setShowPolicyDialog}
+              paraStyle={paraStyle}
+              portfolio={portfolio}
+            />
+          </Dialog>
+          {/* Modal for video */}
+          <VideoModal
+            open={open}
+            handleClose={handleClose}
+            videoLink={portfolio.video_url}
+            // videoLink='https://www.youtube.com/watch?v=Cg-6WRhpWy8'
+          />
+
+          {/* COMPANY DETAIL MODAL */}
+          <Dialog
+            // TransitionComponent={Transition}
+            sx={{ top: "0" }}
+            fullScreen
+            hideBackdrop={true}
+            open={showBottomSheet}
+            onClose={handleTextExpandClose}
+          >
+            <BottomSheetDialog
+              setShowBottomSheet={setShowBottomSheet}
+              showBottomSheet={showBottomSheet}
+              tabValue={tabValue}
+              handleChange={handleChange}
+              setScrollIndex={setScrollIndex}
+              companyRef={companyRef}
+              portfolio={portfolio}
+              showTooltip2={showTooltip2}
+              setShowTooltip2={setShowTooltip2}
+              aboutRef={aboutRef}
+              videoUrl={videoUrl}
+              certificatesRef={certificatesRef}
+              descriptionRef={descriptionRef}
+            />
+          </Dialog>
+
+          <Dialog
+            // TransitionComponent={Transition}
+            sx={{ top: "0" }}
+            fullScreen
+            hideBackdrop={true}
+            open={bookingFormModal}
+            onClose={() => setBookingFormModal(false)}
+          >
+            <BookingFormModal
+              modalTopBackButtonStyle={modalTopBackButtonStyle}
+              setBookingFormModal={setBookingFormModal}
+              classes={classes}
+              setOpenPhonePanel={setOpenPhonePanel}
+              openPhonePanel={openPhonePanel}
+              handleOpenBooking={handleOpenBooking}
+            />
+          </Dialog>
+
+          {/* PURCHASE PRODUCT MODAL */}
+          <Dialog
+            // TransitionComponent={Transition}
+            sx={{ top: "0" }}
+            fullScreen
+            hideBackdrop={true}
+            onClose={closePurchaseModal}
+            open={showPurchaseModal}
+          >
+            <Box>
+              <Box sx={modalTopBackButtonStyle} onClick={closePurchaseModal}>
+                <KeyboardBackspace />
+                <Box>Back To Portfolio</Box>
+              </Box>
+
+              <PurchaseProductMobile
+                product={productForPurchase}
+                showDetailModal={showDetailModal}
+              />
+            </Box>
+          </Dialog>
+
+          {/* PURCHASE MODAL VIEW MORE */}
+          <Dialog
+            // TransitionComponent={Transition}
+            sx={{ top: "0" }}
+            fullScreen
+            hideBackdrop={true}
+            onClose={hideDetailModal}
+            open={showProductDetail}
+          >
+            <DetailModal
+              modalTopBackButtonStyle={modalTopBackButtonStyle}
+              hideDetailModal={hideDetailModal}
+              tabValue2={tabValue2}
+              handleChange2={handleChange2}
+              productForPurchase={productForPurchase}
+            />
+          </Dialog>
+        </Box>
+      ) : (
+        <Loader />
+      )}
+
+      {!profileDataLoading && !profileDataError && (
+        <LeadForm
+          open={leadFormOpen}
+          onClose={() => setLeadFormOpen(false)}
+          data={profileData}
+          portfolio={portfolio}
+        />
+      )}
+    </>
+  );
 };
 
 export default UserPortfolioProfile;

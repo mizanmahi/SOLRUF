@@ -1,0 +1,21 @@
+.ant-drawer-content {
+    border-radius: 17px 17px 0 0;
+}
+
+.ant-drawer-body {
+    padding: 0;
+}
+
+.ant-drawer-header-title {
+    justify-content: space-between !important;
+    flex: 0;
+}
+
+.ant-drawer-title {
+    flex: 0 0 auto;
+}
+
+.button-root-1 {
+    border: 0;
+    
+}

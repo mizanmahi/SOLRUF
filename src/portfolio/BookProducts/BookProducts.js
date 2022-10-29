@@ -1,16 +1,40 @@
-import { Grid, Typography, useMediaQuery } from '@mui/material';
+import { Grid } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useEffect, useRef } from 'react';
-import BookProduct from './BookProduct/BookProduct';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import LeftProductFilter from '../../components/LeftProductFilter/LeftProductFilter';
-import HorizontalBookProduct from '../../components/HorizontalBookProduct/HorizontalBookProduct';
+import ProductCardForPortfolio from './ProductCardForPortfolio';
+import PrimaryButton from '../../components/Custom/PrimaryButton/PrimaryButton';
+import SolrufModal from '../../components/Custom/SolrufModal/SolrufModal';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
-const BookProducts = ({ scrollIntoView = true, setShowProducts }) => {
+// import { axiAuth } from '../../utils/axiosInstance';
+
+const categories = [
+   'Solar Panel',
+   'Solar roofing',
+   'Solar invertors',
+   'Solar water pipes',
+   'Solar water tanks',
+   'Solar water heater',
+];
+
+var sortCategories = {
+   'Power Capacity': false,
+   'Price Range': false,
+};
+
+const BookProducts = ({
+   products,
+   scrollIntoView = true,
+   setShowProducts,
+   openPurchaseModal,
+   closePurchaseModal,
+   vendorSlug,
+   setProducts,
+}) => {
    const productsRef = useRef(null);
-   const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-
-   const [gridView, setGridView] = React.useState(true);
+   // const matches = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
    // useEffect(() => {
    //    if (scrollIntoView) {
@@ -20,14 +44,44 @@ const BookProducts = ({ scrollIntoView = true, setShowProducts }) => {
    //    }
    // }, [scrollIntoView]);
 
-   const categories = [
-      'Solar Panels',
-      'Solar invertors',
-      'Solar roofing',
-      'Solar water heater',
-      'Solar water tanks',
-      'Solar water pipes',
-   ];
+   console.log({ vendorSlug });
+
+   const [activeCategory, setActiveCategory] = useState('');
+   const [filterCategory, setFilterCategory] = useState(sortCategories);
+
+   const handleActiveCategory = (category) => {
+      setActiveCategory(category);
+   };
+
+   const [displayProducts, setDisplayProducts] = useState(products);
+   console.log(displayProducts);
+
+   useEffect(() => {
+      if (activeCategory) {
+         setDisplayProducts(() => {
+            return products.filter((product) => {
+               console.log({
+                  product: product.main_category.name,
+                  activeCategory: activeCategory,
+               });
+               return product.main_category.name === activeCategory;
+            });
+         });
+      } else {
+         setDisplayProducts(products);
+      }
+   }, [activeCategory, products]);
+
+   const props = {
+      activeCategory,
+      setActiveCategory,
+      filterSort: filterCategory,
+      setFilterSort: setFilterCategory,
+      handleActiveCategory,
+      categories,
+      sortCategories,
+   };
+   const [showFilterModal, setShowFilterModal] = useState(false);
 
    return (
       <motion.div
@@ -38,7 +92,32 @@ const BookProducts = ({ scrollIntoView = true, setShowProducts }) => {
          <Box sx={{ mt: 2, mb: 5 }} ref={productsRef}>
             <Grid container spacing={3}>
                <Grid item xs={12} md={4} lg={3}>
-                  <LeftProductFilter />
+                  <Box sx={{ display: ['none', 'block'] }}>
+                     <LeftProductFilter {...props} />
+                  </Box>
+
+                  <Box
+                     sx={{
+                        display: ['flex', 'none'],
+                        width: '100%',
+                        justifyContent: 'center',
+                     }}
+                  >
+                     <PrimaryButton
+                        sx={{ mx: 'auto', py: 1.5, px: 2 }}
+                        IconEnd={FilterAltIcon}
+                        onClick={() => setShowFilterModal(true)}
+                     >
+                        Filter Products By Category
+                     </PrimaryButton>
+                  </Box>
+
+                  <SolrufModal
+                     open={showFilterModal}
+                     onClose={() => setShowFilterModal(false)}
+                  >
+                     <LeftProductFilter {...props} sx={{my: 3}} />
+                  </SolrufModal>
                </Grid>
 
                <Grid
@@ -50,43 +129,30 @@ const BookProducts = ({ scrollIntoView = true, setShowProducts }) => {
                   lg={9}
                   rowSpacing={3}
                >
-                  {gridView && (
-                     <>
+                  {displayProducts?.length > 0 &&
+                     displayProducts?.map((product, i) => (
                         <Grid item xs={12} md={6} lg={4}>
-                           <BookProduct bookingOn={true} />
+                           <ProductCardForPortfolio
+                              openPurchaseModal={openPurchaseModal}
+                              closePurchaseModal={closePurchaseModal}
+                              product={product}
+                              actionType='purchase'
+                              sx={{ mx: 'auto' }}
+                              vendorSlug={vendorSlug}
+                           />
                         </Grid>
-                        <Grid item xs={12} md={6} lg={4}>
-                           <BookProduct bookingOn={true} />
-                        </Grid>
-                        <Grid item xs={12} md={6} lg={4}>
-                           <BookProduct bookingOn={true} />
-                        </Grid>
-                        <Grid item xs={12} md={6} lg={4}>
-                           <BookProduct bookingOn={true} />
-                        </Grid>
-                        <Grid item xs={12} md={6} lg={4}>
-                           <BookProduct bookingOn={true} />
-                        </Grid>
-                        <Grid item xs={12} md={6} lg={4}>
-                           <BookProduct bookingOn={true} />
-                        </Grid>
-                     </>
-                  )}
-                  {!gridView && (
-                     <>
-                        <Grid item xs={12}>
-                           <HorizontalBookProduct />
-                        </Grid>
-                        <Grid item xs={12}>
-                           <HorizontalBookProduct />
-                        </Grid>
-                        <Grid item xs={12}>
-                           <HorizontalBookProduct />
-                        </Grid>
-                     </>
-                  )}
+                     ))}
                </Grid>
             </Grid>
+
+            {/* <CustomBottomBar sx={{
+               position: 'fixed',
+               bottom: 0,
+            }}>
+               <PrimaryButton >
+                  Filter
+               </PrimaryButton>
+            </CustomBottomBar> */}
          </Box>
       </motion.div>
    );

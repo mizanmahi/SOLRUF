@@ -1,13 +1,20 @@
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react';
 import { Pagination, Navigation, Scrollbar, Keyboard } from 'swiper';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+
 import './responsiveSlider.css';
 
 const ResponsiveSlider = ({ images }) => {
+   console.log(images);
+
+   const slidePerView = images.length > 3 ? 3 : images.length;
+   console.log(slidePerView);
    return (
       <Swiper
          loop={true}
-         slidesPerView={4}
-         spaceBetween={5}
+         slidesPerView={slidePerView}
+         spaceBetween={2}
          pagination={{
             clickable: true,
             // type: 'progressbar',
@@ -26,11 +33,11 @@ const ResponsiveSlider = ({ images }) => {
          // scrollbar={true}
          breakpoints={{
             1024: {
-               slidesPerView: 4,
-               spaceBetween: 50,
+               slidesPerView: slidePerView,
+               spaceBetween: 0,
             },
             960: {
-               slidesPerView: 3,
+               slidesPerView: slidePerView,
                spaceBetween: 30,
             },
             640: {
@@ -50,11 +57,12 @@ const ResponsiveSlider = ({ images }) => {
                <img src={item} alt='' />
             </SwiperSlide>
          ))}
-         <div class='swiper-button-prev'>
-            <i class='fas fa-chevron-left'></i>
+
+         <div className='swiper-button-prev'>
+            <ChevronLeftIcon />
          </div>
-         <div class='swiper-button-next'>
-            <i class='fas fa-chevron-right'></i>
+         <div className='swiper-button-next'>
+            <ChevronRightIcon />
          </div>
       </Swiper>
    );

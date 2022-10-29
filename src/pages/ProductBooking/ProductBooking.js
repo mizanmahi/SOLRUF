@@ -2,12 +2,16 @@ import { Container, Grid, Typography } from '@mui/material';
 import { Box, styled } from '@mui/system';
 import React from 'react';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-import HorizontalBookProduct from '../../components/HorizontalBookProduct/HorizontalBookProduct';
 import { useNavigate } from 'react-router-dom';
 import ProfileFooter from '../../components/ProfileFooter/ProfileFooter';
 import ProfileHeader from '../../components/ProfileHeader/ProfileHeader';
 import LeftProductFilter from '../../components/LeftProductFilter/LeftProductFilter';
-import BookProduct from '../../portfolio/BookProducts/BookProduct/BookProduct';
+import ProductCardForPortfolio from '../../portfolio/BookProducts/ProductCardForPortfolio';
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import PrimaryButton from '../../components/Custom/PrimaryButton/PrimaryButton';
+import SolrufModal from '../../components/Custom/SolrufModal/SolrufModal';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
 const Wrapper = styled(Box)(({ theme }) => ({
    backgroundColor: theme.palette.primary.light,
@@ -16,8 +20,63 @@ const Nav = styled(Box)(({ theme }) => ({
    padding: '1rem 0',
 }));
 
+const categories = [
+   'Solar Panel',
+   'Solar roofing',
+   'Solar invertors',
+   'Solar water pipes',
+   'Solar water tanks',
+   'Solar water heater',
+];
+
+var sortCategories = {
+   'Power Capacity': false,
+   'Price Range': false,
+};
+
 const ProductBooking = () => {
    const navigate = useNavigate();
+   const portfolioData = useSelector((state) => state.portfolio.portfolioData);
+
+   const [activeCategory, setActiveCategory] = useState('');
+   const [filterCategory, setFilterCategory] = useState(sortCategories);
+
+   const handleActiveCategory = (category) => {
+      setActiveCategory(category);
+      console.log(category);
+   };
+
+   const [displayProducts, setDisplayProducts] = useState(
+      portfolioData.products
+   );
+
+   useEffect(() => {
+      if (activeCategory) {
+         setDisplayProducts(() => {
+            return portfolioData.products.filter((product) => {
+               console.log({
+                  product: product.main_category.name,
+                  activeCategory: activeCategory,
+               });
+               return product.main_category.name === activeCategory;
+            });
+         });
+      } else {
+         setDisplayProducts(portfolioData.products);
+      }
+   }, [activeCategory, portfolioData.products]);
+
+   const [showFilterModal, setShowFilterModal] = useState(false);
+
+   const props = {
+      activeCategory,
+      setActiveCategory,
+      filterSort: filterCategory,
+      setFilterSort: setFilterCategory,
+      handleActiveCategory,
+      categories,
+      sortCategories,
+   };
 
    return (
       <>
@@ -30,12 +89,18 @@ const ProductBooking = () => {
                         textAlign='center'
                         variant='h3'
                         sx={{
-                           fontSize: ['1.8rem', '2rem', '2.5rem'],
+                           fontSize: ['1.2rem', '2rem', '2.5rem'],
                         }}
                      >
                         Book Products In Advance
                      </Typography>
-                     <Box>
+                     <Box
+                        sx={{
+                           '@media (max-width: 600px)': {
+                              marginTop: '2rem',
+                           },
+                        }}
+                     >
                         <KeyboardBackspaceIcon
                            sx={{
                               position: 'absolute',
@@ -54,30 +119,51 @@ const ProductBooking = () => {
                   </Box>
                </Container>
             </Nav>
-            <Container maxWidth='xl' sx={{pb: 4}}>
+            <Container maxWidth='xl' sx={{ pb: 4 }}>
                <Grid container spacing={4}>
                   <Grid item xs={12} md={3}>
-                     <LeftProductFilter />
+                     <Box
+                        sx={{
+                           display: ['none', 'block'],
+                        }}
+                     >
+                        <LeftProductFilter {...props} />
+                     </Box>
+
+                     <Box
+                        sx={{
+                           display: ['flex', 'none'],
+                           width: '100%',
+                           justifyContent: 'center',
+                        }}
+                     >
+                        <PrimaryButton
+                           sx={{ mx: 'auto', py: 1.5, px: 2 }}
+                           IconEnd={FilterAltIcon}
+                           onClick={() => setShowFilterModal(true)}
+                        >
+                           Filter Products By Category
+                        </PrimaryButton>
+                     </Box>
+
+                     <SolrufModal
+                        open={showFilterModal}
+                        onClose={() => setShowFilterModal(false)}
+                     >
+                        <LeftProductFilter {...props} sx={{ my: 3 }} />
+                     </SolrufModal>
                   </Grid>
                   <Grid container spacing={2} item xs={12} md={9}>
-                     <Grid item xs={12} md={4}>
-                        <BookProduct />
-                     </Grid>
-                     <Grid item xs={12} md={4}>
-                        <BookProduct />
-                     </Grid>
-                     <Grid item xs={12} md={4}>
-                        <BookProduct />
-                     </Grid>
-                     <Grid item xs={12} md={4}>
-                        <BookProduct />
-                     </Grid>
-                     <Grid item xs={12} md={4}>
-                        <BookProduct />
-                     </Grid>
-                     <Grid item xs={12} md={4}>
-                        <BookProduct />
-                     </Grid>
+                     {displayProducts
+                        ?.filter((prod) => prod.details.booking_availability)
+                        ?.map((product, i) => (
+                           <Grid item xs={12} md={6} lg={4} key={i}>
+                              <ProductCardForPortfolio
+                                 product={product}
+                                 actionType='purchase'
+                              />
+                           </Grid>
+                        ))}
                   </Grid>
                </Grid>
             </Container>

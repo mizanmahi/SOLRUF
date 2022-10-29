@@ -3,13 +3,10 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import { Box, display } from '@mui/system';
+import { Box } from '@mui/system';
 import { makeStyles } from '@mui/styles';
 import Modal from '@mui/material/Modal';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import Slider from 'react-slick';
-import SampleNextArrow from '../NextArrow';
-import PrevArrow from '../PrevArrow';
 import { Avatar, styled, useMediaQuery } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router';
@@ -22,7 +19,6 @@ import HistoryIcon from '@mui/icons-material/History';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import ResponsiveSlider from '../../../components/ResponsiveSlider/ResponsiveSlider';
 
-// import classes from '../projects.module.css'
 
 const useStyle = makeStyles((theme) => ({
    addressBox: {
@@ -150,40 +146,7 @@ const InfoBox = styled(Box)(({ theme }) => ({
    },
 }));
 
-const settings = {
-   infinite: true,
-   speed: 500,
-   slidesToShow: 4,
-   slidesToScroll: 4,
-   nextArrow: <SampleNextArrow projectDetailsModal={true} />,
-   prevArrow: <PrevArrow projectDetailsModal={true} />,
-   responsive: [
-      {
-         breakpoint: 1024,
-         settings: {
-            slidesToShow: 2,
-            slidesToScroll: 1,
-            infinite: true,
-            dots: true,
-         },
-      },
-      {
-         breakpoint: 600,
-         settings: {
-            slidesToShow: 2,
-            slidesToScroll: 1,
-            initialSlide: 2,
-         },
-      },
-      {
-         breakpoint: 480,
-         settings: {
-            slidesToShow: 1,
-            slidesToScroll: 1,
-         },
-      },
-   ],
-};
+
 
 const Project = ({
    project_id,
@@ -384,31 +347,11 @@ const Project = ({
                   </Typography>
 
                   <Box sx={{ my: 3 }}>
-                     {/* <Slider {...settings}>
-                        {projectDetails?.images?.length > 0
-                           ? projectDetails?.images.map(({ id, url }, i) => (
-                                <Box
-                                   key={id}
-                                   sx={{
-                                      width: '250px',
-                                      display: 'flex',
-                                      padding: '1rem',
-                                      boxShadow:
-                                         '0px 0px 10px rgba(0, 0, 0, 0.1)',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                   }}
-                                >
-                                   <img
-                                      src={url}
-                                      style={{ maxWidth: '100%' }}
-                                      alt=''
-                                   />
-                                </Box>
-                             ))
-                           : null}
-                     </Slider> */}
-                     <ResponsiveSlider images={projectDetails?.images?.map(img => img.url) || []} />
+                     <ResponsiveSlider
+                        images={
+                           projectDetails?.images?.map((img) => img.url) || []
+                        }
+                     />
                   </Box>
                </Box>
 

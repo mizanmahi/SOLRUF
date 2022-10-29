@@ -1,498 +1,610 @@
-import {
-   Container,
-   Grid,
-   Typography,
-   styled,
-   Radio,
-   Button,
-} from '@mui/material';
+import { Container, Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useState } from 'react';
-import SliderWithImagePreview from '../../components/SliderWithCustomImagePreview/SliderWithImagePreview';
-import classes from './PurchaseProductPage.module.css';
-import Tabs from '@mui/material/Tabs';
+import React, { Fragment, useEffect, useState } from 'react';
 import Tab from '@mui/material/Tab';
 
-import DownloadIcon from '@mui/icons-material/Download';
-
-// table
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import YellowButton from '../../components/YellowButton/YellowButton';
 import ProductDetailList from '../../components/ProductDetailList/ProductDetailList';
-import { MinusIcon, PlusIcon } from '@heroicons/react/solid';
-
-const PurchaseBookBox = styled(Box)(({ theme }) => ({
-   // backgroundColor: theme.palette.primary.main,
-   borderRadius: '0.5rem',
-   marginTop: '2rem',
-   padding: '1rem',
-   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-}));
-
-const DocumentBox = styled(Box)(({ theme }) => ({
-   borderRadius: '0.5rem',
-   marginTop: '1rem',
-   padding: '1rem',
-   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-}));
-
-const QuantityBox = styled(Box)(({ theme }) => ({
-   minWidth: '200px',
-   // background: '#f8f8f8',
-   display: 'flex',
-   justifyContent: 'flex-start',
-   alignItems: 'center',
-   margin: '2rem 0',
-   '& input': {
-      maxWidth: '60px',
-      border: '2px solid #4D4D4D',
-      borderRadius: '5px',
-      minHeight: '32px',
-   },
-   '& svg': {
-      border: `2px solid ${theme.palette.primary.main}`,
-      marginLeft: '5px',
-      borderRadius: '5px',
-      cursor: 'pointer',
-   },
-}));
-
-const Circle = styled(Box)(({ theme }) => ({
-   width: '100px',
-   height: '100px',
-   borderRadius: '50%',
-   background: 'gray',
-   marginRight: '8px',
-}));
-
-const TabPanel = styled(Tabs)(({ theme }) => ({
-   '& .MuiButtonBase-root': {
-      fontSize: '1.2rem',
-      paddingLeft: '3rem',
-      paddingRight: '3rem',
-   },
-   '& .Mui-selected': {
-      fontWeight: 'bold',
-      color: '#000000',
-   },
-}));
-
-const TabPanelDoc = styled(Tabs)(({ theme }) => ({
-   '& .MuiButtonBase-root': {
-      fontSize: '1rem',
-      paddingLeft: '1rem',
-      paddingRight: '1rem',
-   },
-   '& .Mui-selected': {
-      fontWeight: 'bold',
-      color: '#000000',
-   },
-   '& .MuiTabs-flexContainer': {
-      justifyContent: 'space-around',
-   }
-}));
-
-function createData(name, calories, fat, carbs, protein) {
-   return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-   createData('Quality', 159, 6.0, 24, 4.0),
-   createData('Discount', 237, 9.0, 37, 4.3),
-   createData('Price per pay', 262, 16.0, 24, 6.0),
-];
+import ProfileFooter from '../../components/ProfileFooter/ProfileFooter';
+import {
+   DocumentBox,
+   FeatureBox,
+   FeatureItemBox,
+   ProductFeatures,
+   PurchaseBookBox,
+   TabPanel,
+   TabPanelDoc,
+} from './purchaseProduct.style';
+import SliderWIthThumbnail from '../../components/SliderWIthThumbnail/SliderWIthThumbnail';
+import { useParams } from 'react-router';
+import useProduct from '../../hooks/useProduct';
+import Loader from '../../components/Loader/Loader';
+// import CopyTextVar from '../../components/CopyText/CopyTextVar';
+import { useDispatch, useSelector } from 'react-redux';
+import PrimaryButton from '../../components/Custom/PrimaryButton/PrimaryButton';
+import { addToCart, migrateCart } from '../../redux/slices/cart/cartSlice';
+import QuantityControllerForPurchaseProduct from './QuantityControllerForPurchaseProduct';
+import { axiAuth } from '../../utils/axiosInstance';
+import useAuth from '../../hooks/useAuth';
+import { DownloadChip } from '../../components/CustomerDetailsDrawer/customerDetailsDrawer.style';
+import EnquiryProductDetails from '../EnquiryPage/EnquiryProductDetails';
 
 const PurchaseProductPage = () => {
-   const [tab, setTab] = React.useState(0);
+   const [purchaseBookingTab, setPurchaseBookingTab] = React.useState(0);
    const [documentTab, setDocumentTab] = React.useState(0);
-   const [quantity, setQuantity] = useState(0);
+
+   const dispatch = useDispatch();
+
+   const { vendorSlug, productSlug: product_slug } = useParams();
+   const { cart } = useSelector((state) => state.cart);
+
+   const {
+      product: { product, vendor_portfolio },
+      productLoading,
+      // productError,
+   } = useProduct(vendorSlug, product_slug);
+
+   // console.log(vendor_portfolio);
+
+   const { user } = useAuth();
+
+   const [alreadyInCart, setAlreadyInCart] = useState(false);
+
+   useEffect(() => {
+      if (!productLoading) {
+         const exist = cart.find(
+            (item) => item.product_meta.product_slug === product_slug
+         );
+         console.log(exist);
+         if (exist) {
+            setAlreadyInCart(exist);
+         }
+      }
+   }, [productLoading, cart, product_slug]);
+
+   const [purchaseQuantity, setPurchaseQuantity] = useState(1);
+   const [bookingQuantity, setBookingQuantity] = useState(1);
+
+   const [quantityError, setQuantityError] = useState('');
+
+   console.log(product);
+   console.log(alreadyInCart);
 
    const handleChange = (event, newValue) => {
-      setTab(newValue);
       console.log(newValue);
+      setPurchaseBookingTab(newValue);
    };
+
    const handleDocumentTabChange = (event, newValue) => {
       setDocumentTab(newValue);
       console.log(newValue);
    };
 
-   const handleQuantityChange = (e) => {
-      setQuantity(+e.target.value);
-   };
+   const shoes = [
+      'https://cdn.pixabay.com/photo/2016/11/19/18/06/feet-1840619_960_720.jpg',
+      'https://cdn.pixabay.com/photo/2021/10/11/18/56/shoes-6701631_960_720.jpg',
+      'https://cdn.pixabay.com/photo/2020/08/24/21/40/fashion-5515135_960_720.jpg',
+      'https://cdn.pixabay.com/photo/2013/07/12/18/20/shoes-153310_960_720.png',
+      'https://cdn.pixabay.com/photo/2014/10/27/19/18/baby-shoes-505471_960_720.jpg',
+      'https://cdn.pixabay.com/photo/2020/07/01/17/21/skater-5360306_960_720.jpg',
+   ];
 
-   const handleQuantityIncrease = () => {
-      setQuantity((prev) => prev + 1);
-   };
+   const addToCartHandler = async () => {
+      console.log('add to cart');
+      setQuantityError(''); // set error to empty string to clear error message before adding to cart
 
-   const handleQuantityDecrease = () => {
-      if (quantity === 0) {
-         return;
+      if (purchaseBookingTab === 0) {
+         setPurchaseQuantity(1);
+      } else {
+         setBookingQuantity(1);
       }
-      setQuantity((prev) => prev - 1);
+
+      const detectPrice = () => {
+         let price = 0;
+         if (purchaseBookingTab === 0) {
+            const priceAttribute = product.attributes.find(
+               (attribute) => attribute?.name?.toLowerCase() === 'price'
+            );
+            console.log(priceAttribute);
+            price = priceAttribute
+               ? priceAttribute.attribute_values[0].value
+               : 0;
+            return price;
+         } else {
+            const bookingPriceAttribute = product.attributes.find(
+               (attribute) => attribute?.name?.toLowerCase() === 'booking price'
+            );
+            console.log(bookingPriceAttribute);
+            price = bookingPriceAttribute
+               ? bookingPriceAttribute?.attribute_values[0].value
+               : 0;
+            return price;
+         }
+      };
+
+      const price = detectPrice();
+      console.log(price);
+
+      const productToAdd = {
+         item_price: detectPrice(),
+         total_price: 0,
+         product_id: product.product_id,
+         vendor_id: vendor_portfolio.vendor_id,
+         product_meta: {
+            vendor_name: vendor_portfolio.name,
+            vendor_slug: vendor_portfolio.slug,
+            product_name: product.product_name,
+            product_slug,
+            product_image: product.product_thumbnail
+               ? product.product_thumbnail
+               : product.default_image,
+            cgst: product.tax_cgst,
+            sgst: product.tax_sgst,
+            igst: product.tax_igst,
+         },
+
+         quantity: 1,
+         details: product.details,
+         purchase_type: purchaseBookingTab === 0 ? 'purchase' : 'booking',
+      };
+      console.log({ productToAdd });
+
+      if (user) {
+         try {
+            const { status, data } = await axiAuth.post('api/carts', {
+               carts: [productToAdd],
+            });
+            if (status === 200) {
+               console.log(data.carts);
+               dispatch(migrateCart(data.carts));
+            }
+         } catch (error) {
+            console.log(error.message);
+         }
+      } else {
+         dispatch(addToCart(productToAdd));
+      }
    };
+
+   useEffect(() => {
+      if (alreadyInCart !== false) {
+         setPurchaseQuantity(alreadyInCart.quantity || 1);
+         setBookingQuantity(alreadyInCart.quantity || 1);
+      }
+   }, [alreadyInCart]);
+
+   if (productLoading) return <Loader />;
 
    return (
-      <Box sx={{my: 4}}>
-         <Container maxWidth='xl'>
-            <Grid container spacing={5}>
-               <Grid item xs={12} sm={5} md={5} lg={4}>
-                  <Box sx={{ mb: 12 }}>
-                     <SliderWithImagePreview />
-                  </Box>
-
-                  <Box sx={{ p: 1, }}>
-                     <Typography
-                        variant='h5'
-                        sx={{ my: 1, textAlign: 'center' }}
-                     >
-                        Product Feature
-                     </Typography>
-                     <table className={classes.table}>
-                        <tbody>
-                           <tr>
-                              <td style={{ padding: '.4rem' }}>Item !</td>
-                              <td style={{ padding: '.4rem' }}>Item !</td>
-                           </tr>
-                           <tr>
-                              <td style={{ padding: '.4rem' }}>Item !</td>
-                              <td style={{ padding: '.4rem' }}>Item !</td>
-                           </tr>
-                           <tr>
-                              <td style={{ padding: '.4rem' }}>Item !</td>
-                              <td style={{ padding: '.4rem' }}>Item !</td>
-                           </tr>
-                           <tr>
-                              <td style={{ padding: '.4rem' }}>Item !</td>
-                              <td style={{ padding: '.4rem' }}>Item !</td>
-                           </tr>
-                        </tbody>
-                     </table>
-
-                     <Typography
-                        textAlign='center'
-                        sx={{ mt: 2, textDecoration: 'underline' }}
-                     >
-                        Read More
-                     </Typography>
-                  </Box>
+      <Fragment>
+         <Box sx={{ my: 4 }}>
+            <Container maxWidth='xl'>
+               <Grid container spacing={5}>
+                  <Grid item xs={12} sm={12} md={6} lg={6}>
+                     <Box sx={{ mb: 12, maxWidth: 500, mx: 'auto' }}>
+                        <SliderWIthThumbnail
+                           images={
+                              product.images.length > 0
+                                 ? product.images.map((img) => img.image_url)
+                                 : shoes
+                           }
+                        />
+                     </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={6} lg={6}>
+                     <Box>
+                        <EnquiryProductDetails
+                           productDetails={{
+                              ...product,
+                              ...vendor_portfolio,
+                           }}
+                           showVendorName
+                        />
+                     </Box>
+                  </Grid>
                </Grid>
-               <Grid item xs={12} sm={7} md={7} lg={8}>
-                  <Box>
-                     <Typography variant='h4'>
-                        24 Inch Solar cables (10x Powerful) Fully Ready To
-                        Functional Power Cable
-                     </Typography>
 
-                     <PurchaseBookBox>
-                        <Box sx={{ width: '100%' }}>
-                           <TabPanel
-                              value={tab}
-                              onChange={handleChange}
-                              centered
-                              sx={{ background: '#F3F3F3', borderRadius: 1.5 }}
+               {/* purchase box section */}
+               <Box>
+                  <PurchaseBookBox
+                     sx={{
+                        width: '100%',
+                        maxWidth: '700px',
+                        mx: 'auto',
+                        position: 'relative',
+                     }}
+                  >
+                     {!product?.active && (
+                        <Box
+                           sx={{
+                              height: '100%',
+                              width: '100%',
+                              top: 0,
+                              left: 0,
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              position: 'absolute',
+                              zIndex: 100,
+                              background: 'rgba(255,255,255,0.7)',
+                              borderRadius: '0.5rem',
+                           }}
+                        >
+                           <Box
+                              sx={{
+                                 background: '#E21F30',
+                                 p: 2,
+                                 borderRadius: '8px',
+                                 boxShadow:
+                                    '0px 4px 24px  0 rgba(0, 69, 184, 0.15)',
+                                 backdropFilter: 'blur(10px)',
+                                 display: 'flex',
+                                 justifyContent: 'center',
+                                 alignItems: 'center',
+                                 width: '95%',
+                                 maxWidth: '700px',
+                              }}
                            >
-                              <Tab label='Purchase' />
-                              <Tab label='Book' />
-                           </TabPanel>
-                        </Box>
-                        {tab === 0 && (
-                           <Box>
-                              <ProductDetailList
-                                 list='Stock Availability: -'
-                                 description='400 Pieces / 20 KW'
-                                 hand={true}
-                                 sx={{ my: 4 }}
-                              />
-                              <TableContainer component={Box} sx={{ mt: 1 }}>
-                                 <Table
-                                    sx={{ width: '725px', minWidth: 600 }}
-                                    aria-label='simple table'
-                                 >
-                                    <TableHead>
-                                       <TableRow>
-                                          <TableCell
-                                             align='left'
-                                             sx={{
-                                                fontWeight: 600,
-                                                fontSize: '1rem',
-                                             }}
-                                          >
-                                             Selected
-                                          </TableCell>
-                                          <TableCell
-                                             align='right'
-                                             sx={{
-                                                fontWeight: 600,
-                                                fontSize: '1rem',
-                                             }}
-                                          >
-                                             Quantity
-                                          </TableCell>
-                                          <TableCell
-                                             align='right'
-                                             sx={{
-                                                fontWeight: 600,
-                                                fontSize: '1rem',
-                                             }}
-                                          >
-                                             Discount
-                                          </TableCell>
-                                          <TableCell
-                                             align='right'
-                                             sx={{
-                                                fontWeight: 600,
-                                                fontSize: '1rem',
-                                             }}
-                                          >
-                                             Price per day
-                                          </TableCell>
-                                       </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                       {rows.map((row) => (
-                                          <TableRow
-                                             key={row.name}
-                                             sx={{
-                                                '&:last-child td, &:last-child th':
-                                                   {
-                                                      border: 0,
-                                                   },
-                                             }}
-                                          >
-                                             <TableCell
-                                                component='th'
-                                                scope='row'
-                                                align='left'
-                                             >
-                                                <Radio
-                                                   value='a'
-                                                   checked={
-                                                      quantity >= 2 &&
-                                                      quantity <= 3
-                                                   }
-                                                   name='radio-buttons'
-                                                   inputProps={{
-                                                      'aria-label': 'A',
-                                                   }}
-                                                />
-                                             </TableCell>
-                                             <TableCell
-                                                component='th'
-                                                scope='row'
-                                                align='right'
-                                             >
-                                                2 - 3
-                                             </TableCell>
-                                             <TableCell align='right'>
-                                                {row.calories}
-                                             </TableCell>
-                                             <TableCell align='right'>
-                                                Rs. 560005
-                                             </TableCell>
-                                          </TableRow>
-                                       ))}
-                                    </TableBody>
-                                 </Table>
-                              </TableContainer>
-                              <Typography variant='h5' sx={{ mt: 2 }}>
-                                 Rs: 5600
-                              </Typography>
-                              <Typography variant='h6'>
-                                 <span style={{ color: 'green' }}>GST 5%</span>{' '}
-                                 at RST 75000
-                              </Typography>
-                           </Box>
-                        )}
-
-                        {tab === 1 && (
-                           <Box sx={{ mt: 3 }}>
-                              <ProductDetailList
-                                 list='Booking Period'
-                                 description='15 Days / Month'
-                                 hand={true}
-                              />
-                              <ProductDetailList
-                                 list='Advance Payment'
-                                 description='20% Off order value'
-                                 hand={true}
-                              />
-                              <ProductDetailList
-                                 list='Booking Price Per Watt'
-                                 description='Pune'
-                                 hand={true}
-                              />
-                              <Box
+                              <Typography
                                  sx={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    my: 2,
+                                    fontSize: '1.5rem',
+                                    color: '#fff',
+                                    fontWeight: 'bold',
+                                    textAlign: 'center',
                                  }}
                               >
-                                 <Box>
-                                    <Typography variant='h5' sx={{ mt: 2 }}>
-                                       Rs: 5600
-                                    </Typography>
-                                    <Typography variant='h6'>
-                                       <span style={{ color: 'green' }}>
-                                          GST 5%
-                                       </span>{' '}
-                                       at RST 75000
-                                    </Typography>
-                                 </Box>
-                                 <Box>
-                                    <Typography variant='h5' sx={{ mt: 2 }}>
-                                       Rs: 5600
-                                    </Typography>
-                                    <Typography variant='h6'>
-                                       <span style={{ color: 'green' }}>
-                                          GST 5%
-                                       </span>{' '}
-                                       at RST 75000
-                                    </Typography>
-                                 </Box>
-                              </Box>
+                                 This product is not available for purchase &
+                                 booking!
+                              </Typography>
                            </Box>
-                        )}
-
-<QuantityBox>
-                           <Typography
-                              variant='body1'
-                              color='gray'
-                              sx={{ mr: 5 }}
-                           >
-                              Quantity
-                           </Typography>
-                           <input
-                              type='number'
-                              value={quantity}
-                              onChange={handleQuantityChange}
-                           />
-                           <PlusIcon
-                              style={{
-                                 width: '30px',
-                                 boxSizing: 'content-box',
-                                 padding: '0 .7rem',
-                              }}
-                              onClick={handleQuantityIncrease}
-                           />
-                           <MinusIcon
-                              style={{
-                                 width: '30px',
-                                 boxSizing: 'content-box',
-                                 padding: '0 .7rem',
-                              }}
-                              onClick={handleQuantityDecrease}
-                           />
-                        </QuantityBox>
-                        <Typography
-                           variant='body1'
-                           textAlign='center'
-                           sx={{ color: 'red' }}
-                        >
-                           Error Happened
-                        </Typography>
-                        <YellowButton
-                           style={{ width: '100%', marginTop: '1rem' }}
-                        >
-                           Purchase Now
-                        </YellowButton>
-                     </PurchaseBookBox>
-
-                     <Box
-                        sx={{
-                           display: 'flex',
-                           justifyContent: 'center',
-                           mt: 2,
-                        }}
-                     >
-                        <Circle />
-                        <Circle />
-                        <Circle />
-                        <Circle />
-                     </Box>
-
-                     <DocumentBox sx={{ mb: 5 }}>
-                        <TabPanelDoc
-                           value={documentTab}
-                           onChange={handleDocumentTabChange}
-                           centered
-                           sx={{ background: '#F3F3F3' }}
-                        >
-                           <Tab label='Product Document' />
-                           <Tab label='Warranty Card' />
-                           <Tab label='Booking Document' />
-                        </TabPanelDoc>
-                        <Box sx={{ p: 2 }}>
-                           {documentTab === 0 && (
-                              <Box sx={{ width: '70%' }}>
-                                 <Button
-                                    endIcon={<DownloadIcon />}
-                                    color='secondary'
-                                    variant='contained'
-                                    sx={{ mr: 1, mb: 1 }}
-                                 >
-                                    Document Name
-                                 </Button>
-                                 <Button
-                                    endIcon={<DownloadIcon />}
-                                    color='secondary'
-                                    variant='contained'
-                                    sx={{ mr: 1, mb: 1 }}
-                                 >
-                                    Document Name
-                                 </Button>
-                                 <Button
-                                    endIcon={<DownloadIcon />}
-                                    color='secondary'
-                                    variant='contained'
-                                    sx={{ mr: 1, mb: 1 }}
-                                 >
-                                    Document Name
-                                 </Button>
-                                 <Typography variant='body2' sx={{ mt: 2 }}>
-                                    <strong>Description: </strong> Lorem ipsum,
-                                    dolor sit amet consectetur adipisicing elit.
-                                    Eius at suscipit aspernatur distinctio
-                                    magnam vero culpa iste? At ullam optio
-                                    laboriosam non culpa, dolores quos amet, ut
-                                    soluta voluptatum corporis.
-                                 </Typography>
-                              </Box>
-                           )}
-                           {documentTab === 1 && (
-                              <Box>
-                                 <Button
-                                    endIcon={<DownloadIcon />}
-                                    color='secondary'
-                                    variant='contained'
-                                    sx={{ mr: 1 }}
-                                 >
-                                    Document Name
-                                 </Button>
-
-                                 <Typography variant='body2' sx={{ mt: 2 }}>
-                                    <strong>Description: </strong> Lorem ipsum,
-                                    dolor sit amet consectetur adipisicing elit.
-                                    Eius at suscipit aspernatur distinctio
-                                    magnam vero culpa iste? At ullam optio
-                                    laboriosam non culpa, dolores quos amet, ut
-                                    soluta voluptatum corporis.
-                                 </Typography>
-                              </Box>
-                           )}
                         </Box>
-                     </DocumentBox>
+                     )}
+
+                     <Box sx={{ width: '100%' }}>
+                        <TabPanel
+                           value={purchaseBookingTab}
+                           onChange={handleChange}
+                           centered
+                           sx={{
+                              background: '#F3F3F3',
+                              borderRadius: 1.5,
+                           }}
+                        >
+                           <Tab label='Purchase' />
+                           {product?.details?.booking_availability && (
+                              <Tab label='Book' />
+                           )}
+                        </TabPanel>
+                     </Box>
+                     {purchaseBookingTab === 0 && (
+                        <Box sx={{ mb: 3, mt: 5 }}>
+                           {product?.attributes
+                              ?.filter((attr) => {
+                                 console.log(attr);
+                                 return attr.attribute_values[0].views
+                                    .vendor_editable_purchase.visibility;
+                              })
+                              .map((attr) => (
+                                 <ProductDetailList
+                                    list={attr.name}
+                                    description={
+                                       '- ' + attr.attribute_values[1]?.value
+                                    }
+                                    sx={{ mb: 2 }}
+                                 />
+                              ))}
+                        </Box>
+                     )}
+
+                     {purchaseBookingTab === 1 && (
+                        <Box sx={{ mt: 3 }}>
+                           {product?.attributes
+                              ?.filter(
+                                 (attr) =>
+                                    attr.attribute_values[0].views
+                                       .vendor_editable_booking.visibility
+                              )
+                              .map((attr) => (
+                                 <ProductDetailList
+                                    list={attr.name}
+                                    description={
+                                       '- ' + attr.attribute_values[1]?.value
+                                    }
+                                    sx={{ mb: 2 }}
+                                 />
+                              ))}
+                           <Box
+                              sx={{
+                                 display: 'flex',
+                                 justifyContent: 'space-between',
+                                 alignItems: 'center',
+                                 my: 2,
+                              }}
+                           ></Box>
+                        </Box>
+                     )}
+
+                     {purchaseBookingTab === 0 && (
+                        <>
+                           {alreadyInCart &&
+                              alreadyInCart.purchase_type === 'purchase' && (
+                                 <Box
+                                    sx={{
+                                       display: 'flex',
+                                       alignItems: 'center',
+                                    }}
+                                 >
+                                    <Typography variant='h6' sx={{ mr: 5 }}>
+                                       Quantity
+                                    </Typography>
+
+                                    <QuantityControllerForPurchaseProduct
+                                       quantity={purchaseQuantity}
+                                       setQuantity={setPurchaseQuantity}
+                                       setQuantityError={setQuantityError}
+                                       quantityError={quantityError}
+                                       purchaseBookingTab={purchaseBookingTab}
+                                       product_slug={product?.product_slug}
+                                       cart_id={alreadyInCart.cart_id}
+                                    />
+                                 </Box>
+                              )}
+                        </>
+                     )}
+
+                     {purchaseBookingTab === 0 && (
+                        <>
+                           {(!alreadyInCart ||
+                              alreadyInCart.purchase_type !== 'purchase') && (
+                              <PrimaryButton
+                                 sx={{
+                                    width: '50%',
+                                    marginTop: '1rem',
+                                    mx: 'auto',
+                                 }}
+                                 onClick={addToCartHandler}
+                              >
+                                 Add To Cart
+                              </PrimaryButton>
+                           )}
+                        </>
+                     )}
+
+                     {purchaseBookingTab === 1 && (
+                        <>
+                           {alreadyInCart &&
+                              alreadyInCart.purchase_type === 'booking' && (
+                                 <Box
+                                    sx={{
+                                       display: 'flex',
+                                       alignItems: 'center',
+                                    }}
+                                 >
+                                    <Typography variant='h6' sx={{ mr: 5 }}>
+                                       Quantity
+                                    </Typography>
+
+                                    <QuantityControllerForPurchaseProduct
+                                       quantity={bookingQuantity}
+                                       setQuantity={setBookingQuantity}
+                                       setQuantityError={setQuantityError}
+                                       quantityError={quantityError}
+                                       purchaseBookingTab={purchaseBookingTab}
+                                       product_slug={product?.product_slug}
+                                       cart_id={alreadyInCart.cart_id}
+                                    />
+                                 </Box>
+                              )}
+                        </>
+                     )}
+
+                     {purchaseBookingTab === 1 && (
+                        <>
+                           {(!alreadyInCart ||
+                              alreadyInCart.purchase_type !== 'booking') && (
+                              <PrimaryButton
+                                 sx={{
+                                    width: '50%',
+                                    marginTop: '1rem',
+                                    mx: 'auto',
+                                 }}
+                                 onClick={addToCartHandler}
+                              >
+                                 Add To Cart
+                              </PrimaryButton>
+                           )}
+                        </>
+                     )}
+                  </PurchaseBookBox>
+               </Box>
+
+               {/*  =========  document section ========= */}
+               <Box
+                  sx={{
+                     background: '#fff',
+                     p: 2,
+                     mt: 6,
+                     borderRadius: '8px',
+                     boxShadow: '0px 4px 24px  0 rgba(0, 69, 184, 0.15)',
+                  }}
+               >
+                  <Typography
+                     sx={{
+                        fontSize: '1.2rem',
+                        fontWeight: 'bold',
+                        color: '#000',
+                        mb: 2,
+                     }}
+                  >
+                     Other Details
+                  </Typography>
+                  <Grid container>
+                     <Grid item xs={12} md={6} lg={3}>
+                        <Box>
+                           <TabPanelDoc
+                              value={documentTab}
+                              onChange={handleDocumentTabChange}
+                              orientation={
+                                 window.innerWidth < 600
+                                    ? 'horizontal'
+                                    : 'vertical'
+                              }
+                              variant={
+                                 window.innerWidth < 600 ? 'scrollable' : ''
+                              }
+                           >
+                              <Tab label='Product Document' />
+                              <Tab label='Warranty Card' />
+                              <Tab label='Booking Document' />
+                           </TabPanelDoc>
+                        </Box>
+                     </Grid>
+                     <Grid item md={6} lg={9}>
+                        <DocumentBox>
+                           <Box sx={{ p: 2 }}>
+                              {documentTab === 0 && (
+                                 <Box sx={{ width: { sm: '70%', xs: '100%' } }}>
+                                    {product?.documents?.length > 0 &&
+                                       product.documents
+                                          .filter(
+                                             (doc) => doc.doc_type === 'product'
+                                          )
+                                          .map(
+                                             ({
+                                                doc_name,
+                                                doc_id,
+                                                doc_url,
+                                             }) => (
+                                                <DownloadChip
+                                                   key={doc_id}
+                                                   label={doc_name}
+                                                   sx={{ mr: 1 }}
+                                                   onClick={() =>
+                                                      console.log('Clicked')
+                                                   }
+                                                   component='a'
+                                                   href={doc_url}
+                                                   target='_blank'
+                                                />
+                                             )
+                                          )}
+                                    <Typography variant='body1' sx={{ mt: 1 }}>
+                                       <strong>Description:</strong>{' '}
+                                       {product.product_description}
+                                    </Typography>
+                                 </Box>
+                              )}
+                              {documentTab === 1 && (
+                                 <Box>
+                                    {product.documents?.length > 0 &&
+                                       product.documents
+                                          .filter(
+                                             (doc) =>
+                                                doc.doc_type ===
+                                                   'vendor_warranty' ||
+                                                doc.doc_type === 'warranty'
+                                          )
+                                          .map(
+                                             ({
+                                                doc_name,
+                                                doc_id,
+                                                doc_url,
+                                             }) => (
+                                                <DownloadChip
+                                                   key={doc_id}
+                                                   label={doc_name}
+                                                   sx={{ mr: 1 }}
+                                                   onClick={() =>
+                                                      console.log('Clicked')
+                                                   }
+                                                   component='a'
+                                                   href={doc_url}
+                                                   target='_blank'
+                                                />
+                                             )
+                                          )}
+
+                                    <Typography variant='body1' sx={{ mt: 1 }}>
+                                       <strong>Description: </strong>{' '}
+                                       {product.my_warranty_details}
+                                    </Typography>
+                                 </Box>
+                              )}
+                              {documentTab === 2 && (
+                                 <Box>
+                                    {product.documents?.length > 0 &&
+                                       product.documents
+                                          .filter(
+                                             (doc) =>
+                                                doc.doc_type ===
+                                                'booking_details'
+                                          )
+                                          .map(
+                                             ({
+                                                doc_name,
+                                                doc_id,
+                                                doc_url,
+                                             }) => (
+                                                <DownloadChip
+                                                   key={doc_id}
+                                                   label={doc_name}
+                                                   sx={{ mr: 1 }}
+                                                   onClick={() =>
+                                                      console.log('Clicked')
+                                                   }
+                                                   component='a'
+                                                   href={doc_url}
+                                                   target='_blank'
+                                                />
+                                             )
+                                          )}
+
+                                    <Typography variant='body1' sx={{ mt: 2 }}>
+                                       <strong>Description: </strong>{' '}
+                                       {product.my_payment_policy}
+                                    </Typography>
+                                 </Box>
+                              )}
+                           </Box>
+                        </DocumentBox>
+                     </Grid>
+                  </Grid>
+               </Box>
+               {/*  =========  features section ========= */}
+
+               <ProductFeatures>
+                  <Box className='featuresHeader'>
+                     <Typography variant='h6'>Product Features</Typography>
+                     <Typography variant='h6' sx={{ color: '#2448FC' }}>
+                        View All
+                     </Typography>
                   </Box>
-               </Grid>
-            </Grid>
-         </Container>
-      </Box>
+                  <FeatureBox>
+                     {product.attributes?.length > 0 &&
+                        product.attributes
+                           .filter(
+                              (attribute) =>
+                                 attribute?.attribute_values[
+                                    attribute?.attribute_values?.length - 1
+                                 ]?.views?.product_feature_list?.visibility
+                           )
+                           .slice(0, 4)
+                           .map((attribute, index) => (
+                              <FeatureItemBox key={index} i={index}>
+                                 <Typography variant='body'>
+                                    {attribute.name}
+                                 </Typography>
+                                 <Typography variant='body'>
+                                    {attribute.attribute_values[0].value}
+                                 </Typography>
+                              </FeatureItemBox>
+                           ))}
+                  </FeatureBox>
+               </ProductFeatures>
+            </Container>
+         </Box>
+
+         <ProfileFooter />
+      </Fragment>
    );
 };
 

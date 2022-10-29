@@ -19,28 +19,30 @@ code {
 }
 
 ::-webkit-scrollbar {
-  width: 15px;
+  width: 5px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #d0d7d9;
+  background: #d0d7d900;
   border-radius: 5px;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #4d4d4d;
+  background: #ffd15b9e;
   border-radius: 5px;
+  width: 2px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
 .custom-scrollbar {
-  overflow-y: overlay;
-  overflow-x: overlay;
+  overflow-y: overlay !important;
+  overflow-x: overlay !important;
 }
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;

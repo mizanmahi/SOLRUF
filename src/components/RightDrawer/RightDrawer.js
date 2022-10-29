@@ -9,15 +9,30 @@ export default function RightDrawer({
    anchor,
    drawerStyles,
 }) {
-
    return (
       <React.Fragment>
          <Drawer
+            hideBackdrop={false}
             anchor={anchor}
             open={open}
             onClose={onClose}
+            
+            PaperProps={{
+               sx: { width: ['100%', 720], },
+               background: '#f3f3f3',
+               px: 0
+            }}
          >
-            <Box sx={{ maxWidth: '900px', width: '100%', p: 2, ...drawerStyles }}>
+            <Box
+               sx={{
+                  ...drawerStyles,
+                  maxWidth: '720px',
+                  width: '100%',
+                  px: [0,2],
+                  height:'100vh',
+                  overflow:'auto'
+               }}
+            >
                {children}
             </Box>
          </Drawer>

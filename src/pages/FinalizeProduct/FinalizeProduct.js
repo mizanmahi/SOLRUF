@@ -1,21 +1,23 @@
 import { Button, Container, Grid, styled, Typography } from '@mui/material';
 import React from 'react';
-import HorizontalBookProduct from '../../components/HorizontalBookProduct/HorizontalBookProduct';
-import BookProduct from '../../portfolio/BookProducts/BookProduct/BookProduct';
-import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import { Box } from '@mui/system';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
+import HorizontalProductCard from '../../components/HorizontalProductCard/HorizontalProductCard';
+import ProductCard from '../../components/ProductCard/ProductCard';
+import PrimaryButton from '../../components/Custom/PrimaryButton/PrimaryButton';
 
 const Wrapper = styled('div')(({ theme }) => ({}));
-const ButtonNext = styled(Button)(({ theme }) => ({
-   background: theme.palette.primary.main,
-   padding: '0.5rem 1rem',
-}));
-const FinalizeProduct = ({nextHandler}) => {
+
+const FinalizeProduct = ({ nextHandler }) => {
    return (
       <Wrapper>
-            <Button startIcon={<ArrowBackIcon />} sx={{color: '#000000', mt: 2}} onClick={() => nextHandler(1)}>Back</Button>
+         <Button
+            startIcon={<ArrowBackIcon />}
+            sx={{ color: '#000000', mt: 2 }}
+            onClick={() => nextHandler(1)}
+         >
+            Back
+         </Button>
 
          <Container maxWidth='xl'>
             <Grid container spacing={3} alignItems='center' sx={{ mt: 2 }}>
@@ -28,7 +30,7 @@ const FinalizeProduct = ({nextHandler}) => {
                   >
                      Card View
                   </Typography>
-                  <BookProduct noModal={true} style={{ margin: '0 auto' }} />
+                  {/* <ProductCard noModal={true} /> */}
                </Grid>
                <Grid item xs={12} md={7} lg={8}>
                   <Typography
@@ -40,56 +42,11 @@ const FinalizeProduct = ({nextHandler}) => {
                      List View
                   </Typography>
 
-                  <HorizontalBookProduct noModal={true} />
+                  {/* <HorizontalProductCard noModal={true} /> */}
                </Grid>
             </Grid>
-            <Box sx={{ my: 5 }}>
-               <Button
-                  endIcon={
-                     <ArrowRightAltIcon
-                        sx={{
-                           background: '#ffd05b',
-                           borderRadius: '50%',
-                           width: 50,
-                           height: 50,
-                           p: 1,
-                        }}
-                     />
-                  }
-                  variant='outlined'
-                  sx={{
-                     borderRadius: '50px',
-                     color: '#000',
-                     p: 0,
-                     '& .MuiButton-root': { padding: 0 },
-                     pl: 2,
-                     borderWidth: '2px',
-                     backgroundImage:
-                        'linear-gradient(to right, #ffd05b, #F3F3F3)',
-                     fontWeight: 600,
-                     mx: 'auto',
-                     display: 'flex',
-                  }}
-               >
-                  {' '}
-                  See detailed product description{' '}
-               </Button>
-
-               <ButtonNext
-                  sx={{
-                     color: '#4D4D4D',
-                     mx: 'auto',
-                     display: 'flex',
-                     minWidth: 250,
-                     maxWidth: 250,
-                     my: 5,
-                     '&:hover': {
-                        background: '#f7f7f7',
-                     },
-                  }}
-               >
-                  Finalize
-               </ButtonNext>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+               <PrimaryButton sx={{ px: 8, py: 1, mb: 2 }}>Next</PrimaryButton>
             </Box>
          </Container>
       </Wrapper>

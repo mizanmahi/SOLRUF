@@ -16,6 +16,7 @@ const persistConfig = {
   key: 'root',
   version: 1,
   storage,
+  blacklist: ['editProductAdmin', 'vendorProductList', 'utils']
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

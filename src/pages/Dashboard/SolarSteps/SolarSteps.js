@@ -1,12 +1,12 @@
-import { Container, styled } from '@mui/material';
-import { Box } from '@mui/system';
-import React from 'react';
-import BlogAccordionContent from '../../../components/BlogAccordionContent/BlogAccordionContent';
-import BlogIntroSection from '../../../components/BlogIntroSection/BlogIntroSection';
-import CustomAccordionForBlogs from '../../../components/CustomAccordionForBlogs/CustomAccordionForBlogs';
+import { Container, styled } from "@mui/material";
+import { Box } from "@mui/system";
+import React from "react";
+import BlogAccordionContent from "../../../components/BlogAccordionContent/BlogAccordionContent";
+import BlogIntroSection from "../../../components/BlogIntroSection/BlogIntroSection";
+import CustomAccordionForBlogs from "../../../components/CustomAccordionForBlogs/CustomAccordionForBlogs";
 
 const Wrapper = styled(Box)(({ theme }) => ({
-    background: '#F3F3F3'
+  background: "#F3F3F3",
 }));
 
 const text1 = `Once you have decided on your requirement for solar power system, it is time to identify a trustworthy solar company. We would advise you to do your research for the solar company you want to get a solar plant from because it is a product for a lifetime, and you would not want to run everywhere in case of a breakdown. Do check product warranties.
@@ -22,46 +22,56 @@ const text5 = `
 The equipment order will be based on the approved design finalized after your site assessment. This equipment order includes two major components: inverters and solar panels. Homeowners should consider price, aesthetics, durability and efficiency before choosing any brand. Once the equipment has been ordered, your home will be added to your installer’s queue. Once your equipment arrives at the installer’s headquarters, the permits are in hand, and your home is at the top of the queue, it’s time for installation.`;
 
 const SolarSteps = () => {
-   return (
-      <Wrapper>
-         <BlogIntroSection
-            title='What Steps do I Need to Take Before Solar power system Installation?'
-            sx={{ mb: 14 }}
-         />
-         <Container maxWidth='lg'>
-            <CustomAccordionForBlogs title='1. Choose Your Solar Developer' defaultExpanded={true}>
-               <BlogAccordionContent
-                  text={text1}
-                  imageUrl='https://i.ibb.co/wBDgwRm/image-12.png'
-               />
-            </CustomAccordionForBlogs>
-            <CustomAccordionForBlogs title='2. Site and Roof Assessment' sx={{my: 3}} defaultExpanded={true}>
-               <BlogAccordionContent
-                  text={text2}
-                  imageUrl='https://i.ibb.co/CK3VW0P/image-13.png'
-               />
-            </CustomAccordionForBlogs>
-            <CustomAccordionForBlogs title='3. Design Approval'>
-               <BlogAccordionContent
-                  text={text3}
-                  imageUrl='https://i.ibb.co/16MnXhn/image-14.png'
-               />
-            </CustomAccordionForBlogs>
-            <CustomAccordionForBlogs title='4. Permits & Paperwork' sx={{my: 3}}>
-               <BlogAccordionContent
-                  text={text4}
-                  imageUrl='https://i.ibb.co/QrPHh2M/image-15.png'
-               />
-            </CustomAccordionForBlogs>
-            <CustomAccordionForBlogs title='5. ordering solar system equipment' sx={{mb: 3}}>
-               <BlogAccordionContent
-                  text={text5}
-                  imageUrl='https://i.ibb.co/wBDgwRm/image-12.png'
-               />
-            </CustomAccordionForBlogs>
-         </Container>
-      </Wrapper>
-   );
+  return (
+    <Wrapper>
+      <BlogIntroSection
+        title="What Steps do I Need to Take Before Solar power system Installation?"
+        sx={{ mb: 14 }}
+      />
+      <Container maxWidth="lg" sx={{ padding: { sm: "20px", xs: 0 } }}>
+        <CustomAccordionForBlogs
+          title="1. Choose Your Solar Developer"
+          defaultExpanded={true}
+        >
+          <BlogAccordionContent
+            text={text1}
+            imageUrl="https://i.ibb.co/wBDgwRm/image-12.png"
+          />
+        </CustomAccordionForBlogs>
+        <CustomAccordionForBlogs
+          title="2. Site and Roof Assessment"
+          sx={{ my: 3 }}
+          defaultExpanded={true}
+        >
+          <BlogAccordionContent
+            text={text2}
+            imageUrl="https://i.ibb.co/CK3VW0P/image-13.png"
+          />
+        </CustomAccordionForBlogs>
+        <CustomAccordionForBlogs title="3. Design Approval">
+          <BlogAccordionContent
+            text={text3}
+            imageUrl="https://i.ibb.co/16MnXhn/image-14.png"
+          />
+        </CustomAccordionForBlogs>
+        <CustomAccordionForBlogs title="4. Permits & Paperwork" sx={{ my: 3 }}>
+          <BlogAccordionContent
+            text={text4}
+            imageUrl="https://i.ibb.co/QrPHh2M/image-15.png"
+          />
+        </CustomAccordionForBlogs>
+        <CustomAccordionForBlogs
+          title="5. ordering solar system equipment"
+          sx={{ mb: 3 }}
+        >
+          <BlogAccordionContent
+            text={text5}
+            imageUrl="https://i.ibb.co/wBDgwRm/image-12.png"
+          />
+        </CustomAccordionForBlogs>
+      </Container>
+    </Wrapper>
+  );
 };
 
 export default SolarSteps;

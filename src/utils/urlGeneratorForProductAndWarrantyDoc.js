@@ -10,3 +10,13 @@ export const generateUrl = (documents) => {
          };
       });
 };
+
+export const generatePrevUrl = (documents) => {
+   return documents.map((ele) => {
+      return {
+         name: ele.doc_name,
+         url: ele.doc_url,
+         type: ele.doc_type,
+      };
+   })
+};
