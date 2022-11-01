@@ -33,7 +33,7 @@ const ProductCardForMobileDrawer = ({
    product,
    showBook = true,
    showPurchase = true,
-
+   productId,
    productImage,
    sx,
    type,
@@ -41,6 +41,7 @@ const ProductCardForMobileDrawer = ({
    attributes,
 }) => {
    const navigate = useNavigate();
+   console.log(product)
 
    return (
       <Wrapper>
@@ -85,7 +86,7 @@ const ProductCardForMobileDrawer = ({
          {showPurchase && (
             <PrimaryButton
                fullWidth
-               onClick={() => navigate(`/products/${product?.product_slug}`)}
+               onClick={() => navigate(`/products/${productId}/${product?.product_slug || product?.productSlug}`)}
             >
                Product Details
             </PrimaryButton>

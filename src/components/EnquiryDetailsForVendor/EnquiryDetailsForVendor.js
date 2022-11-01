@@ -339,10 +339,11 @@ const EnquiryDetailsForVendor = ({
                               enquiryDetailsForVendor?.product?.other.attributes
                            }
                            showBook={false}
+                           productId={enquiryDetailsForVendor?.product?.other.productId}
                         />
                      ) : (
                         <HorizontalProductCardForEnquiryDrawer
-                           product={enquiryDetailsForVendor?.product?.other}
+                           product={enquiryDetailsForVendor?.product?.other} 
                            productImage={
                               enquiryDetailsForVendor?.product?.other
                                  .defaultImage
@@ -354,28 +355,14 @@ const EnquiryDetailsForVendor = ({
                            attributes={
                               enquiryDetailsForVendor?.product?.other.attributes
                            }
+                           productId={enquiryDetailsForVendor?.product?.other.productId}
                            sx={{ borderRadius: '25px' }}
                            type='enquiry'
                         />
                      )}
                   </Box>
 
-                  {/* <HorizontalProductCardForEnquiryDrawer
-                           product={enquiryDetailsForVendor?.product?.other}
-                           productImage={
-                              enquiryDetailsForVendor?.product?.other
-                                 .defaultImage
-                           }
-                           productName={
-                              enquiryDetailsForVendor?.product?.other
-                                 .productName
-                           }
-                           attributes={
-                              enquiryDetailsForVendor?.product?.other.attributes
-                           }
-                           sx={{ borderRadius: '25px' }}
-                           type='enquiry'
-                        /> */}
+                  
 
                   <TabsWrapper>
                      <SolrufTabPanel

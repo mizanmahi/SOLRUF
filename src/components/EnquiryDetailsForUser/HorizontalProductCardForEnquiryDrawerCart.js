@@ -1,18 +1,46 @@
 import { Box, Grid, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import useProduct from '../../hooks/useProduct';
+// import useProduct from '../../hooks/useProduct';
+import { axiAuth } from '../../utils/axiosInstance';
 import Loader from '../Loader/Loader';
 import ProductDetailList from '../ProductDetailList/ProductDetailList';
 import RoundedDarkButton from '../RoundedDarkButton/RoundedDarkButton';
 import { HorizontalProductCardWrapper } from './horizontalProductCardForEnquiryDrawer.style';
 
-
-
 const HorizontalProductCardForEnquiryDrawerCart = ({ productMeta, sx }) => {
-   const { product: {product}, productLoading, } = useProduct(
-      productMeta.vendor_slug,
-      productMeta.product_slug
-   );
+   // const { product: {product}, productLoading, } = useProduct(
+   //    productMeta.vendor_slug,
+   //    productMeta.product_slug
+   // );
+
+   const { productId, vendorId } = productMeta;
+
+   const [product, setProduct] = useState({});
+   const [productLoading, setProductLoading] = useState(true);
+   const [productError, setProductError] = useState('');
+
+   useEffect(() => {
+      const fetchProduct = async () => {
+         setProductLoading(true);
+         // if (!vendorSlug || !productSlug) return;
+         setProductError('');
+         try {
+            const { status, data } = await axiAuth(
+               `api/vendor/${vendorId}/products/${productId}`
+            );
+            if (status === 200) {
+               setProduct(data?.product);
+               setProductError('');
+               setProductLoading(false);
+            }
+         } catch (error) {
+            setProductLoading(false);
+            setProductError('Product not found');
+         }
+      };
+
+      fetchProduct();
+   }, [productId, vendorId]);
 
    console.log(product);
 
@@ -36,6 +64,9 @@ const HorizontalProductCardForEnquiryDrawerCart = ({ productMeta, sx }) => {
    if (productLoading) {
       return <Loader />;
    }
+   if (productError) {
+      return <Typography variant='h6'>{productError}</Typography>;
+   }
 
    return (
       <HorizontalProductCardWrapper sx={{ ...sx }}>
@@ -43,7 +74,7 @@ const HorizontalProductCardForEnquiryDrawerCart = ({ productMeta, sx }) => {
             <Grid item xs={12} sm={4}>
                <Box sx={{ width: '100%', height: '200px' }}>
                   <img
-                      src={product.default_image}
+                     src={product.default_image}
                      alt=''
                      style={{
                         maxWidth: '100%',

@@ -138,6 +138,7 @@ const SalesDetailsDrawer = ({
                               }
                               sx={{ borderRadius: '25px' }}
                               type='enquiry'
+                              productId={salesDrawerData?.others?.details[0]?.product_id}
                            />
                         </Box>
                         <Box
@@ -165,6 +166,7 @@ const SalesDetailsDrawer = ({
                                     ?.attributes
                               }
                               showBook={false}
+                              productId={salesDrawerData?.others?.details[0]?.product_id}
                            />
                         </Box>
                      </>

@@ -132,7 +132,7 @@ const ItemList = ({ item }) => {
 
    const gotoProductDetailsPage = () => {
       window.open(
-         `/purchase-product/${item.product_meta.vendor_slug}/${item.product_meta.product_slug}`,
+         `/purchase-product/${item?.product_meta?.vendor_slug}/${item.vendor_id}/${item?.product_meta?.product_slug}/${item.product_id}`,
          '_blank'
       );
    };
@@ -230,8 +230,7 @@ const ItemList = ({ item }) => {
                            item.quantity *
                            (item.product_meta.cgst / 100 +
                               item.product_meta.sgst / 100 +
-                              item.product_meta.igst / 100 +
-                              1)}
+                              item.product_meta.igst / 100)}
                      </Typography>
                   </PriceBox>
                   <Box
@@ -277,7 +276,7 @@ const ItemList = ({ item }) => {
                         />
                      </IconButton>
                   </Box>
-               </QuantityAndPriceBox  >
+               </QuantityAndPriceBox>
             </Box>
          </ItemDetailBox>
 

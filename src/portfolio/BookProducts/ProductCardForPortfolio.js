@@ -64,12 +64,13 @@ const ProductCardForPortfolio = ({
          }}
          exclusive={exclusive}
       >
-         {product.details.booking_availability && (
+         {product?.details?.booking_availability && (
             <img
                src='https://i.ibb.co/YNmYkyg/Frame-169-1.png'
                alt=''
                style={{
                   position: 'absolute',
+                  width: '70px',
                   top: '2%',
                   left: '2%',
                   zIndex: 10,

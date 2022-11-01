@@ -215,7 +215,7 @@ const EnquiryPage = () => {
                      attribute?.attribute_values[
                         attribute?.attribute_values?.length - 1
                      ]?.views?.procurement_card?.visibility
-               ),
+               ).slice(0, 4),
                defaultImage: productDetails?.default_image,
                productSlug: productDetails?.product_slug,
                productId: productDetails?.product_id,

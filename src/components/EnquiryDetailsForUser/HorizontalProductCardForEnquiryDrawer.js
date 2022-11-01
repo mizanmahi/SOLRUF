@@ -11,12 +11,13 @@ const HorizontalProductCardForEnquiryDrawer = ({
    type,
    productName,
    attributes,
+   productId,
 }) => {
    console.log('>>>>>>>>>>>>>>>>', product);
 
   
 
-   console.log({ attributes });
+   console.log({ productId });
 
    
 
@@ -42,7 +43,7 @@ const HorizontalProductCardForEnquiryDrawer = ({
                xs={12}
                sm={8}
                onClick={() =>
-                  window.open(`/products/${product?.productSlug}`, '_blank')
+                  window.open(`/products/${productId}/${product?.productSlug}`, '_blank')
                }
             >
                <Box>

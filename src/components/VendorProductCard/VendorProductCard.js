@@ -41,7 +41,7 @@ const VendorProductCard = ({
    nextHandler,
    setFetchProducts,
    showFormHandler,
-   vendorSlug,
+   vendorInfo,
 }) => {
    const { product_name = 'New Product' } = product || {};
    const dispatch = useDispatch();
@@ -168,14 +168,17 @@ const VendorProductCard = ({
       }
    };
 
+   console.log(product);
+
    const cardClickHandler = () => {
-      navigate(`/purchase-product/${vendorSlug}/${product.product_slug}`);
+      navigate(
+         `/purchase-product/${vendorInfo.slug}/${vendorInfo.id}/${product.product_slug}/${product.product_id}`
+      );
    };
 
    return (
       <>
          <ProductCardWrapper
-            onClick={cardClickHandler}
             sx={{
                ...sx,
             }}
@@ -197,13 +200,13 @@ const VendorProductCard = ({
                      position: 'absolute',
                      top: '2%',
                      left: '2%',
-                     zIndex: 1000,
+                     zIndex: 100,
                      width: '60px',
                   }}
                />
             )}
 
-            <Box sx={{ mb: 3, mt: 1.5 }}>
+            <Box sx={{ mb: 3, mt: 1.5 }} onClick={cardClickHandler}>
                <NameBox>
                   <Typography
                      variant='h6'

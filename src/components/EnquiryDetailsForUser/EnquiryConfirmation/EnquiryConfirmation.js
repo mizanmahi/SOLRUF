@@ -192,6 +192,11 @@ const EnquiryConfirmation = ({
                advance_payment: selectedBid?.bid?.advance_payment,
                product: {
                   ...enquiryDetails?.others?.product?.other,
+                  attributes:
+                     enquiryDetails?.others?.product?.other?.attributes.slice(
+                        0,
+                        4
+                     ),
                   enquiry_id: enquiryDetails.id,
                },
 

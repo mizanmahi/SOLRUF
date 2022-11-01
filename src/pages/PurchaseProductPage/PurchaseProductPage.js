@@ -16,7 +16,7 @@ import {
 } from './purchaseProduct.style';
 import SliderWIthThumbnail from '../../components/SliderWIthThumbnail/SliderWIthThumbnail';
 import { useParams } from 'react-router';
-import useProduct from '../../hooks/useProduct';
+// import useProduct from '../../hooks/useProduct';
 import Loader from '../../components/Loader/Loader';
 // import CopyTextVar from '../../components/CopyText/CopyTextVar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,14 +34,47 @@ const PurchaseProductPage = () => {
 
    const dispatch = useDispatch();
 
-   const { vendorSlug, productSlug: product_slug } = useParams();
+   const { vendorSlug, productSlug: product_slug, productId, vendorId } = useParams();
    const { cart } = useSelector((state) => state.cart);
 
-   const {
-      product: { product, vendor_portfolio },
-      productLoading,
-      // productError,
-   } = useProduct(vendorSlug, product_slug);
+   // const {
+   //    product: { product, vendor_portfolio },
+   //    productLoading,
+   //    productError,
+   // } = useProduct(vendorSlug, product_slug);
+
+   const [product, setProduct] = useState({});
+   const [productLoading, setProductLoading] = useState(true);
+   const [productError, setProductError] = useState('');
+   const [vendor_portfolio, setVendor_portfolio] = useState({});
+
+   
+
+   useEffect(() => {
+      const fetchProduct = async () => {
+         setProductLoading(true);
+         if (!vendorSlug || !product_slug) return;
+         setProductError('');
+         try {
+            const { status, data } = await axiAuth(
+               // `api/vendor/v2/${vendorSlug}/products/${productSlug}`
+               `api/vendor/${vendorId}/products/${productId}`
+            );
+            if (status === 200) {
+               setProduct(data.product);
+               setVendor_portfolio(data.vendor_portfolio);
+               setProductError('');
+               setProductLoading(false);
+            }
+         } catch (error) {
+            setProductLoading(false);
+            setProductError('Product not found');
+         }
+      };
+
+      fetchProduct();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [vendorId, productId]);
 
    // console.log(vendor_portfolio);
 
@@ -54,7 +87,7 @@ const PurchaseProductPage = () => {
          const exist = cart.find(
             (item) => item.product_meta.product_slug === product_slug
          );
-         console.log(exist);
+
          if (exist) {
             setAlreadyInCart(exist);
          }
@@ -98,6 +131,7 @@ const PurchaseProductPage = () => {
          setBookingQuantity(1);
       }
 
+      // function to detect the price of the product
       const detectPrice = () => {
          let price = 0;
          if (purchaseBookingTab === 0) {
@@ -128,7 +162,7 @@ const PurchaseProductPage = () => {
          item_price: detectPrice(),
          total_price: 0,
          product_id: product.product_id,
-         vendor_id: vendor_portfolio.vendor_id,
+         vendor_id: vendorId,
          product_meta: {
             vendor_name: vendor_portfolio.name,
             vendor_slug: vendor_portfolio.slug,
@@ -172,7 +206,11 @@ const PurchaseProductPage = () => {
       }
    }, [alreadyInCart]);
 
+   console.log({productError})
+
    if (productLoading) return <Loader />;
+   if (productError)
+      return <Box>Something went wrong while fetching the product</Box>;
 
    return (
       <Fragment>
@@ -184,7 +222,7 @@ const PurchaseProductPage = () => {
                         <SliderWIthThumbnail
                            images={
                               product.images.length > 0
-                                 ? product.images.map((img) => img.image_url)
+                                 ? product?.images?.map((img) => img.image_url)
                                  : shoes
                            }
                         />

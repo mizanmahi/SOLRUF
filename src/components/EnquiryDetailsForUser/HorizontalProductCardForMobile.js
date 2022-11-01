@@ -1,7 +1,8 @@
 import { styled, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-import useProduct from '../../hooks/useProduct';
+// import useProduct from '../../hooks/useProduct';
+import { axiAuth } from '../../utils/axiosInstance';
 import Loader from '../Loader/Loader';
 import ProductDetailList from '../ProductDetailList/ProductDetailList';
 import RoundedDarkButton from '../RoundedDarkButton/RoundedDarkButton';
@@ -33,10 +34,39 @@ const Flex = styled(Box)(({ theme }) => ({
 
 const HorizontalProductCardForMobile = ({ productMeta }) => {
    // const navigate = useNavigate();
-   const {
-      product: { product },
-      productLoading,
-   } = useProduct(productMeta.vendor_slug, productMeta.product_slug);
+   // const {
+   //    product: { product },
+   //    productLoading,
+   // } = useProduct(productMeta.vendor_slug, productMeta.product_slug);
+
+   const { productId, vendorId } = productMeta;
+
+   const [product, setProduct] = useState({});
+   const [productLoading, setProductLoading] = useState(true);
+   const [productError, setProductError] = useState('');
+
+   useEffect(() => {
+      const fetchProduct = async () => {
+         setProductLoading(true);
+         // if (!vendorSlug || !productSlug) return;
+         setProductError('');
+         try {
+            const { status, data } = await axiAuth(
+               `api/vendor/${vendorId}/products/${productId}`
+            );
+            if (status === 200) {
+               setProduct(data?.product);
+               setProductError('');
+               setProductLoading(false);
+            }
+         } catch (error) {
+            setProductLoading(false);
+            setProductError('Product not found');
+         }
+      };
+
+      fetchProduct();
+   }, [productId, vendorId]);
 
    console.log(product);
 
@@ -59,6 +89,9 @@ const HorizontalProductCardForMobile = ({ productMeta }) => {
 
    if (productLoading) {
       return <Loader />;
+   }
+   if (productError) {
+      return <Typography>{productError}</Typography>;
    }
    return (
       <Wrapper>
@@ -105,8 +138,8 @@ const HorizontalProductCardForMobile = ({ productMeta }) => {
             title='Check Details'
             style={{ marginTop: '1rem' }}
             onClick={() =>
-                window.open(`/products/${product?.product_slug}`, '_blank')
-             }
+               window.open(`/products/${product?.product_slug}`, '_blank')
+            }
          />
       </Wrapper>
    );

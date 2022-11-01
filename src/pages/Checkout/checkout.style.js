@@ -10,7 +10,7 @@ export const ItemContainer = styled('div')(({ theme }) => ({
 
 export const TotalPriceContainer = styled('div')(({ theme }) => ({
    background: theme.palette.primary.main,
-   display: 'flex',
+   // display: 'flex',
    alignItems: 'center',
    justifyContent: 'space-around',
    borderRadius: '8px',

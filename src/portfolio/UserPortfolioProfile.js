@@ -101,7 +101,7 @@ const UserPortfolioProfile = ({ noPadding }) => {
   const classes = useStyles({ openPhonePanel });
 
   const handleOpenBooking = () => {
-    setOpenBooking((openBooking) => !openBooking);
+    setOpenBooking((openBooking) => !openBooking.naothing.notheis);
   };
 
   const matches = useMediaQuery((theme) => theme.breakpoints.down("sm"));

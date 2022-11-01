@@ -314,6 +314,7 @@ const Checkout = () => {
 
    const [invoiceInfo, setInvoiceInfo] = useState(null);
    const invoiceTemplateRef = useRef(null);
+   const [loadingVendorData, setLoadingVendorData] = useState(false);
 
    const handlePrint = useReactToPrint({
       content: () => invoiceTemplateRef.current,
@@ -327,90 +328,97 @@ const Checkout = () => {
       let vendorData;
 
       try {
+         setLoadingVendorData(true);
          const { data } = await axiAuth(
             `api/share/${cart[0]?.product_meta?.vendor_slug}`
          );
          vendorData = data?.data?.portfolio;
+         setLoadingVendorData(false);
       } catch (error) {
+         setLoadingVendorData(false);
          toast.error('Error fetching vendor data!');
       }
 
       if (user) {
          if (!profileData?.business) {
-            // const inVoiceData = {
-            //    vendor: 'vendor',
-            //    due_in: '2',
-            //    buyer_name: userData?.name,
-            //    buyer_email: userData?.userEmail,
-            //    buyer_phone: userData?.phone,
-            //    buyer_address: userData?.address,
-            //    buyer_website: userData?.website || 'n/a',
-            //    buyer_gst: userData?.gst || 'n/a',
-            //    shipping_name: userData?.name,
-            //    shipping_address: userData?.address,
-            //    shipping_email: userData?.email,
-            //    shipping_phone: userData?.phone,
-            //    bank_beneficiary_name: 'SOLRUF INDIA PRIVATE LIMITED',
-            //    bank_name: 'Asd bank',
-            //    bank_account_no: '2223330058550280',
-            //    bank_ifsc: 'RATN0VAAPIS',
-            //    bank_upi_address: 'rpy.paysolrufsolrufguest@icici',
-            //    terms_conditions: [
-            //       'Please transfer the money to the bank account details given in the purchase order section.',
-            //       'Exact order amount should be transferred, or else the money will be refunded to source account.',
-            //       'As soon as payment is received by Solruf, we will confirm the order for further processing and delivery.',
-            //    ],
-            //    items: cart?.map((item) => {
-            //       return {
-            //          product_name: item?.product_meta?.product_name,
-            //          product_price: item?.item_price,
-            //          hsn_sac_code: item?.hsn_sac_code || 'n/a',
-            //          units_per_quantity: item?.quantity,
-            //          igst: 0,
-            //          cgst: 5,
-            //          sgst: 5,
-            //       };
-            //    }),
-            // };
-         }
+            const inVoiceData = {
+               vendor: vendorData,
+               due_in: '2',
+               buyer_name: userData?.name,
+               buyer_email: userData?.userEmail,
+               buyer_phone: userData?.phone,
+               buyer_address: userData?.address,
+               buyer_website: userData?.website || 'n/a',
+               buyer_gst: userData?.gst || 'n/a',
+               shipping_name: userData?.name,
+               shipping_address: userData?.address,
+               shipping_email: userData?.email,
+               shipping_phone: userData?.phone,
+               bank_beneficiary_name: 'SOLRUF INDIA PRIVATE LIMITED',
+               bank_name: 'Asd bank',
+               bank_account_no: '2223330058550280',
+               bank_ifsc: 'RATN0VAAPIS',
+               bank_upi_address: 'rpy.paysolrufsolrufguest@icici',
+               terms_conditions: [
+                  'Please transfer the money to the bank account details given in the purchase order section.',
+                  'Exact order amount should be transferred, or else the money will be refunded to source account.',
+                  'As soon as payment is received by Solruf, we will confirm the order for further processing and delivery.',
+               ],
+               items: cart?.map((item) => {
+                  return {
+                     product_name: item?.product_meta?.product_name,
+                     product_price: item?.item_price,
+                     hsn_sac_code: item?.hsn_sac_code || 'n/a',
+                     units_per_quantity: item?.quantity,
+                     igst: 0,
+                     cgst: 5,
+                     sgst: 5,
+                  };
+               }),
+            };
 
-         const inVoiceData = {
-            vendor: vendorData,
-            due_in: '2',
-            buyer_name: profileData?.business?.company_name,
-            buyer_email: profileData?.email,
-            buyer_phone: profileData?.mobile,
-            buyer_address: profileData?.business?.address,
-            buyer_website: profileData?.business?.website || 'n/a',
-            buyer_gst: profileData?.business?.gstin,
-            shipping_name: userData?.name,
-            shipping_address: userData?.address,
-            shipping_email: userData?.email,
-            shipping_phone: userData?.phone,
-            bank_beneficiary_name: 'SOLRUF INDIA PRIVATE LIMITED',
-            bank_name: 'Asd bank',
-            bank_account_no: '2223330058550280',
-            bank_ifsc: 'RATN0VAAPIS',
-            bank_upi_address: 'rpy.paysolrufsolrufguest@icici',
-            terms_conditions: [
-               'Please transfer the money to the bank account details given in the purchase order section.',
-               'Exact order amount should be transferred, or else the money will be refunded to source account.',
-               'As soon as payment is received by Solruf, we will confirm the order for further processing and delivery.',
-            ],
-            items: cart?.map((item) => {
-               return {
-                  product_name: item?.product_meta?.product_name,
-                  product_price: item?.item_price,
-                  hsn_sac_code: item?.hsn_sac_code || 'n/a',
-                  units_per_quantity: item?.quantity,
-                  igst: 0,
-                  cgst: 5,
-                  sgst: 5,
-               };
-            }),
-         };
-         setInvoiceInfo(inVoiceData);
+            setInvoiceInfo(inVoiceData);
+         } else {
+            console.log('comes hrere');
+            const inVoiceData = {
+               vendor: vendorData,
+               due_in: '2',
+               buyer_name: profileData?.business?.company_name,
+               buyer_email: profileData?.email,
+               buyer_phone: profileData?.mobile,
+               buyer_address: profileData?.business?.address,
+               buyer_website: profileData?.business?.website || 'n/a',
+               buyer_gst: profileData?.business?.gstin,
+               shipping_name: userData?.name,
+               shipping_address: userData?.address,
+               shipping_email: userData?.userEmail,
+               shipping_phone: userData?.phone,
+               bank_beneficiary_name: 'SOLRUF INDIA PRIVATE LIMITED',
+               bank_name: 'Asd bank',
+               bank_account_no: '2223330058550280',
+               bank_ifsc: 'RATN0VAAPIS',
+               bank_upi_address: 'rpy.paysolrufsolrufguest@icici',
+               terms_conditions: [
+                  'Please transfer the money to the bank account details given in the purchase order section.',
+                  'Exact order amount should be transferred, or else the money will be refunded to source account.',
+                  'As soon as payment is received by Solruf, we will confirm the order for further processing and delivery.',
+               ],
+               items: cart?.map((item) => {
+                  return {
+                     product_name: item?.product_meta?.product_name,
+                     product_price: item?.item_price,
+                     hsn_sac_code: item?.hsn_sac_code || 'n/a',
+                     units_per_quantity: item?.quantity,
+                     igst: 0,
+                     cgst: 5,
+                     sgst: 5,
+                  };
+               }),
+            };
+            setInvoiceInfo(inVoiceData);
+         }
       }
+
       if (!user) {
          const inVoiceData = {
             vendor: vendorData,
@@ -487,21 +495,72 @@ const Checkout = () => {
                      }}
                   >
                      <TotalPriceContainer>
-                        <Typography variant='h4' fontWeight={600}>
-                           Total Price
-                        </Typography>
-                        <Box>
-                           <Typography variant='h6' fontWeight={600}>
-                              Rs. 56,005
+                        <Box
+                           sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                           }}
+                        >
+                           <Typography variant='h4' fontWeight={600}>
+                              Total Price
                            </Typography>
-                           <Typography
-                              variant='h5'
-                              fontWeight={600}
-                              sx={{ color: 'primary.dark' }}
-                           >
-                              GST @5% at Rs. 75,000
+                           <Typography variant='h6' fontWeight={600}>
+                              Rs.{' '}
+                              {cart
+                                 .reduce(
+                                    (acc, item) =>
+                                       acc + item.item_price * item.quantity,
+                                    0
+                                 )
+                                 .toFixed(2)}
                            </Typography>
                         </Box>
+                        <Box>
+                           <Typography
+                              fontWeight={600}
+                              sx={{
+                                 color: 'primary.dark',
+                                 fontSize: ['1rem', '1.5rem', '1.7rem'],
+                              }}
+                           >
+                              Gst : Rs.{' '}
+                              {cart
+                                 .reduce(
+                                    (acc, item) =>
+                                       acc +
+                                       item.item_price *
+                                          item.quantity *
+                                          (item?.product_meta?.igst / 100 +
+                                             item?.product_meta?.cgst / 100 +
+                                             item?.product_meta?.sgst / 100),
+                                    0
+                                 )
+                                 .toFixed(2)}
+                           </Typography>
+                        </Box>
+                        <Typography
+                           fontWeight={600}
+                           sx={{
+                              color: 'primary.dark',
+                              fontSize: ['1rem', '1.5rem', '1.7rem'],
+                           }}
+                        >
+                           Grand Total: Rs.{' '}
+                           {cart
+                              .reduce(
+                                 (acc, item) =>
+                                    acc +
+                                    item.item_price *
+                                       item.quantity *
+                                       (1 +
+                                          item?.product_meta?.igst / 100 +
+                                          item?.product_meta?.cgst / 100 +
+                                          item?.product_meta?.sgst / 100),
+                                 0
+                              )
+                              .toFixed(2)}
+                        </Typography>
                      </TotalPriceContainer>
                      <StepperBox
                         sx={{
@@ -690,7 +749,9 @@ const Checkout = () => {
                                  </Typography>
                                  <PrimaryButton
                                     onClick={downloadInvoiceHandler}
-                                    disabled={cart.length === 0}
+                                    disabled={
+                                       cart.length === 0 || loadingVendorData
+                                    }
                                  >
                                     Download Invoice
                                  </PrimaryButton>
@@ -826,6 +887,9 @@ const Checkout = () => {
                                     variant='secondary'
                                     IconStart={SimCardDownloadIcon}
                                     onClick={downloadInvoiceHandler}
+                                    disabled={
+                                       cart.length === 0 || loadingVendorData
+                                    }
                                  >
                                     Download Invoice
                                  </PrimaryButton>

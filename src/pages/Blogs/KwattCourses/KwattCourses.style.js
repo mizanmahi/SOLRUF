@@ -8,6 +8,9 @@ export const KwattLogoWrapper = styled(Box)(({ theme }) => ({
   padding: "1rem",
   borderRadius: "14px",
   width: "20rem",
+  "@media (max-width: 900px)": {
+    width: "15rem",
+  },
   transform: "translateY(-4rem)",
 }));
 
@@ -38,4 +41,7 @@ export const PoweredByWrapper = styled(Box)(({ theme }) => ({
   alignItems: "center",
   right: "5px",
   bottom: "5px",
+  "@media (max-width: 600px)": {
+    left: "0%",
+  },
 }));

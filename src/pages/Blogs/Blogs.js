@@ -278,6 +278,47 @@ const Blogs = () => {
                     </Box>
                   </BlogCard>
                 </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  sx={{ display: "flex", justifyContent: "center" }}
+                >
+                  <BlogCard elevation="0">
+                    <Box>
+                      <CardMedia
+                        sx={{ borderRadius: "5px 5px 0 0" }}
+                        image="https://i.ibb.co/4m13WN5/Rectangle-155-1.png"
+                        component="img"
+                        height="350"
+                        alt="kwatt courses"
+                      />
+
+                      <CardContent>
+                        <Typography
+                          gutterBottom
+                          variant="h6"
+                          component="div"
+                          sx={{ fontWeight: "bold" }}
+                        >
+                          kWatt Solar Courses
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          kWatt Solutions Pvt Ltd is active in the renewable
+                          energy space, focusing on energy optimization and
+                          technology customization.
+                        </Typography>
+                      </CardContent>
+                    </Box>
+                    <Box sx={{ p: 2 }}>
+                      <YellowButton
+                        onClick={() => navigate("/blogs/kWatt-solar-courses")}
+                      >
+                        Read More
+                      </YellowButton>
+                    </Box>
+                  </BlogCard>
+                </Grid>
               </Grid>
             </BlogCards>
           </Grid>

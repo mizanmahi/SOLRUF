@@ -86,7 +86,7 @@ const UploadProjectBox = styled(Box)(({ theme }) => {
    };
 });
 
-const ProjectsPage = ({ vendorSlug }) => {
+const ProjectsPage = ({ vendorInfo }) => {
    // const [projects, setProjects] = useState([]);
    const [projectPage, setProjectPage] = useState(true);
    const [showForm, setShowForm] = useState(false);
@@ -371,7 +371,7 @@ const ProjectsPage = ({ vendorSlug }) => {
                                                    showFormHandler={
                                                       showFormHandler
                                                    }
-                                                   vendorSlug={vendorSlug}
+                                                   vendorInfo={vendorInfo}
                                                 />
                                              </Grid>
                                           )

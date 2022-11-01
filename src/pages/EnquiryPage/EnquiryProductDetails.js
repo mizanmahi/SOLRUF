@@ -43,7 +43,7 @@ const EnquiryProductDetails = ({ productDetails, showVendorName }) => {
                customers.
             </Typography>
             <Box>
-               <CopyText title={`products/${productDetails?.product_slug}`} />
+               <CopyText title={`products/${productDetails?.product_id}/${productDetails?.product_slug}`} />
             </Box>
          </Box>
 

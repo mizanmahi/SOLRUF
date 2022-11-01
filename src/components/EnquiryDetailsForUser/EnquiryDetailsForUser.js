@@ -126,7 +126,8 @@ const EnquiryDetailsForUser = ({ rightDrawerOpen, setRightDrawerOpen }) => {
         setBidDocs(res.data.documents);
       })
       .catch((err) => {});
-  }, [enquiryDetails.id, enquiryDetails?.others?.vendors]);
+      //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [cancelEnquiryConfirm, setCancelEnquiryConfirm] = useState({
     role: "Enquiry",
@@ -446,6 +447,7 @@ const EnquiryDetailsForUser = ({ rightDrawerOpen, setRightDrawerOpen }) => {
                   attributes={enquiryDetails?.others?.product?.other.attributes}
                   sx={{ borderRadius: "25px" }}
                   type="enquiry"
+                  productId={enquiryDetails?.others?.product?.other?.productId}
                 />
               )}
             </Box>

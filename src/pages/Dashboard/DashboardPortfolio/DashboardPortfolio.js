@@ -105,6 +105,8 @@ const DashboardPortfolio = () => {
       );
    }
 
+   console.log('portfolioData', portfolioData);
+
    return (
       <>
          {profileDataLoading ? (
@@ -156,7 +158,7 @@ const DashboardPortfolio = () => {
                   handleClose={handleAfterSalePolicyModalClose}
                   modalText={portfolioData.return_policy}
                />
-               <ProjectsPage vendorSlug={portfolioData?.slug} />
+               <ProjectsPage vendorInfo={{slug: portfolioData?.slug, id: portfolioData.user_id }}  />
             </Container>
          ) : (
             <Container maxWidth='xl' sx={{ mt: 2.5 }}>

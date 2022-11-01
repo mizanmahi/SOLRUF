@@ -8,8 +8,8 @@ const useProduct = (vendorSlug, productSlug) => {
 
    useEffect(() => {
       const fetchProduct = async () => {
-         if (!vendorSlug || !productSlug) return;
          setProductLoading(true);
+         if (!vendorSlug || !productSlug) return;
          setProductError('');
          try {
             const { status, data } = await axiAuth(
@@ -22,7 +22,7 @@ const useProduct = (vendorSlug, productSlug) => {
             }
          } catch (error) {
             setProductLoading(false);
-            setProductError(error.message);
+            setProductError('Product not found');
          }
       };
 

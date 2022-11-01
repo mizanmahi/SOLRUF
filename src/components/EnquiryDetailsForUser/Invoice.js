@@ -261,16 +261,16 @@ const Invoice = ({ quoteData, templateRef }) => {
                      padding={1}
                   >
                      <Typography variant='p' sx={{ fontWeight: '600' }}>
-                        {quoteData.shipping_name}
+                        {quoteData?.shipping_name}
                      </Typography>
                      <Typography variant='p' sx={{}}>
-                        Contact Number: {quoteData.buyer_phone}
+                        Contact Number: {quoteData?.shipping_phone}
                      </Typography>
                      <Typography variant='p' sx={{}}>
-                        Email: {quoteData.buyer_email}
+                        Email: {quoteData?.shipping_email}
                      </Typography>
                      <Typography variant='p' sx={{}}>
-                        Address: {quoteData.buyer_address}
+                        Address: {quoteData?.shipping_address}
                      </Typography>
                   </Box>
                </AboutBox>

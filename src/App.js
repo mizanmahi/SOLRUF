@@ -38,7 +38,7 @@ import { useSelector } from "react-redux";
 import Home from "./pages/home/home";
 import { removeCart } from "./redux/slices/cart/cartSlice";
 
-import ErrorPage from "./pages/404";
+// import ErrorPage from "./pages/404";
 import { ErrorBoundary } from "react-error-boundary";
 import Fallback from "./components/Fallback/Fallback";
 import NetworkFallback from "./components/Fallback/NetworkFallback";
@@ -55,6 +55,7 @@ import Loader from "./components/Loader/Loader";
 import AddProduct from "./pages/AdminPages/AddProduct/AddProduct";
 import ProductList from "./pages/AdminPages/ProductList/ProductList";
 import UpdateProduct from "./pages/AdminPages/AddProduct/UpdateProduct";
+import Parallax404 from "./pages/Parallax404/Parallax404";
 
 const CustomerLeads = lazy(() =>
   import("./pages/Dashboard/CustomerLeads/CustomerLeads")
@@ -281,7 +282,7 @@ function App() {
                 }
               />
               <Route
-                path="/purchase-product/:vendorSlug/:productSlug"
+                path="/purchase-product/:vendorSlug/:vendorId/:productSlug/:productId"
                 element={
                   <Layout dynamicHeader noFooter>
                     <Suspense fallback={<Loader />}>
@@ -664,7 +665,7 @@ function App() {
               {/*  product booking  */}
               <Route path="/product-booking" element={<ProductBooking />} />
               <Route
-                path="/products/:productSlug"
+                path="/products/:productId/:productSlug"
                 element={
                   <Layout noFooter>
                     <Suspense fallback={<Loader />}>
@@ -696,7 +697,7 @@ function App() {
               <Route path="/net" element={<NetworkFallback />} />
 
               <Route path="/pdp" element={<PurchaseDetailsPage />} />
-              <Route path="/*" element={<ErrorPage />} />
+              <Route path="/*" element={<Parallax404 />} />
             </Routes>
             <Toast />
             <LoginModal>
